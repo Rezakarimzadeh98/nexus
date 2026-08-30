@@ -8,33 +8,33 @@ Status legend: `PLANNED` · `ACTIVE` · `DONE` · `BLOCKED`
 ---
 
 ## Phase 0 — Lock & bootstrap
-**Status: ACTIVE** · Goal: identity, repo, docs, empty skeleton
+**Status: DONE** · Goal: identity, repo, docs, empty skeleton
 
 ### 0.1 Product lock
 - [x] One-line definition
 - [x] Non-goals + first wedge
 - [x] Proof question
-- [ ] CONTRIBUTING / SECURITY / CODE_OF_CONDUCT
-- [ ] Public GitHub repo + topics + description
+- [x] CONTRIBUTING / SECURITY / CODE_OF_CONDUCT
+- [x] Public GitHub repo + topics + description
 
 ### 0.2 Documentation spine
 - [x] PRODUCT.md
 - [x] ROADMAP.md (this file)
-- [ ] ARCHITECTURE.md
-- [ ] ADRs folder + ADR-0001 core concepts
+- [x] ARCHITECTURE.md
+- [x] ADRs folder + ADR-0001 core concepts
 - [ ] SHARE.md (launch copy later)
 
 ### 0.3 Repo skeleton
-- [ ] Directory tree (`core/`, `adapters/`, `api/`, `dashboard/`, …)
-- [ ] Root README with links to product + roadmap
-- [ ] `.gitignore`, license MIT, `pyproject.toml` stub
+- [x] Directory tree (`core/`, `adapters/`, `api/`, `dashboard/`, …)
+- [x] Root README with links to product + roadmap
+- [x] `.gitignore`, license MIT (`pyproject.toml` in Phase 1)
 
-**Exit:** Public repo exists; anyone reading README understands v0.1 vs enterprise.
+**Exit:** Public repo exists; anyone reading README understands v0.1 vs enterprise. ✅
 
 ---
 
 ## Phase 1 — Foundation
-**Status: PLANNED** · Goal: runnable empty platform
+**Status: ACTIVE** · Goal: runnable empty platform
 
 ### 1.1 Monorepo / package layout
 - [ ] Python package `nexus_core`

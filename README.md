@@ -4,7 +4,7 @@
 
 [Product lock](docs/PRODUCT.md) Â· [Roadmap to enterprise](docs/ROADMAP.md) Â· [Architecture](docs/ARCHITECTURE.md)
 
-> Status: **Phase 0** (lock & bootstrap). Not a production intelligence platform yet.
+> Status: **Phase 0 complete** · next **Phase 1 — Foundation**. Not a production intelligence platform yet.
 
 ## Why
 
