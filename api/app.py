@@ -387,6 +387,30 @@ def get_evaluation() -> dict[str, Any]:
         return snap["evaluation"]
 
 
+@app.get("/learning")
+def get_learning() -> dict[str, Any]:
+    try:
+        from sqlalchemy import func
+
+        from nexus_core.db.models import OutcomeRow
+        from nexus_core.learning.recalibrate import load_calibration
+
+        engine = make_engine(get_settings())
+        factory = make_session_factory(engine)
+        with factory() as session:
+            n = session.execute(select(func.count()).select_from(OutcomeRow)).scalar_one()
+        return {
+            "outcomes": n,
+            "calibration": load_calibration(),
+            "notes": "Affine recalibration from recorded blind-protocol outcomes.",
+        }
+    except Exception:
+        snap = _load_snapshot()
+        if snap is None or "learning" not in snap:
+            raise HTTPException(status_code=503, detail="Unavailable") from None
+        return snap["learning"]
+
+
 @app.get("/ui/status.json")
 def ui_status() -> FileResponse:
     path = _snapshot_path()

@@ -11,3 +11,4 @@ models:
     kind: statistical_baseline
     description: "P(event in horizon) = 1 - exp(-rate * horizon)"
     certainty: never
+    calibration: models/calibration.json

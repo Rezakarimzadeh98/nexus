@@ -19,8 +19,11 @@ def run_forecast(
     horizon_hours: float = 72.0,
     persist: bool = True,
     pattern_match_types: set[str] | None = None,
+    apply_learned_calibration: bool = True,
 ) -> dict[str, Any]:
     """Produce baseline forecasts + scenarios from event history."""
+    from nexus_core.learning.recalibrate import apply_calibration, load_calibration
+
     rows = list(
         session.execute(select(EventRow).order_by(EventRow.occurred_at.asc()).limit(2000)).scalars()
     )
@@ -28,6 +31,7 @@ def run_forecast(
         (row.id, row.type, row.occurred_at, row.observation_ids) for row in rows
     ]
     forecasts = build_forecasts(events, horizon_hours=horizon_hours, top_k=5)
+    calibration = load_calibration() if apply_learned_calibration else None
 
     velocity = 1.0
     snap = session.execute(
@@ -41,6 +45,18 @@ def run_forecast(
 
     matched = pattern_match_types or set()
     for forecast in forecasts:
+        if calibration and calibration.get("n", 0) > 0:
+            raw_p = forecast.probability
+            forecast.probability = round(apply_calibration(raw_p, calibration), 4)
+            forecast.metadata = {
+                **forecast.metadata,
+                "raw_probability": raw_p,
+                "calibration": {
+                    "a": calibration.get("a"),
+                    "b": calibration.get("b"),
+                    "method": calibration.get("method"),
+                },
+            }
         boost = 1.0 if forecast.question.event_type in matched else 0.0
         forecast.scenarios = build_scenarios(
             forecast, velocity=velocity, pattern_boost=boost
@@ -56,4 +72,5 @@ def run_forecast(
     return {
         "forecasts": [f.model_dump(mode="json") for f in forecasts],
         "counts": {"forecasts": len(forecasts)},
+        "calibration_applied": bool(calibration and calibration.get("n", 0) > 0),
     }

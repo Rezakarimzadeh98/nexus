@@ -229,24 +229,24 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 
 ---
 
-## Phase 10 — Learn (Feedback) = **v0.5**
-**Status: ACTIVE**
+## Phase 10 — Learn (Feedback) = **v0.5 product slice**
+**Status: DONE** · shipped in **v0.7.0**
 
 ### 10.1 Feedback engine
-- [ ] Store prediction vs actual outcome
-- [ ] Error analysis reports
-- [ ] Retrain / recalibrate hooks
+- [x] Store prediction vs actual outcome
+- [x] Error analysis reports
+- [x] Retrain / recalibrate hooks (affine calibration for hazard_rate_v1)
 
 ### 10.2 Self-evaluation loops
-- [ ] Scheduled scorecards
-- [ ] Regression gates in CI on benchmark subset
+- [x] Scheduled scorecards (live ingest learn + evaluate)
+- [x] Regression gates in CI on benchmark subset
 
-**Exit:** Models/thresholds improve from recorded outcomes.
+**Exit:** Models/thresholds improve from recorded outcomes. ✅
 
 ---
 
 ## Phase 11 — Platformize = **v1.0**
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 11.1 Generic core freeze
 - [ ] Stable public APIs / schemas (semver)

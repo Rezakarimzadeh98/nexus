@@ -126,3 +126,20 @@ class ForecastRow(Base):
     scenarios: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
+
+
+class OutcomeRow(Base):
+    __tablename__ = "outcomes"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    forecast_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), nullable=True, index=True
+    )
+    event_type: Mapped[str] = mapped_column(String(128), index=True)
+    probability: Mapped[float] = mapped_column(Float, default=0.0)
+    outcome: Mapped[int] = mapped_column(Integer, default=0)
+    horizon_hours: Mapped[float] = mapped_column(Float, default=72.0)
+    model_id: Mapped[str] = mapped_column(String(128), index=True)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    cutoff: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)

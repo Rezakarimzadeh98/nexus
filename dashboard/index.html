@@ -210,6 +210,7 @@
         Blind forecast protocol + detection metrics. Proxy labels — see docs/BENCHMARKS.md.
       </p>
       <div class="metrics" id="scorecard"></div>
+      <div class="feed" id="learning" style="margin-top:0.75rem"></div>
     </section>
 
     <section class="section">
@@ -315,6 +316,21 @@
         </g>`;
       }).join("");
       return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Entity neighborhood graph">${lines}${dots}</svg>`;
+    }
+
+    function renderLearning(learning) {
+      const L = learning || {};
+      const c = L.calibration || {};
+      return `<article class="pattern">
+        <h3>Learning / recalibration</h3>
+        <p>${esc(L.notes || "Calibration updates from recorded outcomes.")}</p>
+        <div class="chips">
+          <span class="chip">a ${esc(c.a ?? 1)}</span>
+          <span class="chip">b ${esc(c.b ?? 0)}</span>
+          <span class="chip">n ${esc(c.n ?? 0)}</span>
+          <span class="chip">${esc(c.method || "identity")}</span>
+        </div>
+      </article>`;
     }
 
     function renderScorecard(evaluation) {
@@ -457,6 +473,7 @@
         }
 
         document.getElementById("scorecard").innerHTML = renderScorecard(data.evaluation || {});
+        document.getElementById("learning").innerHTML = renderLearning(data.learning || {});
         document.getElementById("forecasts").innerHTML = renderForecasts(data.forecasts || []);
         document.getElementById("patterns").innerHTML = renderPatterns(
           data.patterns || [],

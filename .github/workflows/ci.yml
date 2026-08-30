@@ -58,6 +58,23 @@ jobs:
           python -m nexus_core.cli discover --min-count 1
           python -m nexus_core.cli forecast --horizon-hours 72
           python -m nexus_core.cli evaluate --horizon-hours 72 --out /tmp/nexus-eval.json
+          python -m nexus_core.cli learn --horizon-hours 72 --calibration-out models/calibration.json
           python -m nexus_core.cli export-live --out /tmp/nexus-status.json
           test -s /tmp/nexus-status.json
-          python -c "import json; d=json.load(open('/tmp/nexus-status.json')); assert 'evaluation' in d and 'forecasts' in d"
+          python -c "import json; d=json.load(open('/tmp/nexus-status.json')); assert 'evaluation' in d and 'learning' in d"
+      - name: Scorecard regression gate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          ev = json.loads(Path("/tmp/nexus-eval.json").read_text())
+          brier = ev.get("brier_score")
+          naive = ev.get("naive_brier_score")
+          # Soft gate: scorecard must be produced; if both present, model must not be wildly worse.
+          assert "signal_classification" in ev
+          if brier is not None and naive is not None:
+              assert brier <= naive + 0.35, (brier, naive)
+          cal = json.loads(Path("models/calibration.json").read_text())
+          assert "calibration" in cal
+          print("gate_ok", {"brier": brier, "naive": naive, "cal": cal["calibration"]})
+          PY

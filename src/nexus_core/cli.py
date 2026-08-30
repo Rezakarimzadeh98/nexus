@@ -14,6 +14,7 @@ from nexus_core.db.models import (
     EventRow,
     ForecastRow,
     ObservationRow,
+    OutcomeRow,
     PatternRow,
     RelationRow,
     SignalRow,
@@ -31,9 +32,10 @@ from nexus_core.discovery import run_discovery
 from nexus_core.evaluation import run_evaluation
 from nexus_core.extraction import extract_entities, extract_events, extract_relations
 from nexus_core.extraction.store import persist_entities, persist_events, persist_relations
-from nexus_core.forecast import run_forecast
+from nexus_core.forecast.run import run_forecast
 from nexus_core.ingestion import ingest_many
 from nexus_core.ingestion.registry import dump_sources_summary, load_sources
+from nexus_core.learning.run import run_learn
 from nexus_core.logging import configure_logging, get_logger
 from nexus_core.types import Observation
 
@@ -79,6 +81,10 @@ def main(argv: list[str] | None = None) -> int:
     eval_p.add_argument("--horizon-hours", type=float, default=72.0)
     eval_p.add_argument("--out", default=None, help="Optional JSON path for scorecard")
 
+    learn_p = sub.add_parser("learn", help="Record outcomes, error report, recalibrate")
+    learn_p.add_argument("--horizon-hours", type=float, default=72.0)
+    learn_p.add_argument("--calibration-out", default="models/calibration.json")
+
     sub.add_parser("status", help="Show version and database counters")
 
     args = parser.parse_args(argv)
@@ -115,6 +121,7 @@ def main(argv: list[str] | None = None) -> int:
                 ("signals", SignalRow),
                 ("patterns", PatternRow),
                 ("forecasts", ForecastRow),
+                ("outcomes", OutcomeRow),
             ):
                 count = session.execute(select(func.count()).select_from(model)).scalar_one()
                 print(f"{label}\t{count}")
@@ -279,6 +286,27 @@ def main(argv: list[str] | None = None) -> int:
             f"naive_brier={scorecard.get('naive_brier_score')}\t"
             f"f1={f1}\tfpr={scorecard.get('false_positive_rate')}\t"
             f"lead_h={(scorecard.get('detection_lead') or {}).get('mean_lead_hours')}"
+        )
+        return 0
+
+    if args.command == "learn":
+        engine = make_engine(settings)
+        factory = make_session_factory(engine)
+        with factory() as session:
+            learned = run_learn(
+                session,
+                horizon_hours=args.horizon_hours,
+                calibration_path=Path(args.calibration_out),
+                persist=True,
+            )
+            session.commit()
+        cal = learned.get("calibration") or {}
+        print(
+            f"version={__version__}\toutcomes={learned.get('outcomes_recorded', 0)}\t"
+            f"a={cal.get('a')}\tb={cal.get('b')}\t"
+            f"over={((learned.get('error_report') or {}).get('overconfident_count'))}\t"
+            f"under={((learned.get('error_report') or {}).get('underconfident_count'))}\t"
+            f"path={learned.get('calibration_path')}"
         )
         return 0
 

@@ -14,6 +14,7 @@ from nexus_core.db.models import (
     EventRow,
     ForecastRow,
     ObservationRow,
+    OutcomeRow,
     PatternRow,
     RelationRow,
     SignalRow,
@@ -23,6 +24,7 @@ from nexus_core.discovery.run import run_discovery
 from nexus_core.evaluation.run import run_evaluation
 from nexus_core.forecast.run import run_forecast
 from nexus_core.ids import utc_now
+from nexus_core.learning.recalibrate import load_calibration
 from nexus_core.types import Observation, Signal, StateSnapshot
 
 
@@ -83,6 +85,7 @@ def build_live_snapshot(
         "signals": session.execute(select(func.count()).select_from(SignalRow)).scalar_one(),
         "patterns": session.execute(select(func.count()).select_from(PatternRow)).scalar_one(),
         "forecasts": session.execute(select(func.count()).select_from(ForecastRow)).scalar_one(),
+        "outcomes": session.execute(select(func.count()).select_from(OutcomeRow)).scalar_one(),
     }
 
     recent_rows = list(
@@ -196,6 +199,13 @@ def build_live_snapshot(
                 "n_scored": (evaluation.get("blind_forecast") or {}).get("n_scored"),
                 "brier_score": (evaluation.get("blind_forecast") or {}).get("brier_score"),
             },
+        },
+        "learning": {
+            "calibration": load_calibration(),
+            "notes": (
+                "Run `nexus learn` to record outcomes and refresh affine calibration "
+                "applied by hazard_rate_v1."
+            ),
         },
     }
 

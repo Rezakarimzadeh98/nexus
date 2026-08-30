@@ -1,5 +1,5 @@
 {
-  "version": "0.6.0",
+  "version": "0.7.0",
   "generated_at": "2026-08-30T00:00:00+00:00",
   "maintainer": {
     "name": "Reza Karimzadeh",
@@ -22,7 +22,12 @@
   "signals": [],
   "recent_observations": [],
   "observations_by_id": {},
-  "graph": { "center_id": null, "depth": 0, "nodes": [], "edges": [] },
+  "graph": {
+    "center_id": null,
+    "depth": 0,
+    "nodes": [],
+    "edges": []
+  },
   "patterns": [],
   "pattern_matches": [],
   "forecasts": [],
@@ -34,5 +39,14 @@
     "signal_classification": {},
     "detection_lead": {},
     "notes": "Run nexus evaluate after ingest."
+  },
+  "learning": {
+    "calibration": {
+      "a": 1.0,
+      "b": 0.0,
+      "n": 0,
+      "method": "identity"
+    },
+    "notes": "Run nexus learn"
   }
 }

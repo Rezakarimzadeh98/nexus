@@ -1,0 +1,11 @@
+{
+  "model_id": "hazard_rate_v1",
+  "calibration": {
+    "a": 1.0,
+    "b": 0.0,
+    "n": 0,
+    "method": "identity",
+    "mean_predicted": 0.0,
+    "mean_outcome": 0.0
+  }
+}

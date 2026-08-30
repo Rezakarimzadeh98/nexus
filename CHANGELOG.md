@@ -2,6 +2,19 @@
 
 All notable changes to NEXUS are documented here.
 
+## [0.7.0] - 2026-08-30
+
+### Added
+
+- Phase 10 learning: outcome store, error analysis, affine recalibration (`models/calibration.json`)
+- CLI `nexus learn`; API `/learning`; live Learning panel
+- Forecasts apply learned calibration when present
+- CI scorecard regression soft-gate
+
+### Changed
+
+- Package version **0.7.0**
+
 ## [0.6.0] - 2026-08-30
 
 ### Added
