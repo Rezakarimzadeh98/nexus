@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+    },
+    "subject_id": {
+      "format": "uuid",
+      "title": "Subject Id",
+      "type": "string"
+    },
+    "predicate": {
+      "title": "Predicate",
+      "type": "string"
+    },
+    "object_id": {
+      "format": "uuid",
+      "title": "Object Id",
+      "type": "string"
+    },
+    "confidence": {
+      "default": 0.5,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "evidence_observation_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Evidence Observation Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "subject_id",
+    "predicate",
+    "object_id"
+  ],
+  "title": "Relation",
+  "type": "object"
+}

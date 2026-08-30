@@ -1,0 +1,33 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "observation_id": {
+      "format": "uuid",
+      "title": "Observation Id",
+      "type": "string"
+    },
+    "note": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Note"
+    },
+    "weight": {
+      "default": 1.0,
+      "minimum": 0.0,
+      "title": "Weight",
+      "type": "number"
+    }
+  },
+  "required": [
+    "observation_id"
+  ],
+  "title": "EvidenceRef",
+  "type": "object"
+}

@@ -1,0 +1,56 @@
+{
+  "$defs": {
+    "EntityKind": {
+      "enum": [
+        "person",
+        "organization",
+        "location",
+        "product",
+        "technology",
+        "asset",
+        "event",
+        "other"
+      ],
+      "title": "EntityKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/EntityKind"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "canonical_key": {
+      "title": "Canonical Key",
+      "type": "string"
+    },
+    "aliases": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Aliases",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "kind",
+    "name",
+    "canonical_key"
+  ],
+  "title": "Entity",
+  "type": "object"
+}

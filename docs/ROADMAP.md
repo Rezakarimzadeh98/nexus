@@ -35,34 +35,34 @@ Status legend: `PLANNED` · `ACTIVE` · `DONE` · `BLOCKED`
 ---
 
 ## Phase 1 — Foundation
-**Status: ACTIVE** · Goal: runnable empty platform
+**Status: DONE** · Goal: runnable empty platform
 
 ### 1.1 Monorepo / package layout
-- [ ] Python package `nexus_core`
-- [ ] Shared config (env, settings)
-- [ ] Logging + structured logs
-- [ ] ID / time utilities (UTC everywhere)
+- [x] Python package `nexus_core`
+- [x] Shared config (env, settings)
+- [x] Logging + structured logs
+- [x] ID / time utilities (UTC everywhere)
 
 ### 1.2 Persistence
-- [ ] PostgreSQL schema v1 (observations, entities, events, states, signals)
-- [ ] Migrations (Alembic or equivalent)
-- [ ] Docker Compose: Postgres (+ Redis optional)
+- [x] PostgreSQL schema v1 (observations, entities, events, states, signals)
+- [x] Migrations (Alembic or equivalent)
+- [x] Docker Compose: Postgres (+ Redis optional)
 
 ### 1.3 Quality gates
-- [ ] pytest + ruff/mypy baseline
-- [ ] GitHub Actions CI (lint, test, migrate smoke)
-- [ ] Pre-commit optional
+- [x] pytest + ruff/mypy baseline
+- [x] GitHub Actions CI (lint, test, migrate smoke)
+- [x] Pre-commit optional
 
 ### 1.4 Core types (contracts only)
-- [ ] Typed models: Observation, Entity, Event, Relation, StateSnapshot, Signal, EvidenceRef
-- [ ] Versioned JSON schemas for interchange
+- [x] Typed models: Observation, Entity, Event, Relation, StateSnapshot, Signal, EvidenceRef
+- [x] Versioned JSON schemas for interchange
 
-**Exit:** `docker compose up` + empty migrate + CI green on Hello World.
+**Exit:** `docker compose up` + empty migrate + CI green on Hello World. ✅ (Compose + Alembic in repo; CI runs migrate + DB ping)
 
 ---
 
 ## Phase 2 — Observe (Ingestion)
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 2.1 Ingestion engine
 - [ ] Source registry (id, type, schedule, credentials ref)

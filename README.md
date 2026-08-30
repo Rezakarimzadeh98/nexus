@@ -2,15 +2,16 @@
 
 **Universal Intelligence Engine**
 
-Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next ? and whether those claims hold up against the truth.
+Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next — and whether those claims hold up against the truth.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-Phase_1_Foundation-amber.svg)](docs/ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-Phase_2_Ingestion-0f766e.svg)](docs/ROADMAP.md)
+[![CI](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml)
 [![Discussions](https://img.shields.io/badge/discussions-join-1f6feb)](https://github.com/Rezakarimzadeh98/nexus/discussions)
 
 ![NEXUS social preview](docs/assets/social-preview.png)
 
-[Product](docs/PRODUCT.md) � [Roadmap](docs/ROADMAP.md) � [Architecture](docs/ARCHITECTURE.md) � [Share kit](docs/SHARE.md) � [Contributing](CONTRIBUTING.md)
+[Product](docs/PRODUCT.md) · [Roadmap](docs/ROADMAP.md) · [Architecture](docs/ARCHITECTURE.md) · [Share kit](docs/SHARE.md) · [Contributing](CONTRIBUTING.md)
 
 ---
 
@@ -20,23 +21,23 @@ There is too much data and not enough understanding.
 
 Sources disagree. Timelines drift. Dashboards count events but cannot say *what changed in the system*. Chat-style tools answer a prompt and forget state, provenance, and scorekeeping.
 
-**NEXUS is built for a different job:** keep a living model, detect meaningful change, show the evidence, forecast with probability ? then measure whether you were right.
+**NEXUS is built for a different job:** keep a living model, detect meaningful change, show the evidence, forecast with probability — then measure whether you were right.
 
 ---
 
 ## What NEXUS does
 
-```text
+`	ext
 10,000,000 data points
-        ?
-   entities � events � relations
-        ?
+        ↓
+   entities · events · relations
+        ↓
      living current state
-        ?
-   signals � patterns � forecasts
-        ?
-   evidence � outcomes � evaluation
-```
+        ↓
+   signals · patterns · forecasts
+        ↓
+   evidence · outcomes · evaluation
+`
 
 | Capability | Plain meaning |
 | --- | --- |
@@ -45,7 +46,7 @@ Sources disagree. Timelines drift. Dashboards count events but cannot say *what 
 | **Connect** | Entities, events, relationships |
 | **Detect** | State shifts, signals, anomalies with explanations |
 | **Discover** | Recurring patterns from history |
-| **Forecast** | Probabilistic scenarios ? never false certainty |
+| **Forecast** | Probabilistic scenarios — never false certainty |
 | **Verify** | Compare predictions to what actually happened |
 | **Learn** | Feed errors back into thresholds and models |
 
@@ -53,17 +54,17 @@ Sources disagree. Timelines drift. Dashboards count events but cannot say *what 
 
 ---
 
-## Not another ?ask the model? stack
+## Not another "ask the model" stack
 
-```text
+`	ext
 Wrong shape                         NEXUS shape
-???????????                         ???????????
-Data ? LLM ? Answer                 Data ? structured intelligence
-                                    ? state ? signals ? patterns
-                                    ? forecast ? outcome ? evaluation
-```
+───────────                         ───────────
+Data → LLM → Answer                 Data → structured intelligence
+                                    → state → signals → patterns
+                                    → forecast → outcome → evaluation
+`
 
-Large language models may help with extraction, classification, and explanation.  
+Large language models may help with extraction, classification, and explanation.
 They are **not** the product. Forecasting and anomaly detection ship with measurable baselines first.
 
 ---
@@ -72,15 +73,15 @@ They are **not** the product. Forecasting and anomaly detection ship with measur
 
 The engine only knows public concepts:
 
-`Entity` � `Event` � `Observation` � `Relationship` � `State` � `Signal` � `Pattern` � `Forecast` � `Evidence` � `Outcome`
+Entity · Event · Observation · Relationship · State · Signal · Pattern · Forecast · Evidence · Outcome
 
-Adapters plug domains on top ? news, finance, cyber, supply chain, open analytical research ? without rewriting the core.
+Adapters plug domains on top — news, finance, cyber, supply chain, open analytical research — without rewriting the core.
 
 ---
 
 ## What you will see (target experience)
 
-![Dashboard preview ? What Changed](docs/assets/dashboard-preview.png)
+![Dashboard preview — What Changed](docs/assets/dashboard-preview.png)
 
 A visitor should open the demo and immediately see:
 
@@ -92,11 +93,26 @@ Live dashboard ships in **Phase 6**. Until then this preview is the product nort
 
 ---
 
+## Quick start (Phase 1 foundation)
+
+Requirements: Python 3.11+, Docker Compose (for Postgres).
+
+`ash
+cp .env.example .env
+docker compose -f infrastructure/compose.yml up -d
+python -m pip install -e ".[dev]"
+alembic upgrade head
+pytest -q
+nexus
+`
+
+---
+
 ## Proof question
 
 > Can heterogeneous public data become a living model that detects important change earlier than naive counting, explains it with source-linked evidence, and produces forecasts we can score against reality?
 
-If benchmarks say yes, NEXUS is more than a demo ? it is a platform.
+If benchmarks say yes, NEXUS is more than a demo — it is a platform.
 
 ---
 
@@ -104,53 +120,50 @@ If benchmarks say yes, NEXUS is more than a demo ? it is a platform.
 
 | Phase | Name | You get |
 | ---: | --- | --- |
-| 0 | Lock & bootstrap | Product, architecture, public repo |
+| 0 | Lock and bootstrap | Product, architecture, public repo |
 | **1** | **Foundation** | Compose, CI, schemas, core types |
-| 2?3 | Observe & understand | Ingest + normalize (5?10 public sources) |
-| 4?5 | Connect & detect | Entities/events + **state / signal / anomaly** + API |
-| 6 | Show | Dashboard v0.1 ? What Changed + evidence |
-| 7?8 | Discover & forecast | Graph, patterns, scenarios, probabilities |
-| 9?10 | Verify & learn | Replay, Brier/lead-time, feedback loops |
+| 2–3 | Observe and understand | Ingest + normalize (5–10 public sources) |
+| 4–5 | Connect and detect | Entities/events + **state / signal / anomaly** + API |
+| 6 | Show | Dashboard v0.1 — What Changed + evidence |
+| 7–8 | Discover and forecast | Graph, patterns, scenarios, probabilities |
+| 9–10 | Verify and learn | Replay, Brier/lead-time, feedback loops |
 | 11 | Platform (v1.0) | Adapters, SDK, API, web platform |
 | 12 | Enterprise | Multi-tenant, SSO, SLA, scale, governance |
 
-Every checkbox lives in [`docs/ROADMAP.md`](docs/ROADMAP.md). The roadmap is updated as phases complete ? this README stays the public front door.
+Every checkbox lives in [docs/ROADMAP.md](docs/ROADMAP.md). The roadmap is updated as phases complete.
 
 ---
 
 ## Repository layout
 
-```text
+`	ext
 nexus/
-??? core/             # engines: ingestion ? feedback
-??? adapters/         # generic � finance � cyber � ?
-??? models/           # baselines and trained artifacts
-??? pipelines/        # orchestration
-??? api/              # HTTP API
-??? dashboard/        # web experience
-??? datasets/         # fixtures / public extracts
-??? benchmarks/       # evaluation definitions
-??? experiments/
-??? tests/
-??? docs/             # product, roadmap, architecture, assets
-??? infrastructure/   # Compose today � Helm later
-```
+├── src/nexus_core/   # package: types, config, db
+├── core/             # engines (filled in later phases)
+├── adapters/
+├── api/
+├── dashboard/
+├── alembic/          # migrations
+├── infrastructure/   # Compose
+├── docs/
+└── tests/
+`
 
 ---
 
 ## Status (honest)
 
-**Phase 0 is complete. Phase 1 (Foundation) is next.**
+**Phase 1 (Foundation) is complete. Phase 2 (Ingestion) is next.**
 
-NEXUS is not yet a production intelligence cloud. Stars and forks help; reproducible pipelines and public benchmarks matter more.
+NEXUS is not yet a production intelligence cloud. Stars help; reproducible pipelines and public benchmarks matter more.
 
 ---
 
 ## Non-goals
 
-- Operational military targeting or action guidance  
-- Treating ?prompt ? answer? as the whole product  
-- Declaring the future as certain  
+- Operational military targeting or action guidance
+- Treating "prompt → answer" as the whole product
+- Declaring the future as certain
 
 ---
 
@@ -159,12 +172,9 @@ NEXUS is not yet a production intelligence cloud. Stars and forks help; reproduc
 - Read the [product lock](docs/PRODUCT.md) and [roadmap](docs/ROADMAP.md)
 - Open a [Discussion](https://github.com/Rezakarimzadeh98/nexus/discussions) with a domain or data problem
 - Take a roadmap checkbox and open a focused PR ([Contributing](CONTRIBUTING.md))
-- Star the repo if the proof question matters to you
 
-Ready-to-post launch text: [`docs/SHARE.md`](docs/SHARE.md)
-
----
+Launch copy: [docs/SHARE.md](docs/SHARE.md)
 
 ## License
 
-MIT � [Reza Karimzadeh](https://github.com/Rezakarimzadeh98)
+MIT © [Reza Karimzadeh](https://github.com/Rezakarimzadeh98)
