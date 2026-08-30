@@ -9,6 +9,15 @@ from nexus_core import __version__
 from nexus_core.config import get_settings
 from nexus_core.db import make_engine, make_session_factory
 from nexus_core.db.models import EntityRow, EventRow, ObservationRow, RelationRow, SignalRow
+from nexus_core.detection import (
+    build_live_snapshot,
+    compute_state_snapshots,
+    detect_signals,
+    persist_signals,
+    persist_states,
+    write_live_snapshot,
+)
+from nexus_core.detection.export import observations_from_rows
 from nexus_core.extraction import extract_entities, extract_events, extract_relations
 from nexus_core.extraction.store import persist_entities, persist_events, persist_relations
 from nexus_core.ingestion import ingest_many
@@ -36,6 +45,14 @@ def main(argv: list[str] | None = None) -> int:
         help="Extract entities/events/relations from DB observations",
     )
     extract_p.add_argument("--limit", type=int, default=500)
+
+    detect_p = sub.add_parser("detect", help="Compute state snapshots and What-Changed signals")
+    detect_p.add_argument("--limit", type=int, default=2000)
+    detect_p.add_argument("--velocity-threshold", type=float, default=1.5)
+    detect_p.add_argument("--min-short-volume", type=float, default=2.0)
+
+    export_p = sub.add_parser("export-live", help="Write public live snapshot JSON")
+    export_p.add_argument("--out", default="docs/live/status.json")
 
     sub.add_parser("status", help="Show version and database counters")
 
@@ -138,6 +155,48 @@ def main(argv: list[str] | None = None) -> int:
             f"version={__version__}\tobservations={len(observations)}\t"
             f"entities_new={e_n}\tevents_new={ev_n}\trelations_new={r_n}"
         )
+        return 0
+
+    if args.command == "detect":
+        engine = make_engine(settings)
+        factory = make_session_factory(engine)
+        with factory() as session:
+            obs_rows = list(
+                session.execute(
+                    select(ObservationRow)
+                    .order_by(ObservationRow.fetched_at.desc())
+                    .limit(args.limit)
+                )
+                .scalars()
+                .all()
+            )
+            observations = observations_from_rows(obs_rows)
+            snapshots = compute_state_snapshots(observations)
+            signals = detect_signals(
+                snapshots,
+                observations,
+                velocity_threshold=args.velocity_threshold,
+                min_short_volume=args.min_short_volume,
+            )
+            sn = persist_states(session, snapshots)
+            sg = persist_signals(session, signals)
+            session.commit()
+        print(
+            f"version={__version__}\tobservations={len(observations)}\t"
+            f"states={sn}\tsignals={sg}"
+        )
+        return 0
+
+    if args.command == "export-live":
+        engine = make_engine(settings)
+        factory = make_session_factory(engine)
+        out = Path(args.out)
+        with factory() as session:
+            # Prefer freshly computed in-memory if we re-run detect first;
+            # export uses whatever is already persisted.
+            payload = build_live_snapshot(session)
+            write_live_snapshot(out, payload)
+        print(f"wrote\t{out}\tsignals={len(payload.get('signals', []))}")
         return 0
 
     parser.print_help()

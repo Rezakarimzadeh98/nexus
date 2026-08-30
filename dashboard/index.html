@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NEXUS — What Changed</title>
+  <meta name="description" content="NEXUS live demo: public-source intelligence, state, and signals with evidence." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg0: #0c1210;
+      --bg1: #13201a;
+      --ink: #e8f0ea;
+      --muted: #8aa396;
+      --line: rgba(232, 240, 234, 0.12);
+      --accent: #3d9b7a;
+      --warn: #d4a24c;
+      --hot: #c45c4a;
+      --card: rgba(19, 32, 26, 0.72);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "DM Sans", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(61, 155, 122, 0.22), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(212, 162, 76, 0.12), transparent 50%),
+        linear-gradient(165deg, var(--bg0), var(--bg1) 55%, #0a100e);
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    header { margin-bottom: 2rem; animation: rise 0.7s ease both; }
+    .brand {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: clamp(2.4rem, 6vw, 3.6rem);
+      letter-spacing: 0.02em;
+      margin: 0;
+      line-height: 1;
+    }
+    .tag {
+      margin: 0.6rem 0 0;
+      color: var(--muted);
+      max-width: 36rem;
+      font-size: 1.05rem;
+    }
+    .meta {
+      display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem;
+      margin-top: 1.1rem; color: var(--muted); font-size: 0.9rem;
+    }
+    .meta strong { color: var(--ink); font-weight: 600; }
+    .counters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 0.75rem;
+      margin: 1.75rem 0 2rem;
+      animation: rise 0.8s 0.08s ease both;
+    }
+    .counter {
+      border: 1px solid var(--line);
+      background: var(--card);
+      padding: 0.9rem 1rem;
+      backdrop-filter: blur(8px);
+    }
+    .counter .n {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.8rem;
+      display: block;
+    }
+    .counter .l { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    h2 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-weight: 400;
+      font-size: 1.7rem;
+      margin: 0 0 0.75rem;
+    }
+    .section { margin-top: 2rem; animation: rise 0.85s 0.12s ease both; }
+    .feed { display: grid; gap: 0.75rem; }
+    .signal {
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent);
+      background: var(--card);
+      padding: 1rem 1.1rem;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .signal:hover { transform: translateY(-1px); border-color: rgba(61,155,122,0.45); }
+    .signal.high { border-left-color: var(--hot); }
+    .signal.medium { border-left-color: var(--warn); }
+    .signal h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+    .signal p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.7rem; }
+    .chip {
+      font-size: 0.75rem;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      padding: 0.15rem 0.45rem;
+    }
+    .obs {
+      border-bottom: 1px solid var(--line);
+      padding: 0.7rem 0;
+      font-size: 0.92rem;
+    }
+    .obs a { color: var(--accent); text-decoration: none; }
+    .obs a:hover { text-decoration: underline; }
+    .obs .src { color: var(--muted); font-size: 0.8rem; }
+    footer {
+      margin-top: 3rem; color: var(--muted); font-size: 0.85rem;
+      border-top: 1px solid var(--line); padding-top: 1rem;
+    }
+    footer a { color: var(--ink); }
+    .err { color: var(--hot); }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="brand">NEXUS</p>
+      <p class="tag">Live public feeds → living state → What Changed, with evidence.</p>
+      <div class="meta" id="meta">Loading live snapshot…</div>
+    </header>
+
+    <div class="counters" id="counters"></div>
+
+    <section class="section">
+      <h2>What Changed?</h2>
+      <div class="feed" id="signals"></div>
+    </section>
+
+    <section class="section">
+      <h2>Recent observations</h2>
+      <div id="obs"></div>
+    </section>
+
+    <footer>
+      Open source ·
+      <a href="https://github.com/Rezakarimzadeh98/nexus">github.com/Rezakarimzadeh98/nexus</a>
+      · snapshot refreshes from scheduled live ingest
+    </footer>
+  </div>
+  <script>
+    async function load() {
+      const meta = document.getElementById("meta");
+      try {
+        const res = await fetch("./status.json", { cache: "no-store" });
+        if (!res.ok) throw new Error("status.json missing");
+        const data = await res.json();
+        meta.innerHTML =
+          `<span><strong>v${data.version}</strong></span>` +
+          `<span>generated <strong>${new Date(data.generated_at).toUTCString()}</strong></span>`;
+
+        const counts = data.counts || {};
+        const order = ["observations", "entities", "events", "signals", "relations"];
+        document.getElementById("counters").innerHTML = order.map((k) => {
+          const n = counts[k] ?? 0;
+          return `<div class="counter"><span class="n">${n}</span><span class="l">${k}</span></div>`;
+        }).join("");
+
+        const signals = data.signals || [];
+        const sigEl = document.getElementById("signals");
+        if (!signals.length) {
+          sigEl.innerHTML = `<div class="signal"><p>No velocity spikes this window — baselines are forming from live feeds.</p></div>`;
+        } else {
+          sigEl.innerHTML = signals.map((s) => {
+            const sev = (s.severity || "low").toLowerCase();
+            const why = (s.metadata && s.metadata.why) || s.summary || "";
+            const conf = typeof s.confidence === "number" ? s.confidence.toFixed(2) : "—";
+            const ratio = typeof s.change_ratio === "number" ? s.change_ratio.toFixed(2) + "x" : "—";
+            const ev = (s.evidence || []).slice(0, 3).map((e) =>
+              `<span class="chip">${e.note || e.observation_id}</span>`
+            ).join("");
+            return `<article class="signal ${sev}">
+              <h3>${s.title}</h3>
+              <p>${why}</p>
+              <div class="chips">
+                <span class="chip">${sev}</span>
+                <span class="chip">confidence ${conf}</span>
+                <span class="chip">Δ ${ratio}</span>
+                <span class="chip">${s.scope_key}</span>
+                ${ev}
+              </div>
+            </article>`;
+          }).join("");
+        }
+
+        const obs = data.recent_observations || [];
+        document.getElementById("obs").innerHTML = obs.slice(0, 12).map((o) => {
+          const title = o.title || "(untitled)";
+          const link = o.url ? `<a href="${o.url}" rel="noopener" target="_blank">${title}</a>` : title;
+          return `<div class="obs">${link}<div class="src">${o.source_id}</div></div>`;
+        }).join("") || `<p class="err">No observations in snapshot.</p>`;
+      } catch (e) {
+        meta.innerHTML = `<span class="err">Could not load live status. Run live ingest or open after Pages deploy.</span>`;
+      }
+    }
+    load();
+  </script>
+</body>
+</html>

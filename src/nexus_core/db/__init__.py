@@ -11,7 +11,11 @@ from nexus_core.config import Settings, get_settings
 
 def make_engine(settings: Settings | None = None) -> Engine:
     cfg = settings or get_settings()
-    return create_engine(cfg.database_url, pool_pre_ping=True)
+    return create_engine(
+        cfg.database_url,
+        pool_pre_ping=True,
+        connect_args={"connect_timeout": 3},
+    )
 
 
 def make_session_factory(engine: Engine) -> sessionmaker[Session]:

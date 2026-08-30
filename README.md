@@ -2,17 +2,19 @@
 
 **Universal Intelligence Engine**
 
-Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next — and whether those claims hold up against the truth.
+Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next - and whether those claims hold up against the truth.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v0.2.0-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v0.2.0)
+[![Version](https://img.shields.io/badge/version-v0.3.0-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v0.3.0)
 [![CI](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-Phase_4_Connect-d97706.svg)](docs/ROADMAP.md)
+[![Live ingest](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml)
+[![Status](https://img.shields.io/badge/status-Phase_6_Show-0f766e.svg)](docs/ROADMAP.md)
+[![Live demo](https://img.shields.io/badge/live-demo-3d9b7a)](https://rezakarimzadeh98.github.io/nexus/)
 [![Discussions](https://img.shields.io/badge/discussions-join-1f6feb)](https://github.com/Rezakarimzadeh98/nexus/discussions)
 
 ![NEXUS social preview](docs/assets/social-preview.png)
 
-[Product](docs/PRODUCT.md) · [Roadmap](docs/ROADMAP.md) · [Architecture](docs/ARCHITECTURE.md) · [Share kit](docs/SHARE.md) · [References](docs/REFERENCES.md) · [Contributing](CONTRIBUTING.md)
+[Product](docs/PRODUCT.md) | [Roadmap](docs/ROADMAP.md) | [Architecture](docs/ARCHITECTURE.md) | [Live snapshot](docs/live/README.md) | [Share kit](docs/SHARE.md) | [References](docs/REFERENCES.md) | [Contributing](CONTRIBUTING.md)
 
 ---
 
@@ -22,7 +24,7 @@ There is too much data and not enough understanding.
 
 Sources disagree. Timelines drift. Dashboards count events but cannot say *what changed in the system*. Chat-style tools answer a prompt and forget state, provenance, and scorekeeping.
 
-**NEXUS is built for a different job:** keep a living model, detect meaningful change, show the evidence, forecast with probability — then measure whether you were right.
+**NEXUS is built for a different job:** keep a living model, detect meaningful change, show the evidence, forecast with probability - then measure whether you were right.
 
 ---
 
@@ -30,14 +32,14 @@ Sources disagree. Timelines drift. Dashboards count events but cannot say *what 
 
 `	ext
 10,000,000 data points
-        ↓
-   entities · events · relations
-        ↓
+        |
+   entities / events / relations
+        |
      living current state
-        ↓
-   signals · patterns · forecasts
-        ↓
-   evidence · outcomes · evaluation
+        |
+   signals / patterns / forecasts
+        |
+   evidence / outcomes / evaluation
 `
 
 | Capability | Plain meaning |
@@ -47,7 +49,7 @@ Sources disagree. Timelines drift. Dashboards count events but cannot say *what 
 | **Connect** | Entities, events, relationships |
 | **Detect** | State shifts, signals, anomalies with explanations |
 | **Discover** | Recurring patterns from history |
-| **Forecast** | Probabilistic scenarios — never false certainty |
+| **Forecast** | Probabilistic scenarios - never false certainty |
 | **Verify** | Compare predictions to what actually happened |
 | **Learn** | Feed errors back into thresholds and models |
 
@@ -55,14 +57,32 @@ Sources disagree. Timelines drift. Dashboards count events but cannot say *what 
 
 ---
 
+## Live demo (online)
+
+Public feeds (USGS, NASA EONET, arXiv, NVD, WHO) are ingested on a schedule. The Action computes **state + signals**, then publishes a static **What Changed** page:
+
+**https://rezakarimzadeh98.github.io/nexus/**
+
+Snapshot JSON: [docs/live/status.json](docs/live/status.json) (refreshed on each live run / Pages deploy).
+
+Self-host the API:
+
+`ash
+pip install -e ".[api]"
+uvicorn api.app:app --reload --port 8080
+# GET /health /live /signals /state/global /observations/{id}
+`
+
+---
+
 ## Not another "ask the model" stack
 
 `	ext
 Wrong shape                         NEXUS shape
-───────────                         ───────────
-Data → LLM → Answer                 Data → structured intelligence
-                                    → state → signals → patterns
-                                    → forecast → outcome → evaluation
+-----------                         -----------
+Data -> LLM -> Answer               Data -> structured intelligence
+                                    -> state -> signals -> patterns
+                                    -> forecast -> outcome -> evaluation
 `
 
 Large language models may help with extraction, classification, and explanation.
@@ -74,38 +94,25 @@ They are **not** the product. Forecasting and anomaly detection ship with measur
 
 The engine only knows public concepts:
 
-Entity · Event · Observation · Relationship · State · Signal · Pattern · Forecast · Evidence · Outcome
+Entity / Event / Observation / Relationship / State / Signal / Pattern / Forecast / Evidence / Outcome
 
-Adapters plug domains on top — news, finance, cyber, supply chain, open analytical research — without rewriting the core.
-
----
-
-## What you will see (target experience)
-
-![Dashboard preview — What Changed](docs/assets/dashboard-preview.png)
-
-A visitor should open the demo and immediately see:
-
-- live counters (data, entities, events, signals)
-- a **What Changed?** feed
-- one click into **evidence**, timeline, related entities, and forecast context
-
-Live dashboard ships in **Phase 6**. Until then this preview is the product north star.
+Adapters plug domains on top - news, finance, cyber, supply chain, open analytical research - without rewriting the core.
 
 ---
 
-## Quick start (Phase 1 foundation)
+## Quick start
 
 Requirements: Python 3.11+, Docker Compose (for Postgres).
 
 `ash
 cp .env.example .env
 docker compose -f infrastructure/compose.yml up -d
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,api]"
 alembic upgrade head
 pytest -q
 python -m nexus_core.cli ingest --dry-run
-python -m nexus_core.cli ingest --dry-run --source-id usgs-significant-month
+python -m nexus_core.cli detect
+python -m nexus_core.cli export-live
 `
 
 ---
@@ -114,7 +121,7 @@ python -m nexus_core.cli ingest --dry-run --source-id usgs-significant-month
 
 > Can heterogeneous public data become a living model that detects important change earlier than naive counting, explains it with source-linked evidence, and produces forecasts we can score against reality?
 
-If benchmarks say yes, NEXUS is more than a demo — it is a platform.
+If benchmarks say yes, NEXUS is more than a demo - it is a platform.
 
 ---
 
@@ -123,39 +130,22 @@ If benchmarks say yes, NEXUS is more than a demo — it is a platform.
 | Phase | Name | You get |
 | ---: | --- | --- |
 | 0 | Lock and bootstrap | Product, architecture, public repo |
-| **1** | **Foundation** | Compose, CI, schemas, core types |
-| 2–3 | Observe and understand | Ingest + normalize (5–10 public sources) |
-| 4–5 | Connect and detect | Entities/events + **state / signal / anomaly** + API |
-| 6 | Show | Dashboard v0.1 — What Changed + evidence |
-| 7–8 | Discover and forecast | Graph, patterns, scenarios, probabilities |
-| 9–10 | Verify and learn | Replay, Brier/lead-time, feedback loops |
+| 1 | Foundation | Compose, CI, schemas, core types |
+| 2-3 | Observe and understand | Ingest + normalize (official public sources) |
+| 4-5 | Connect and detect | Entities/events + **state / signal / anomaly** + API |
+| **6** | **Show** | Live Pages demo + richer dashboard detail |
+| 7-8 | Discover and forecast | Graph, patterns, scenarios, probabilities |
+| 9-10 | Verify and learn | Replay, Brier/lead-time, feedback loops |
 | 11 | Platform (v1.0) | Adapters, SDK, API, web platform |
 | 12 | Enterprise | Multi-tenant, SSO, SLA, scale, governance |
 
-Every checkbox lives in [docs/ROADMAP.md](docs/ROADMAP.md). The roadmap is updated as phases complete.
-
----
-
-## Repository layout
-
-`	ext
-nexus/
-├── src/nexus_core/   # package: types, config, db
-├── core/             # engines (filled in later phases)
-├── adapters/
-├── api/
-├── dashboard/
-├── alembic/          # migrations
-├── infrastructure/   # Compose
-├── docs/
-└── tests/
-`
+Every checkbox lives in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ---
 
 ## Status (honest)
 
-****v0.2.0** — official live sources online (USGS, NASA EONET, arXiv, NVD, WHO). Phase 4 connect in progress.**
+**v0.3.0** - Phase 5 detect + FastAPI + public live demo. Phase 6 dashboard detail still expanding.
 
 NEXUS is not yet a production intelligence cloud. Stars help; reproducible pipelines and public benchmarks matter more.
 
@@ -164,7 +154,7 @@ NEXUS is not yet a production intelligence cloud. Stars help; reproducible pipel
 ## Non-goals
 
 - Operational military targeting or action guidance
-- Treating "prompt → answer" as the whole product
+- Treating "prompt -> answer" as the whole product
 - Declaring the future as certain
 
 ---
@@ -179,4 +169,4 @@ Launch copy: [docs/SHARE.md](docs/SHARE.md)
 
 ## License
 
-MIT © [Reza Karimzadeh](https://github.com/Rezakarimzadeh98)
+MIT (c) [Reza Karimzadeh](https://github.com/Rezakarimzadeh98)

@@ -102,13 +102,13 @@ Status legend: `PLANNED` · `ACTIVE` · `DONE` · `BLOCKED`
 ---
 
 ## Phase 4 — Connect (Entity + Event + optional LLM assist)
-**Status: ACTIVE**
+**Status: DONE** (v0.2 core; LLM assist + full resolution deferred)
 
 ### 4.1 Entity engine
 - [x] Rule/heuristic extractors (ORG, PERSON, GPE, PRODUCT…) — initial ORG heuristics
-- [ ] Optional LLM extract path behind interface
-- [ ] Entity resolution (same real-world thing → one id)
-- [ ] Entity store + aliases
+- [ ] Optional LLM extract path behind interface (deferred)
+- [ ] Entity resolution (same real-world thing → one id) (deferred)
+- [x] Entity store + aliases (store + aliases field)
 
 ### 4.2 Event engine
 - [x] Event types for generic domain (Announcement, Agreement, Conflict, MarketMove, …) — starter set
@@ -116,54 +116,56 @@ Status legend: `PLANNED` · `ACTIVE` · `DONE` · `BLOCKED`
 - [x] Confidence on extractions
 
 ### 4.3 Relationship engine (minimal)
-- [ ] Edges: `mentioned_with`, `located_in`, `org_of` (expand later)
-- [ ] Persist for graph phase
+- [x] Edges: `reports_on` (org↔location) + persist
+- [x] Persist for graph phase
 
-**Exit:** Pipeline observation → entities/events with links back to sources.
+**Exit:** Pipeline observation → entities/events with links back to sources. ✅
 
 ---
 
 ## Phase 5 — Detect (State + Signal + Anomaly) = **v0.1 core**
-**Status: PLANNED**
+**Status: DONE** · shipped in **v0.3.0**
 
 ### 5.1 State engine
-- [ ] Scope keys (entity, region, topic, global)
-- [ ] Rolling metrics: volume, velocity, recency
-- [ ] State snapshots over time
+- [x] Scope keys (global + `source:{id}`; entity/region/topic later)
+- [x] Rolling metrics: volume, velocity, recency
+- [x] State snapshots over time (persisted)
 
 ### 5.2 Signal engine
-- [ ] Baselines (e.g. 7d/30d)
-- [ ] Deviation scores (volume, velocity, source diversity)
-- [ ] Signal object: magnitude, confidence, window, scope
+- [x] Baselines (7d window vs 24h short)
+- [x] Deviation scores (volume, velocity, source diversity)
+- [x] Signal object: magnitude, confidence, window, scope
 
 ### 5.3 Anomaly engine
-- [ ] Statistical anomaly flags
-- [ ] Human-readable “why” template (features that fired)
-- [ ] Severity levels
+- [x] Statistical anomaly flags
+- [x] Human-readable “why” template (features that fired)
+- [x] Severity levels
 
 ### 5.4 Evidence engine (v0.1)
-- [ ] Attach supporting observation ids / urls
-- [ ] Contradictions placeholder list
+- [x] Attach supporting observation ids / titles
+- [x] Contradictions placeholder list
 
 ### 5.5 API
-- [ ] FastAPI: `/health`, `/signals`, `/signals/{id}`, `/state/{scope}`, `/observations/{id}`
+- [x] FastAPI: `/health`, `/live`, `/signals`, `/signals/{id}`, `/state/{scope}`, `/observations/{id}`
+- [x] Public live snapshot + GitHub Pages demo
 
 **Exit criterion (v0.1 product):**  
-Dashboard or API can show **What Changed** with **confidence + evidence links**. Proof question partially answered for detection.
+Dashboard or API can show **What Changed** with **confidence + evidence links**. ✅
 
 ---
 
 ## Phase 6 — Show (Dashboard v0.1 + site shell)
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 6.1 Dashboard
-- [ ] Live counters (data, entities, events, signals)
-- [ ] Signal feed (“What Changed?”)
+- [x] Live counters (data, entities, events, signals) — Pages demo
+- [x] Signal feed (“What Changed?”) — Pages demo
 - [ ] Signal detail: timeline snippet, evidence, related entities
-- [ ] Dark-neutral readable UI (not generic purple SaaS)
+- [x] Dark-neutral readable UI (not generic purple SaaS)
 
 ### 6.2 Deploy
 - [ ] Compose includes API + web
+- [x] GitHub Pages live demo from scheduled ingest
 - [ ] Optional Vercel/static for marketing shell later
 
 **Exit:** Visitor understands NEXUS in 60 seconds from UI.

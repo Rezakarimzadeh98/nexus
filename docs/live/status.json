@@ -1,0 +1,16 @@
+{
+  "version": "0.3.0",
+  "generated_at": "2026-08-30T00:00:00+00:00",
+  "proof_question": "Can heterogeneous public data become a living model that detects important change with evidence?",
+  "counts": {
+    "observations": 0,
+    "entities": 0,
+    "events": 0,
+    "relations": 0,
+    "state_snapshots": 0,
+    "signals": 0
+  },
+  "states": [],
+  "signals": [],
+  "recent_observations": []
+}

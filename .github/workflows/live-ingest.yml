@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: "0 */6 * * *"
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   ingest-official:
     runs-on: ubuntu-latest
@@ -40,5 +45,20 @@ jobs:
         run: python -m nexus_core.cli ingest --sources adapters/generic/sources.yaml
       - name: Extract entities and events
         run: python -m nexus_core.cli extract --limit 200
-      - name: Show version
-        run: python -m nexus_core.cli --version
+      - name: Detect state and signals
+        run: python -m nexus_core.cli detect --limit 2000
+      - name: Export live snapshot
+        run: python -m nexus_core.cli export-live --out docs/live/status.json
+      - name: Build Pages site
+        run: |
+          mkdir -p site
+          cp dashboard/index.html site/index.html
+          cp docs/live/status.json site/status.json
+          cp docs/live/status.json docs/live/status.json
+          python -m nexus_core.cli --version
+      - name: Deploy GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          force_orphan: true
