@@ -6,9 +6,13 @@ on:
     - cron: "0 */6 * * *"
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   ingest-official:
@@ -54,11 +58,18 @@ jobs:
           mkdir -p site
           cp dashboard/index.html site/index.html
           cp docs/live/status.json site/status.json
-          cp docs/live/status.json docs/live/status.json
           python -m nexus_core.cli --version
-      - name: Deploy GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-          force_orphan: true
+          path: site
+
+  deploy:
+    needs: ingest-official
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
