@@ -5,13 +5,14 @@
 Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next — and whether those claims hold up against the truth.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-Phase_4_Connect-d97706.svg)](docs/ROADMAP.md)
+[![Version](https://img.shields.io/badge/version-v0.2.0-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v0.2.0)
 [![CI](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml)
+[![Status](https://img.shields.io/badge/status-Phase_4_Connect-d97706.svg)](docs/ROADMAP.md)
 [![Discussions](https://img.shields.io/badge/discussions-join-1f6feb)](https://github.com/Rezakarimzadeh98/nexus/discussions)
 
 ![NEXUS social preview](docs/assets/social-preview.png)
 
-[Product](docs/PRODUCT.md) · [Roadmap](docs/ROADMAP.md) · [Architecture](docs/ARCHITECTURE.md) · [Share kit](docs/SHARE.md) · [Contributing](CONTRIBUTING.md)
+[Product](docs/PRODUCT.md) · [Roadmap](docs/ROADMAP.md) · [Architecture](docs/ARCHITECTURE.md) · [Share kit](docs/SHARE.md) · [References](docs/REFERENCES.md) · [Contributing](CONTRIBUTING.md)
 
 ---
 
@@ -104,6 +105,7 @@ python -m pip install -e ".[dev]"
 alembic upgrade head
 pytest -q
 python -m nexus_core.cli ingest --dry-run
+python -m nexus_core.cli ingest --dry-run --source-id usgs-significant-month
 `
 
 ---
@@ -153,7 +155,7 @@ nexus/
 
 ## Status (honest)
 
-**Phases 0–3 complete. Phase 4 (Connect: entities/events) is in progress.**
+****v0.2.0** — official live sources online (USGS, NASA EONET, arXiv, NVD, WHO). Phase 4 connect in progress.**
 
 NEXUS is not yet a production intelligence cloud. Stars help; reproducible pipelines and public benchmarks matter more.
 

@@ -2,15 +2,16 @@
 
 All notable changes to NEXUS are documented here.
 
-## [Unreleased]
+## [0.2.0] - 2026-08-30
 
 ### Added
 
-- Phase 3 normalization: UTC canonicalization, cleanup, language hint, near-duplicate keys, ingest integration
-- Phase 4 (in progress): heuristic entity/event extraction module
-- Phase 2 ingestion: source registry, RSS/JSON/CSV/fixture connectors, `nexus ingest` CLI, fixture sources, item-level dedupe
-- Phase 1 foundation: `nexus_core` package, settings, structured logging, UTC/id helpers
-- PostgreSQL schema v1 + Alembic migration `0001_initial`
-- Docker Compose for Postgres (optional Redis profile)
-- Core Pydantic contracts + JSON Schema export under `docs/schemas/v1`
-- CI: ruff, mypy, pytest, schema export, alembic upgrade, DB ping, fixture ingest
+- Official live sources with citations: USGS GeoJSON, NASA EONET, arXiv Atom, NIST NVD CVE API, WHO news RSS
+- `docs/REFERENCES.md` and `adapters/generic/sources.ci.yaml` for offline CI
+- `nexus extract` / `nexus status` CLI; entity/event/relation persistence helpers
+- Scheduled GitHub Action `live-ingest.yml` for dynamic official ingest
+
+### Changed
+
+- Default `sources.yaml` is live official feeds (fixtures only in CI file)
+- Package version **0.2.0**

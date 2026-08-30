@@ -8,7 +8,7 @@ from nexus_core.ingestion.registry import load_sources
 
 def test_load_and_dry_run_fixtures() -> None:
     root = Path(__file__).resolve().parents[1]
-    sources = load_sources(root / "adapters/generic/sources.yaml")
+    sources = load_sources(root / "adapters/generic/sources.ci.yaml")
     enabled = [s for s in sources if s.enabled]
     assert len(enabled) >= 2
     results = ingest_many(

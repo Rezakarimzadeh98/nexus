@@ -1,0 +1,44 @@
+name: Live ingest
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"
+
+jobs:
+  ingest-official:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: nexus
+          POSTGRES_PASSWORD: nexus
+          POSTGRES_DB: nexus
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U nexus -d nexus"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NEXUS_DATABASE_URL: postgresql+psycopg://nexus:nexus@localhost:5432/nexus
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Migrate
+        run: alembic upgrade head
+      - name: Live official sources
+        run: python -m nexus_core.cli ingest --sources adapters/generic/sources.yaml
+      - name: Extract entities and events
+        run: python -m nexus_core.cli extract --limit 200
+      - name: Show version
+        run: python -m nexus_core.cli --version

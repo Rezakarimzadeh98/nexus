@@ -1,32 +1,66 @@
-# Curated public / fixture sources for NEXUS Phase 2.
-# Prefer ToS-respecting public feeds. Network sources are optional in CI;
-# fixtures always run offline.
+# Official public data sources for NEXUS (curated references).
+# Prefer government / intergovernmental / standards bodies.
+# Fixtures stay in sources.ci.yaml for offline CI only.
+#
+# Citations:
+# - USGS Earthquake Hazards Program — https://earthquake.usgs.gov/
+# - NASA Earth Observatory Natural Event Tracker (EONET) — https://eonet.gsfc.nasa.gov/
+# - arXiv API (Cornell University) — https://info.arxiv.org/help/api/
+# - NIST National Vulnerability Database — https://nvd.nist.gov/
+# - World Health Organization news RSS — https://www.who.int/
 
 sources:
-  - id: fixture-demo-news
-    type: fixture
+  - id: usgs-significant-month
+    type: usgs_geojson
     enabled: true
-    path: fixtures/demo_news.json
-    poll_seconds: 300
+    url: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson
+    poll_seconds: 900
+    rate_limit_per_minute: 30
     metadata:
-      license: demo
-      domain: generic
+      publisher: USGS
+      license: Public domain (US Government work)
+      reference: https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 
-  - id: fixture-demo-csv
-    type: csv
+  - id: nasa-eonet-open
+    type: eonet
     enabled: true
-    path: fixtures/demo_events.csv
-    poll_seconds: 300
+    url: https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=25
+    poll_seconds: 1800
+    rate_limit_per_minute: 20
     metadata:
-      license: demo
+      publisher: NASA GSFC
+      license: NASA data policy (public)
+      reference: https://eonet.gsfc.nasa.gov/docs/v3
 
-  # Optional live public RSS (disabled by default for reproducible CI)
-  - id: bbc-world-rss
+  - id: arxiv-cs-ai-lg
+    type: atom
+    enabled: true
+    url: https://export.arxiv.org/api/query?search_query=cat:cs.AI+OR+cat:cs.LG&sortBy=submittedDate&sortOrder=descending&max_results=20
+    poll_seconds: 3600
+    rate_limit_per_minute: 10
+    metadata:
+      publisher: arXiv (Cornell University)
+      license: arXiv API Terms of Use
+      reference: https://info.arxiv.org/help/api/index.html
+
+  - id: nvd-cves-recent
+    type: nvd_cve
+    enabled: true
+    url: https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=20
+    poll_seconds: 3600
+    rate_limit_per_minute: 5
+    metadata:
+      publisher: NIST NVD
+      license: US Government work / NVD terms
+      reference: https://nvd.nist.gov/developers/vulnerabilities
+
+  - id: who-news-rss
     type: rss
-    enabled: false
-    url: https://feeds.bbci.co.uk/news/world/rss.xml
+    enabled: true
+    url: https://www.who.int/rss-feeds/news-english.xml
     poll_seconds: 1800
     rate_limit_per_minute: 10
     metadata:
-      publisher: BBC
-      note: Enable locally after reviewing feed terms
+      publisher: World Health Organization
+      license: WHO copyright — attribution required for reuse
+      reference: https://www.who.int/

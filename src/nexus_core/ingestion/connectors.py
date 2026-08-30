@@ -13,7 +13,7 @@ from nexus_core.ids import utc_now
 from nexus_core.ingestion.models import SourceConfig, SourceType
 from nexus_core.types import Observation
 
-USER_AGENT = "NEXUS-Ingest/0.1 (+https://github.com/Rezakarimzadeh98/nexus)"
+USER_AGENT = "NEXUS-Ingest/0.2 (+https://github.com/Rezakarimzadeh98/nexus)"
 
 
 @dataclass
@@ -53,7 +53,7 @@ def fetch_raw(source: SourceConfig, *, fixture_root: Path | None = None) -> RawF
         raise ValueError(f"source {source.id} requires url")
 
     req = Request(source.url, headers={"User-Agent": USER_AGENT})
-    with urlopen(req, timeout=30) as resp:  # noqa: S310 - curated public URLs only
+    with urlopen(req, timeout=45) as resp:  # noqa: S310 - curated public URLs only
         payload = resp.read()
         content_type = resp.headers.get_content_type() or "application/octet-stream"
     return RawFetch(source.id, payload, content_type, source.url)
@@ -90,6 +90,18 @@ def observations_from_raw(source: SourceConfig, raw: RawFetch) -> list[Observati
     if source.type == SourceType.RSS:
         return _parse_rss(source.id, raw.payload, fetch_digest, fetched, raw.origin)
 
+    if source.type == SourceType.ATOM:
+        return _parse_atom(source.id, raw.payload, fetch_digest, fetched, raw.origin)
+
+    if source.type == SourceType.USGS_GEOJSON:
+        return _parse_usgs(source.id, raw.payload, fetch_digest, fetched, raw.origin)
+
+    if source.type == SourceType.EONET:
+        return _parse_eonet(source.id, raw.payload, fetch_digest, fetched, raw.origin)
+
+    if source.type == SourceType.NVD_CVE:
+        return _parse_nvd(source.id, raw.payload, fetch_digest, fetched, raw.origin)
+
     raise ValueError(f"unsupported source type: {source.type}")
 
 
@@ -118,6 +130,114 @@ def _obs_from_dict(
     )
 
 
+def _parse_usgs(
+    source_id: str,
+    payload: bytes,
+    fetch_digest: str,
+    fetched: Any,
+    origin: str,
+) -> list[Observation]:
+    data = json.loads(payload.decode("utf-8"))
+    features = data.get("features", [])
+    out: list[Observation] = []
+    for feat in features:
+        props = feat.get("properties") or {}
+        title = props.get("title") or props.get("place")
+        url = props.get("url")
+        mag = props.get("mag")
+        body = f"Magnitude {mag}; place={props.get('place')}; type={props.get('type')}"
+        out.append(
+            Observation(
+                source_id=source_id,
+                title=str(title) if title else None,
+                body=body,
+                url=str(url) if url else None,
+                fetched_at=fetched,
+                raw_hash=item_fingerprint(source_id, str(title), str(url), body),
+                raw_uri=origin,
+                metadata={
+                    "fetch_hash": fetch_digest,
+                    "publisher": "USGS",
+                    "mag": mag,
+                    "place": props.get("place"),
+                    "usgs_id": props.get("code") or feat.get("id"),
+                },
+            )
+        )
+    return out
+
+
+def _parse_eonet(
+    source_id: str,
+    payload: bytes,
+    fetch_digest: str,
+    fetched: Any,
+    origin: str,
+) -> list[Observation]:
+    data = json.loads(payload.decode("utf-8"))
+    events = data.get("events", [])
+    out: list[Observation] = []
+    for event in events:
+        title = event.get("title")
+        categories = ",".join(c.get("title", "") for c in event.get("categories", []))
+        body = event.get("description") or f"EONET categories: {categories}"
+        link = None
+        for src in event.get("sources", []) or []:
+            if src.get("url"):
+                link = src["url"]
+                break
+        out.append(
+            Observation(
+                source_id=source_id,
+                title=str(title) if title else None,
+                body=str(body) if body else None,
+                url=link,
+                fetched_at=fetched,
+                raw_hash=item_fingerprint(source_id, str(title), link, str(body)),
+                raw_uri=origin,
+                metadata={
+                    "fetch_hash": fetch_digest,
+                    "publisher": "NASA EONET",
+                    "eonet_id": event.get("id"),
+                    "categories": categories,
+                },
+            )
+        )
+    return out
+
+
+def _parse_nvd(
+    source_id: str,
+    payload: bytes,
+    fetch_digest: str,
+    fetched: Any,
+    origin: str,
+) -> list[Observation]:
+    data = json.loads(payload.decode("utf-8"))
+    vulns = data.get("vulnerabilities", [])
+    out: list[Observation] = []
+    for item in vulns:
+        cve = (item.get("cve") or {})
+        cve_id = cve.get("id")
+        descs = cve.get("descriptions") or []
+        en = next((d.get("value") for d in descs if d.get("lang") == "en"), None)
+        body = en or (descs[0].get("value") if descs else None)
+        url = f"https://nvd.nist.gov/vuln/detail/{cve_id}" if cve_id else None
+        out.append(
+            Observation(
+                source_id=source_id,
+                title=str(cve_id) if cve_id else "CVE",
+                body=body,
+                url=url,
+                fetched_at=fetched,
+                raw_hash=item_fingerprint(source_id, str(cve_id), url, body),
+                raw_uri=origin,
+                metadata={"fetch_hash": fetch_digest, "publisher": "NIST NVD", "cve_id": cve_id},
+            )
+        )
+    return out
+
+
 def _parse_rss(
     source_id: str,
     payload: bytes,
@@ -130,14 +250,43 @@ def _parse_rss(
     items = channel.findall("item") if channel is not None else []
     if not items:
         items = root.findall(".//item")
-    if not items:
-        items = root.findall("{http://www.w3.org/2005/Atom}entry")
+    return _entries_to_obs(source_id, items, fetch_digest, fetched, origin, atom=False)
 
+
+def _parse_atom(
+    source_id: str,
+    payload: bytes,
+    fetch_digest: str,
+    fetched: Any,
+    origin: str,
+) -> list[Observation]:
+    root = ET.fromstring(payload)
+    ns = {"a": "http://www.w3.org/2005/Atom"}
+    entries = root.findall("a:entry", ns)
+    if not entries:
+        entries = root.findall("{http://www.w3.org/2005/Atom}entry")
+    return _entries_to_obs(source_id, entries, fetch_digest, fetched, origin, atom=True)
+
+
+def _entries_to_obs(
+    source_id: str,
+    items: list[ET.Element],
+    fetch_digest: str,
+    fetched: Any,
+    origin: str,
+    *,
+    atom: bool,
+) -> list[Observation]:
     observations: list[Observation] = []
     for item in items:
-        title = _child_text(item, "title")
-        body = _child_text(item, "description") or _child_text(item, "summary")
-        link = _child_text(item, "link")
+        if atom:
+            title = _atom_text(item, "title")
+            body = _atom_text(item, "summary") or _atom_text(item, "content")
+            link = _atom_link(item)
+        else:
+            title = _child_text(item, "title")
+            body = _child_text(item, "description") or _child_text(item, "summary")
+            link = _child_text(item, "link")
         observations.append(
             Observation(
                 source_id=source_id,
@@ -157,11 +306,20 @@ def _child_text(node: ET.Element, name: str) -> str | None:
     child = node.find(name)
     if child is not None and child.text:
         return child.text.strip()
-    if name == "link":
-        link = node.find("{http://www.w3.org/2005/Atom}link")
-        if link is not None and link.attrib.get("href"):
-            return link.attrib["href"]
-    atom = node.find(f"{{http://www.w3.org/2005/Atom}}{name}")
-    if atom is not None and atom.text:
-        return atom.text.strip()
+    return None
+
+
+def _atom_text(node: ET.Element, name: str) -> str | None:
+    child = node.find(f"{{http://www.w3.org/2005/Atom}}{name}")
+    if child is not None and child.text:
+        return child.text.strip()
+    return None
+
+
+def _atom_link(node: ET.Element) -> str | None:
+    for link in node.findall("{http://www.w3.org/2005/Atom}link"):
+        href = link.attrib.get("href")
+        rel = link.attrib.get("rel", "alternate")
+        if href and rel in {"alternate", "self"}:
+            return href
     return None

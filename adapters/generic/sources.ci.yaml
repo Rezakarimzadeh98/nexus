@@ -1,0 +1,18 @@
+# Offline / CI sources only (deterministic).
+sources:
+  - id: fixture-demo-news
+    type: fixture
+    enabled: true
+    path: fixtures/demo_news.json
+    poll_seconds: 300
+    metadata:
+      license: demo
+      domain: generic
+
+  - id: fixture-demo-csv
+    type: csv
+    enabled: true
+    path: fixtures/demo_events.csv
+    poll_seconds: 300
+    metadata:
+      license: demo

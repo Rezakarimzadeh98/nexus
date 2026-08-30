@@ -9,7 +9,7 @@ from nexus_core.ingestion.registry import load_sources
 
 def test_extract_from_fixtures() -> None:
     root = Path(__file__).resolve().parents[1]
-    sources = [s for s in load_sources(root / "adapters/generic/sources.yaml") if s.enabled]
+    sources = [s for s in load_sources(root / "adapters/generic/sources.ci.yaml") if s.enabled]
     results = ingest_many(None, sources, fixture_root=root / "datasets", persist=False)
     # rebuild observations via dry path already normalized counts
     assert sum(r.observation_count for r in results) >= 3

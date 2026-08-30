@@ -10,6 +10,10 @@ class SourceType(StrEnum):
     HTTP_JSON = "http_json"
     CSV = "csv"
     FIXTURE = "fixture"
+    USGS_GEOJSON = "usgs_geojson"
+    EONET = "eonet"
+    ATOM = "atom"
+    NVD_CVE = "nvd_cve"
 
 
 @dataclass(frozen=True)
