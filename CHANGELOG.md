@@ -2,6 +2,20 @@
 
 All notable changes to NEXUS are documented here.
 
+## [0.3.1] - 2026-08-30
+
+### Added
+
+- Phase 6 dashboard signal detail (metrics + evidence links)
+- Compose stack: Postgres + API + nginx web UI
+- `AUTHORS.md` — maintainer Reza Karimzadeh
+- Snapshot fields: `maintainer`, `observations_by_id`
+
+### Changed
+
+- Public copy attributes the project to Reza Karimzadeh / profile only
+- Package version **0.3.1**
+
 ## [0.3.0] - 2026-08-30
 
 ### Added
@@ -14,7 +28,7 @@ All notable changes to NEXUS are documented here.
 
 ### Changed
 
-- Package version **0.3.0**; Phase 4 marked done (LLM/resolution deferred)
+- Package version **0.3.0**; Phase 4 marked done (optional extract assist + resolution deferred)
 
 ## [0.2.0] - 2026-08-30
 

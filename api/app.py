@@ -1,4 +1,4 @@
-"""NEXUS HTTP API — What Changed (Phase 5)."""
+"""NEXUS HTTP API — What Changed."""
 
 from __future__ import annotations
 
@@ -10,6 +10,8 @@ from uuid import UUID
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 
 from nexus_core import __version__
@@ -17,10 +19,24 @@ from nexus_core.config import get_settings
 from nexus_core.db import make_engine, make_session_factory, ping_database
 from nexus_core.db.models import ObservationRow, SignalRow, StateSnapshotRow
 
+MAINTAINER = {
+    "name": "Reza Karimzadeh",
+    "github": "https://github.com/Rezakarimzadeh98",
+    "repo": "https://github.com/Rezakarimzadeh98/nexus",
+}
+
 app = FastAPI(
     title="NEXUS API",
-    description="Universal Intelligence Engine — state, signals, evidence",
+    description=(
+        "Universal Intelligence Engine — state, signals, evidence. "
+        "Maintained by Reza Karimzadeh (https://github.com/Rezakarimzadeh98)."
+    ),
     version=__version__,
+    contact={
+        "name": "Reza Karimzadeh",
+        "url": "https://github.com/Rezakarimzadeh98",
+        "email": "r.karimzadeh1998@gmail.com",
+    },
 )
 app.add_middleware(
     CORSMiddleware,
@@ -55,6 +71,19 @@ def health() -> dict[str, Any]:
         "version": __version__,
         "database": db_ok,
         "snapshot": _snapshot_path() is not None,
+        "maintainer": MAINTAINER,
+    }
+
+
+@app.get("/")
+def root() -> dict[str, Any]:
+    return {
+        "name": "NEXUS",
+        "version": __version__,
+        "maintainer": MAINTAINER,
+        "demo": "https://rezakarimzadeh98.github.io/nexus/",
+        "docs": "/docs",
+        "ui": "/ui/",
     }
 
 
@@ -198,3 +227,16 @@ def get_observation(observation_id: UUID) -> dict[str, Any]:
             if item.get("id") == str(observation_id):
                 return item
         raise HTTPException(status_code=404, detail="Observation not found") from None
+
+
+@app.get("/ui/status.json")
+def ui_status() -> FileResponse:
+    path = _snapshot_path()
+    if path is None:
+        raise HTTPException(status_code=404, detail="No live snapshot yet")
+    return FileResponse(path, media_type="application/json")
+
+
+_DASHBOARD_DIR = Path(__file__).resolve().parents[1] / "dashboard"
+if _DASHBOARD_DIR.is_dir():
+    app.mount("/ui", StaticFiles(directory=str(_DASHBOARD_DIR), html=True), name="ui")

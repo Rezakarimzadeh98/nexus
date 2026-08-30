@@ -1,3 +1,3 @@
 """NEXUS core package — contracts, config, persistence helpers."""
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"

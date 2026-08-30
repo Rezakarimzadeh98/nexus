@@ -13,7 +13,7 @@ from nexus_core.ids import utc_now
 from nexus_core.ingestion.models import SourceConfig, SourceType
 from nexus_core.types import Observation
 
-USER_AGENT = "NEXUS-Ingest/0.2 (+https://github.com/Rezakarimzadeh98/nexus)"
+USER_AGENT = "NEXUS-Ingest/0.3 (+https://github.com/Rezakarimzadeh98/nexus; Reza Karimzadeh)"
 
 
 @dataclass

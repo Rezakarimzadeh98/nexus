@@ -13,7 +13,9 @@ Do not share `.env`, API keys, private datasets, or non-public customer data.
 
 ## One-liner
 
-`NEXUS — universal intelligence engine: living state, signals with evidence, forecasts you can score.`
+`NEXUS — universal intelligence engine by Reza Karimzadeh: living state, signals with evidence, forecasts you can score.`
+
+Live demo: https://rezakarimzadeh98.github.io/nexus/
 
 ## Show HN
 
@@ -25,9 +27,9 @@ Do not share `.env`, API keys, private datasets, or non-public customer data.
 
 > Most “intelligence” stacks are either counting dashboards or chat over documents. Neither keeps a living model of what changed, why, or whether yesterday’s forecast was right.
 >
-> NEXUS is an open, domain-agnostic engine: observe → understand → connect → detect → discover → forecast → verify → learn. Core concepts stay stable; adapters plug domains (news, finance, cyber, …). LLMs may help extract and explain — they are not the product.
+> NEXUS is an open, domain-agnostic engine by Reza Karimzadeh: observe → understand → connect → detect → discover → forecast → verify → learn. Core concepts stay stable; adapters plug domains (news, finance, cyber, …). Optional language models may help extract and explain — they are not the product.
 >
-> Phase 0 (product + architecture + public repo) is done. Building toward a What Changed dashboard with source-linked evidence, then public benchmarks (lead time, calibration).
+> Live demo (official public feeds): https://rezakarimzadeh98.github.io/nexus/
 >
 > https://github.com/Rezakarimzadeh98/nexus
 

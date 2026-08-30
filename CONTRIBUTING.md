@@ -18,3 +18,5 @@ NEXUS ships phase-by-phase. The checklist of record is [docs/ROADMAP.md](docs/RO
 - [ ] No secrets, private data, or inflated live metrics
 
 Security reports: [SECURITY.md](SECURITY.md).
+
+Maintainer: [Reza Karimzadeh](https://github.com/Rezakarimzadeh98) — see [AUTHORS.md](AUTHORS.md).

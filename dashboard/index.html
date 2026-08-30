@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NEXUS — What Changed</title>
-  <meta name="description" content="NEXUS live demo: public-source intelligence, state, and signals with evidence." />
+  <meta name="description" content="NEXUS by Reza Karimzadeh: live public-source intelligence, state, and signals with evidence." />
+  <meta name="author" content="Reza Karimzadeh" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
@@ -46,6 +47,9 @@
       max-width: 36rem;
       font-size: 1.05rem;
     }
+    .byline { margin-top: 0.85rem; font-size: 0.92rem; color: var(--muted); }
+    .byline a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+    .byline a:hover { border-bottom-color: var(--accent); color: var(--accent); }
     .meta {
       display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem;
       margin-top: 1.1rem; color: var(--muted); font-size: 0.9rem;
@@ -84,10 +88,13 @@
       background: var(--card);
       padding: 1rem 1.1rem;
       transition: border-color 0.2s ease, transform 0.2s ease;
+      cursor: pointer;
     }
     .signal:hover { transform: translateY(-1px); border-color: rgba(61,155,122,0.45); }
+    .signal.open { border-color: rgba(61,155,122,0.55); }
     .signal.high { border-left-color: var(--hot); }
     .signal.medium { border-left-color: var(--warn); }
+    .signal.critical { border-left-color: var(--hot); }
     .signal h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
     .signal p { margin: 0; color: var(--muted); font-size: 0.92rem; }
     .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.7rem; }
@@ -97,6 +104,39 @@
       border: 1px solid var(--line);
       padding: 0.15rem 0.45rem;
     }
+    .detail {
+      display: none;
+      margin-top: 0.95rem;
+      padding-top: 0.9rem;
+      border-top: 1px solid var(--line);
+      animation: rise 0.35s ease both;
+    }
+    .signal.open .detail { display: block; }
+    .detail h4 {
+      margin: 0 0 0.45rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 0.9rem;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.65rem;
+      font-size: 0.85rem;
+    }
+    .metric b { display: block; font-family: "Instrument Serif", Georgia, serif; font-size: 1.15rem; font-weight: 400; }
+    .ev-list { display: grid; gap: 0.45rem; }
+    .ev-item { font-size: 0.88rem; }
+    .ev-item a { color: var(--accent); text-decoration: none; }
+    .ev-item a:hover { text-decoration: underline; }
+    .ev-item .src { color: var(--muted); font-size: 0.78rem; }
     .obs {
       border-bottom: 1px solid var(--line);
       padding: 0.7rem 0;
@@ -108,6 +148,7 @@
     footer {
       margin-top: 3rem; color: var(--muted); font-size: 0.85rem;
       border-top: 1px solid var(--line); padding-top: 1rem;
+      display: grid; gap: 0.35rem;
     }
     footer a { color: var(--ink); }
     .err { color: var(--hot); }
@@ -121,8 +162,9 @@
   <div class="wrap">
     <header>
       <p class="brand">NEXUS</p>
-      <p class="tag">Live public feeds → living state → What Changed, with evidence.</p>
-      <div class="meta" id="meta">Loading live snapshot…</div>
+      <p class="tag">Live public feeds to living state to What Changed, with evidence.</p>
+      <p class="byline">By <a href="https://github.com/Rezakarimzadeh98" rel="author">Reza Karimzadeh</a></p>
+      <div class="meta" id="meta">Loading live snapshot...</div>
     </header>
 
     <div class="counters" id="counters"></div>
@@ -138,61 +180,124 @@
     </section>
 
     <footer>
-      Open source ·
-      <a href="https://github.com/Rezakarimzadeh98/nexus">github.com/Rezakarimzadeh98/nexus</a>
-      · snapshot refreshes from scheduled live ingest
+      <div>Maintained by <a href="https://github.com/Rezakarimzadeh98">Reza Karimzadeh</a> · MIT</div>
+      <div>
+        <a href="https://github.com/Rezakarimzadeh98/nexus">github.com/Rezakarimzadeh98/nexus</a>
+        · snapshot refreshes from scheduled live ingest
+      </div>
     </footer>
   </div>
   <script>
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[c]);
+    }
+
+    function renderEvidence(evidence, byId) {
+      if (!evidence || !evidence.length) return "<p>No linked observations yet.</p>";
+      return `<div class="ev-list">${evidence.map((e) => {
+        const id = String(e.observation_id || "");
+        const hit = (byId && byId[id]) || {};
+        const title = hit.title || e.note || id;
+        const url = hit.url;
+        const src = hit.source_id || "";
+        const label = url
+          ? `<a href="${esc(url)}" rel="noopener" target="_blank">${esc(title)}</a>`
+          : esc(title);
+        return `<div class="ev-item">${label}${src ? `<div class="src">${esc(src)}</div>` : ""}</div>`;
+      }).join("")}</div>`;
+    }
+
+    function renderMetrics(metrics) {
+      const m = metrics || {};
+      const keys = [
+        ["volume_short", "24h volume"],
+        ["baseline_daily", "baseline / day"],
+        ["velocity", "velocity"],
+        ["source_diversity", "sources"],
+        ["recency_hours", "recency (h)"],
+      ];
+      return `<div class="metrics">${keys.map(([k, label]) => {
+        const v = m[k];
+        const shown = typeof v === "number" ? (Number.isInteger(v) ? v : v.toFixed(2)) : "—";
+        return `<div class="metric"><b>${esc(shown)}</b>${esc(label)}</div>`;
+      }).join("")}</div>`;
+    }
+
     async function load() {
       const meta = document.getElementById("meta");
       try {
         const res = await fetch("./status.json", { cache: "no-store" });
         if (!res.ok) throw new Error("status.json missing");
         const data = await res.json();
+        const byId = data.observations_by_id || {};
         meta.innerHTML =
-          `<span><strong>v${data.version}</strong></span>` +
-          `<span>generated <strong>${new Date(data.generated_at).toUTCString()}</strong></span>`;
+          `<span><strong>v${esc(data.version)}</strong></span>` +
+          `<span>generated <strong>${esc(new Date(data.generated_at).toUTCString())}</strong></span>`;
 
         const counts = data.counts || {};
         const order = ["observations", "entities", "events", "signals", "relations"];
         document.getElementById("counters").innerHTML = order.map((k) => {
           const n = counts[k] ?? 0;
-          return `<div class="counter"><span class="n">${n}</span><span class="l">${k}</span></div>`;
+          return `<div class="counter"><span class="n">${esc(n)}</span><span class="l">${esc(k)}</span></div>`;
         }).join("");
 
         const signals = data.signals || [];
+        const states = data.states || [];
+        const stateByScope = Object.fromEntries(states.map((s) => [s.scope_key, s]));
         const sigEl = document.getElementById("signals");
         if (!signals.length) {
           sigEl.innerHTML = `<div class="signal"><p>No velocity spikes this window — baselines are forming from live feeds.</p></div>`;
         } else {
-          sigEl.innerHTML = signals.map((s) => {
+          sigEl.innerHTML = signals.map((s, idx) => {
             const sev = (s.severity || "low").toLowerCase();
             const why = (s.metadata && s.metadata.why) || s.summary || "";
             const conf = typeof s.confidence === "number" ? s.confidence.toFixed(2) : "—";
             const ratio = typeof s.change_ratio === "number" ? s.change_ratio.toFixed(2) + "x" : "—";
-            const ev = (s.evidence || []).slice(0, 3).map((e) =>
-              `<span class="chip">${e.note || e.observation_id}</span>`
-            ).join("");
-            return `<article class="signal ${sev}">
-              <h3>${s.title}</h3>
-              <p>${why}</p>
+            const metrics = (s.metadata && s.metadata.metrics) || (stateByScope[s.scope_key] || {}).metrics || {};
+            const detected = s.detected_at ? new Date(s.detected_at).toUTCString() : "";
+            return `<article class="signal ${esc(sev)}" data-idx="${idx}" tabindex="0" role="button" aria-expanded="false">
+              <h3>${esc(s.title)}</h3>
+              <p>${esc(why)}</p>
               <div class="chips">
-                <span class="chip">${sev}</span>
-                <span class="chip">confidence ${conf}</span>
-                <span class="chip">Δ ${ratio}</span>
-                <span class="chip">${s.scope_key}</span>
-                ${ev}
+                <span class="chip">${esc(sev)}</span>
+                <span class="chip">confidence ${esc(conf)}</span>
+                <span class="chip">Δ ${esc(ratio)}</span>
+                <span class="chip">${esc(s.scope_key)}</span>
+                <span class="chip">detail</span>
+              </div>
+              <div class="detail">
+                <h4>Why this fired</h4>
+                <p>${esc(why || "Baseline deviation")}</p>
+                <h4 style="margin-top:0.85rem">Window metrics</h4>
+                ${renderMetrics(metrics)}
+                <h4>Evidence</h4>
+                ${renderEvidence(s.evidence || [], byId)}
+                ${detected ? `<p style="margin-top:0.75rem;color:var(--muted);font-size:0.8rem">Detected ${esc(detected)}</p>` : ""}
               </div>
             </article>`;
           }).join("");
+
+          sigEl.querySelectorAll(".signal[data-idx]").forEach((el) => {
+            const toggle = () => {
+              const open = el.classList.toggle("open");
+              el.setAttribute("aria-expanded", open ? "true" : "false");
+            };
+            el.addEventListener("click", toggle);
+            el.addEventListener("keydown", (ev) => {
+              if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); toggle(); }
+            });
+          });
         }
 
         const obs = data.recent_observations || [];
         document.getElementById("obs").innerHTML = obs.slice(0, 12).map((o) => {
           const title = o.title || "(untitled)";
-          const link = o.url ? `<a href="${o.url}" rel="noopener" target="_blank">${title}</a>` : title;
-          return `<div class="obs">${link}<div class="src">${o.source_id}</div></div>`;
+          const link = o.url
+            ? `<a href="${esc(o.url)}" rel="noopener" target="_blank">${esc(title)}</a>`
+            : esc(title);
+          return `<div class="obs">${link}<div class="src">${esc(o.source_id)}</div></div>`;
         }).join("") || `<p class="err">No observations in snapshot.</p>`;
       } catch (e) {
         meta.innerHTML = `<span class="err">Could not load live status. Run live ingest or open after Pages deploy.</span>`;

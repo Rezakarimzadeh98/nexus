@@ -2,14 +2,17 @@
 
 **Universal Intelligence Engine**
 
+By [Reza Karimzadeh](https://github.com/Rezakarimzadeh98) | [Authors](AUTHORS.md)
+
 Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next - and whether those claims hold up against the truth.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v0.3.0-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v0.3.0)
+[![Version](https://img.shields.io/badge/version-v0.3.1-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v0.3.1)
 [![CI](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml)
 [![Live ingest](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml)
-[![Status](https://img.shields.io/badge/status-Phase_6_Show-0f766e.svg)](docs/ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-Phase_7_Discover-0f766e.svg)](docs/ROADMAP.md)
 [![Live demo](https://img.shields.io/badge/live-demo-3d9b7a)](https://rezakarimzadeh98.github.io/nexus/)
+[![Author](https://img.shields.io/badge/author-Reza_Karimzadeh-1f6feb)](https://github.com/Rezakarimzadeh98)
 [![Discussions](https://img.shields.io/badge/discussions-join-1f6feb)](https://github.com/Rezakarimzadeh98/nexus/discussions)
 
 ![NEXUS social preview](docs/assets/social-preview.png)
@@ -63,14 +66,22 @@ Public feeds (USGS, NASA EONET, arXiv, NVD, WHO) are ingested on a schedule. The
 
 **https://rezakarimzadeh98.github.io/nexus/**
 
-Snapshot JSON: [docs/live/status.json](docs/live/status.json) (refreshed on each live run / Pages deploy).
+Maintainer: [Reza Karimzadeh](https://github.com/Rezakarimzadeh98)
 
-Self-host the API:
+Self-host:
 
 `ash
 pip install -e ".[api]"
 uvicorn api.app:app --reload --port 8080
-# GET /health /live /signals /state/global /observations/{id}
+# API docs: http://localhost:8080/docs
+# UI:       http://localhost:8080/ui/
+`
+
+Or with Compose (Postgres + API + web):
+
+`ash
+docker compose -f infrastructure/compose.yml up --build
+# web http://localhost:3000  |  API http://localhost:8080
 `
 
 ---
@@ -80,12 +91,12 @@ uvicorn api.app:app --reload --port 8080
 `	ext
 Wrong shape                         NEXUS shape
 -----------                         -----------
-Data -> LLM -> Answer               Data -> structured intelligence
+Data -> chat answer                 Data -> structured intelligence
                                     -> state -> signals -> patterns
                                     -> forecast -> outcome -> evaluation
 `
 
-Large language models may help with extraction, classification, and explanation.
+Optional language models may help with extraction, classification, and explanation.
 They are **not** the product. Forecasting and anomaly detection ship with measurable baselines first.
 
 ---
@@ -106,7 +117,7 @@ Requirements: Python 3.11+, Docker Compose (for Postgres).
 
 `ash
 cp .env.example .env
-docker compose -f infrastructure/compose.yml up -d
+docker compose -f infrastructure/compose.yml up -d postgres
 python -m pip install -e ".[dev,api]"
 alembic upgrade head
 pytest -q
@@ -132,10 +143,10 @@ If benchmarks say yes, NEXUS is more than a demo - it is a platform.
 | 0 | Lock and bootstrap | Product, architecture, public repo |
 | 1 | Foundation | Compose, CI, schemas, core types |
 | 2-3 | Observe and understand | Ingest + normalize (official public sources) |
-| 4-5 | Connect and detect | Entities/events + **state / signal / anomaly** + API |
-| **6** | **Show** | Live Pages demo + richer dashboard detail |
-| 7-8 | Discover and forecast | Graph, patterns, scenarios, probabilities |
-| 9-10 | Verify and learn | Replay, Brier/lead-time, feedback loops |
+| 4-5 | Connect and detect | Entities/events + state / signal / anomaly + API |
+| 6 | Show | Live Pages demo + signal detail + Compose |
+| **7** | **Discover** | Graph, patterns |
+| 8-10 | Forecast, verify, learn | Scenarios, scorekeeping, feedback |
 | 11 | Platform (v1.0) | Adapters, SDK, API, web platform |
 | 12 | Enterprise | Multi-tenant, SSO, SLA, scale, governance |
 
@@ -145,7 +156,7 @@ Every checkbox lives in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Status (honest)
 
-**v0.3.0** - Phase 5 detect + FastAPI + public live demo. Phase 6 dashboard detail still expanding.
+**v0.3.1** - Phase 6 Show done (signal detail + Compose API/web). Phase 7 Discover is next.
 
 NEXUS is not yet a production intelligence cloud. Stars help; reproducible pipelines and public benchmarks matter more.
 

@@ -1,7 +1,7 @@
 # NEXUS — Master roadmap (to enterprise)
 
 This is the **single source of truth** for phasing.  
-Session todos track the *current* phase; this file tracks the whole program.
+Maintainers track the *current* phase in issues/PRs; this file tracks the whole program.
 
 Status legend: `PLANNED` · `ACTIVE` · `DONE` · `BLOCKED`
 
@@ -155,25 +155,25 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 ---
 
 ## Phase 6 — Show (Dashboard v0.1 + site shell)
-**Status: ACTIVE**
+**Status: DONE** · shipped in **v0.3.1**
 
 ### 6.1 Dashboard
 - [x] Live counters (data, entities, events, signals) — Pages demo
 - [x] Signal feed (“What Changed?”) — Pages demo
-- [ ] Signal detail: timeline snippet, evidence, related entities
+- [x] Signal detail: metrics, evidence links, related observations
 - [x] Dark-neutral readable UI (not generic purple SaaS)
 
 ### 6.2 Deploy
-- [ ] Compose includes API + web
+- [x] Compose includes API + web
 - [x] GitHub Pages live demo from scheduled ingest
 - [ ] Optional Vercel/static for marketing shell later
 
-**Exit:** Visitor understands NEXUS in 60 seconds from UI.
+**Exit:** Visitor understands NEXUS in 60 seconds from UI. ✅
 
 ---
 
 ## Phase 7 — Discover (Graph + Patterns) = **v0.2**
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 7.1 Knowledge graph
 - [ ] Query API for neighborhood
@@ -325,5 +325,5 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 2. Do not start Phase N+1 until Phase N **Exit** is checked.  
 3. Prefer a vertical slice (one path works end-to-end) over empty engine stubs.  
 4. Update this file’s checkboxes when work lands; refresh README status and public visuals.  
-5. Session work should mirror the Active phase sub-tasks only.  
-6. Public copy stays free of internal tooling names; the project speaks for itself.
+5. Day-to-day work should mirror the Active phase sub-tasks only.  
+6. Public copy stays under the maintainer’s name and profile only — no internal tooling, assistant, or vendor branding in README, UI, docs, or release notes.

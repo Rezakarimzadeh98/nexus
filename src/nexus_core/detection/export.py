@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -52,10 +53,38 @@ def build_live_snapshot(
         "signals": session.execute(select(func.count()).select_from(SignalRow)).scalar_one(),
     }
 
-    recent_rows = session.execute(
-        select(ObservationRow).order_by(ObservationRow.fetched_at.desc()).limit(recent_limit)
-    ).scalars()
+    recent_rows = list(
+        session.execute(
+            select(ObservationRow).order_by(ObservationRow.fetched_at.desc()).limit(recent_limit)
+        ).scalars()
+    )
     recent = [_obs_public(r) for r in recent_rows]
+    obs_index = {item["id"]: item for item in recent}
+
+    # Also index evidence observation ids that may fall outside the recent window.
+    evidence_ids: set[str] = set()
+    if signals is not None:
+        for sig in signals:
+            for ref in sig.evidence:
+                evidence_ids.add(str(ref.observation_id))
+    else:
+        for row_sig in session.execute(
+            select(SignalRow).order_by(SignalRow.detected_at.desc()).limit(20)
+        ).scalars():
+            for item in row_sig.evidence or []:
+                oid = item.get("observation_id") if isinstance(item, dict) else None
+                if oid:
+                    evidence_ids.add(str(oid))
+
+    missing = [oid for oid in evidence_ids if oid not in obs_index]
+    if missing:
+        for oid in missing[:50]:
+            try:
+                row = session.get(ObservationRow, UUID(oid))
+            except ValueError:
+                continue
+            if row is not None:
+                obs_index[str(row.id)] = _obs_public(row)
 
     state_payload = (
         [s.model_dump(mode="json") for s in snapshots]
@@ -99,6 +128,12 @@ def build_live_snapshot(
     return {
         "version": __version__,
         "generated_at": utc_now().isoformat(),
+        "maintainer": {
+            "name": "Reza Karimzadeh",
+            "github": "https://github.com/Rezakarimzadeh98",
+            "profile": "https://github.com/Rezakarimzadeh98",
+            "repo": "https://github.com/Rezakarimzadeh98/nexus",
+        },
         "proof_question": (
             "Can heterogeneous public data become a living model that detects "
             "important change with evidence?"
@@ -107,6 +142,7 @@ def build_live_snapshot(
         "states": state_payload,
         "signals": signal_payload,
         "recent_observations": recent,
+        "observations_by_id": obs_index,
     }
 
 
