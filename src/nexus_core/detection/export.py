@@ -12,6 +12,7 @@ from nexus_core import __version__
 from nexus_core.db.models import (
     EntityRow,
     EventRow,
+    ForecastRow,
     ObservationRow,
     PatternRow,
     RelationRow,
@@ -19,6 +20,7 @@ from nexus_core.db.models import (
     StateSnapshotRow,
 )
 from nexus_core.discovery.run import run_discovery
+from nexus_core.forecast.run import run_forecast
 from nexus_core.ids import utc_now
 from nexus_core.types import Observation, Signal, StateSnapshot
 
@@ -41,10 +43,29 @@ def build_live_snapshot(
     signals: list[Signal] | None = None,
     recent_limit: int = 25,
     discovery: dict[str, Any] | None = None,
+    forecast: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """JSON payload for the public live demo / Pages site."""
     if discovery is None:
         discovery = run_discovery(session, persist=False)
+    if forecast is None:
+        matched = {
+            (m.get("expected_next") or "")
+            for m in discovery.get("pattern_matches", [])
+            if isinstance(m, dict)
+        }
+        matched |= {
+            seq[-1]
+            for p in discovery.get("patterns", [])
+            if isinstance(p, dict)
+            for seq in [p.get("sequence") or []]
+            if seq
+        }
+        forecast = run_forecast(
+            session,
+            persist=False,
+            pattern_match_types={t for t in matched if t},
+        )
     counts = {
         "observations": session.execute(
             select(func.count()).select_from(ObservationRow)
@@ -57,6 +78,7 @@ def build_live_snapshot(
         ).scalar_one(),
         "signals": session.execute(select(func.count()).select_from(SignalRow)).scalar_one(),
         "patterns": session.execute(select(func.count()).select_from(PatternRow)).scalar_one(),
+        "forecasts": session.execute(select(func.count()).select_from(ForecastRow)).scalar_one(),
     }
 
     recent_rows = list(
@@ -152,6 +174,7 @@ def build_live_snapshot(
         "graph": discovery.get("graph", {"nodes": [], "edges": []}),
         "patterns": discovery.get("patterns", []),
         "pattern_matches": discovery.get("pattern_matches", []),
+        "forecasts": forecast.get("forecasts", []),
     }
 
 

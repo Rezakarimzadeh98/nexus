@@ -105,3 +105,24 @@ class PatternRow(Base):
         ARRAY(PGUUID(as_uuid=True)), default=list
     )
     metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
+
+
+class ForecastRow(Base):
+    __tablename__ = "forecasts"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    question: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    probability: Mapped[float] = mapped_column(Float, default=0.0)
+    confidence: Mapped[float] = mapped_column(Float, default=0.0)
+    horizon_hours: Mapped[float] = mapped_column(Float, default=72.0)
+    model_id: Mapped[str] = mapped_column(String(128), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    evidence_event_ids: Mapped[list[UUID]] = mapped_column(
+        ARRAY(PGUUID(as_uuid=True)), default=list
+    )
+    evidence_observation_ids: Mapped[list[UUID]] = mapped_column(
+        ARRAY(PGUUID(as_uuid=True)), default=list
+    )
+    scenarios: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)

@@ -53,6 +53,8 @@ jobs:
         run: python -m nexus_core.cli detect --limit 2000
       - name: Discover patterns and graph
         run: python -m nexus_core.cli discover --min-count 2
+      - name: Forecast baselines
+        run: python -m nexus_core.cli forecast --horizon-hours 72
       - name: Export live snapshot
         run: python -m nexus_core.cli export-live --out docs/live/status.json
       - name: Build Pages site

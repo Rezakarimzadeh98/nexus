@@ -56,6 +56,7 @@ jobs:
         run: |
           python -m nexus_core.cli detect --limit 500 --velocity-threshold 0.1 --min-short-volume 1
           python -m nexus_core.cli discover --min-count 1
+          python -m nexus_core.cli forecast --horizon-hours 72
           python -m nexus_core.cli export-live --out /tmp/nexus-status.json
           test -s /tmp/nexus-status.json
-          python -c "import json; d=json.load(open('/tmp/nexus-status.json')); assert 'graph' in d and 'patterns' in d"
+          python -c "import json; d=json.load(open('/tmp/nexus-status.json')); assert 'graph' in d and 'patterns' in d and 'forecasts' in d"

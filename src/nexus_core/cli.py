@@ -11,6 +11,7 @@ from nexus_core.db import make_engine, make_session_factory
 from nexus_core.db.models import (
     EntityRow,
     EventRow,
+    ForecastRow,
     ObservationRow,
     PatternRow,
     RelationRow,
@@ -28,6 +29,7 @@ from nexus_core.detection.export import observations_from_rows
 from nexus_core.discovery import run_discovery
 from nexus_core.extraction import extract_entities, extract_events, extract_relations
 from nexus_core.extraction.store import persist_entities, persist_events, persist_relations
+from nexus_core.forecast import run_forecast
 from nexus_core.ingestion import ingest_many
 from nexus_core.ingestion.registry import dump_sources_summary, load_sources
 from nexus_core.logging import configure_logging, get_logger
@@ -68,6 +70,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     discover_p.add_argument("--min-count", type=int, default=2)
 
+    forecast_p = sub.add_parser("forecast", help="Baseline hazard-rate forecasts + scenarios")
+    forecast_p.add_argument("--horizon-hours", type=float, default=72.0)
+
     sub.add_parser("status", help="Show version and database counters")
 
     args = parser.parse_args(argv)
@@ -103,6 +108,7 @@ def main(argv: list[str] | None = None) -> int:
                 ("relations", RelationRow),
                 ("signals", SignalRow),
                 ("patterns", PatternRow),
+                ("forecasts", ForecastRow),
             ):
                 count = session.execute(select(func.count()).select_from(model)).scalar_one()
                 print(f"{label}\t{count}")
@@ -226,6 +232,30 @@ def main(argv: list[str] | None = None) -> int:
             f"matches={counts.get('pattern_matches', 0)}\t"
             f"graph_nodes={counts.get('graph_nodes', 0)}\t"
             f"graph_edges={counts.get('graph_edges', 0)}"
+        )
+        return 0
+
+    if args.command == "forecast":
+        engine = make_engine(settings)
+        factory = make_session_factory(engine)
+        with factory() as session:
+            discovery = run_discovery(session, persist=False)
+            matched = {
+                (m.get("expected_next") or "")
+                for m in discovery.get("pattern_matches", [])
+                if isinstance(m, dict)
+            }
+            result_fc = run_forecast(
+                session,
+                horizon_hours=args.horizon_hours,
+                persist=True,
+                pattern_match_types={t for t in matched if t},
+            )
+            session.commit()
+        print(
+            f"version={__version__}\t"
+            f"forecasts={result_fc.get('counts', {}).get('forecasts', 0)}\t"
+            f"horizon_hours={args.horizon_hours}"
         )
         return 0
 

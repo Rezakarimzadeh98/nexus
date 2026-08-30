@@ -293,6 +293,84 @@ def graph_neighborhood(
         return graph
 
 
+@app.get("/forecasts")
+def list_forecasts(limit: int = 20) -> list[dict[str, Any]]:
+    limit = max(1, min(limit, 100))
+    try:
+        from nexus_core.db.models import ForecastRow
+
+        engine = make_engine(get_settings())
+        factory = make_session_factory(engine)
+        with factory() as session:
+            rows = (
+                session.execute(
+                    select(ForecastRow).order_by(ForecastRow.created_at.desc()).limit(limit)
+                )
+                .scalars()
+                .all()
+            )
+            return [
+                {
+                    "id": str(r.id),
+                    "question": r.question,
+                    "probability": r.probability,
+                    "confidence": r.confidence,
+                    "horizon_hours": r.horizon_hours,
+                    "model_id": r.model_id,
+                    "created_at": r.created_at.isoformat(),
+                    "scenarios": r.scenarios or [],
+                    "summary": r.summary,
+                    "evidence_event_ids": [str(x) for x in (r.evidence_event_ids or [])],
+                    "metadata": r.metadata_json or {},
+                }
+                for r in rows
+            ]
+    except Exception:
+        snap = _load_snapshot()
+        if snap is None:
+            raise HTTPException(status_code=503, detail="Unavailable") from None
+        return list(snap.get("forecasts", []))[:limit]
+
+
+@app.get("/forecasts/{forecast_id}")
+def get_forecast(forecast_id: UUID) -> dict[str, Any]:
+    try:
+        from nexus_core.db.models import ForecastRow
+
+        engine = make_engine(get_settings())
+        factory = make_session_factory(engine)
+        with factory() as session:
+            row = session.get(ForecastRow, forecast_id)
+            if row is None:
+                raise HTTPException(status_code=404, detail="Forecast not found")
+            return {
+                "id": str(row.id),
+                "question": row.question,
+                "probability": row.probability,
+                "confidence": row.confidence,
+                "horizon_hours": row.horizon_hours,
+                "model_id": row.model_id,
+                "created_at": row.created_at.isoformat(),
+                "scenarios": row.scenarios or [],
+                "summary": row.summary,
+                "evidence_event_ids": [str(x) for x in (row.evidence_event_ids or [])],
+                "evidence_observation_ids": [
+                    str(x) for x in (row.evidence_observation_ids or [])
+                ],
+                "metadata": row.metadata_json or {},
+            }
+    except HTTPException:
+        raise
+    except Exception:
+        snap = _load_snapshot()
+        if snap is None:
+            raise HTTPException(status_code=503, detail="Unavailable") from None
+        for item in snap.get("forecasts", []):
+            if item.get("id") == str(forecast_id):
+                return item
+        raise HTTPException(status_code=404, detail="Forecast not found") from None
+
+
 @app.get("/ui/status.json")
 def ui_status() -> FileResponse:
     path = _snapshot_path()

@@ -159,6 +159,27 @@
     }
     .pattern h3 { margin: 0 0 0.35rem; font-size: 1rem; }
     .pattern p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+    .scenario-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.45rem;
+      margin-top: 0.75rem;
+    }
+    @media (max-width: 720px) {
+      .scenario-row { grid-template-columns: 1fr; }
+    }
+    .scenario {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.65rem;
+      font-size: 0.82rem;
+    }
+    .scenario b {
+      display: block;
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+    }
+    .scenario .lab { color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.72rem; }
     footer {
       margin-top: 3rem; color: var(--muted); font-size: 0.85rem;
       border-top: 1px solid var(--line); padding-top: 1rem;
@@ -186,6 +207,14 @@
     <section class="section">
       <h2>What Changed?</h2>
       <div class="feed" id="signals"></div>
+    </section>
+
+    <section class="section">
+      <h2>Forecasts</h2>
+      <p style="color:var(--muted);margin:0 0 0.75rem;font-size:0.92rem">
+        Probabilities only — never certainty. Baseline model: hazard_rate_v1.
+      </p>
+      <div class="feed" id="forecasts"></div>
     </section>
 
     <section class="section">
@@ -280,6 +309,33 @@
       return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Entity neighborhood graph">${lines}${dots}</svg>`;
     }
 
+    function renderForecasts(forecasts) {
+      const items = forecasts || [];
+      if (!items.length) {
+        return `<div class="pattern"><p>No forecasts yet — need event history for hazard-rate baselines.</p></div>`;
+      }
+      return items.slice(0, 5).map((f) => {
+        const q = (f.question && f.question.text) || "Forecast question";
+        const p = typeof f.probability === "number" ? (f.probability * 100).toFixed(0) + "%" : "—";
+        const c = typeof f.confidence === "number" ? f.confidence.toFixed(2) : "—";
+        const scenarios = (f.scenarios || []).slice(0, 3).map((s) => {
+          const sp = typeof s.probability === "number" ? (s.probability * 100).toFixed(0) + "%" : "—";
+          return `<div class="scenario"><span class="lab">${esc(s.label)}</span><b>${esc(sp)}</b>${esc((s.drivers || []).slice(0, 2).join(" · "))}</div>`;
+        }).join("");
+        return `<article class="pattern">
+          <h3>${esc(q)}</h3>
+          <p>${esc(f.summary || "Baseline forecast with evidence — not a certainty claim.")}</p>
+          <div class="chips">
+            <span class="chip">P ${esc(p)}</span>
+            <span class="chip">confidence ${esc(c)}</span>
+            <span class="chip">${esc(f.horizon_hours || 72)}h horizon</span>
+            <span class="chip">${esc(f.model_id || "hazard_rate_v1")}</span>
+          </div>
+          <div class="scenario-row">${scenarios}</div>
+        </article>`;
+      }).join("");
+    }
+
     function renderPatterns(patterns, matches) {
       const alerts = matches || [];
       const mined = patterns || [];
@@ -319,7 +375,7 @@
           `<span>generated <strong>${esc(new Date(data.generated_at).toUTCString())}</strong></span>`;
 
         const counts = data.counts || {};
-        const order = ["observations", "entities", "events", "signals", "patterns", "relations"];
+        const order = ["observations", "entities", "events", "signals", "patterns", "forecasts", "relations"];
         document.getElementById("counters").innerHTML = order.map((k) => {
           const n = counts[k] ?? 0;
           return `<div class="counter"><span class="n">${esc(n)}</span><span class="l">${esc(k)}</span></div>`;
@@ -373,6 +429,7 @@
           });
         }
 
+        document.getElementById("forecasts").innerHTML = renderForecasts(data.forecasts || []);
         document.getElementById("patterns").innerHTML = renderPatterns(
           data.patterns || [],
           data.pattern_matches || []

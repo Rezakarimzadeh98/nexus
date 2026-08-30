@@ -2,6 +2,19 @@
 
 All notable changes to NEXUS are documented here.
 
+## [0.5.0] - 2026-08-30
+
+### Added
+
+- Phase 8 forecasts: explicit questions, hazard-rate baseline (`hazard_rate_v1`), evidence ids
+- Scenario engine (elevated / status_quo / cooling) with probabilities summing ~1
+- CLI `nexus forecast`; API `/forecasts`, `/forecasts/{id}`
+- `models/registry.yaml`; Alembic `0003_forecasts`; dashboard forecast cards + scenario split
+
+### Changed
+
+- Package version **0.5.0**
+
 ## [0.4.0] - 2026-08-30
 
 ### Added

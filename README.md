@@ -7,10 +7,10 @@ By [Reza Karimzadeh](https://github.com/Rezakarimzadeh98) | [Authors](AUTHORS.md
 Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next - and whether those claims hold up against the truth.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v0.4.0-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v0.4.0)
+[![Version](https://img.shields.io/badge/version-v0.5.0-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v0.5.0)
 [![CI](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml)
 [![Live ingest](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml)
-[![Status](https://img.shields.io/badge/status-Phase_8_Forecast-0f766e.svg)](docs/ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-Phase_9_Verify-0f766e.svg)](docs/ROADMAP.md)
 [![Live demo](https://img.shields.io/badge/live-demo-3d9b7a)](https://rezakarimzadeh98.github.io/nexus/)
 [![Author](https://img.shields.io/badge/author-Reza_Karimzadeh-1f6feb)](https://github.com/Rezakarimzadeh98)
 [![Discussions](https://img.shields.io/badge/discussions-join-1f6feb)](https://github.com/Rezakarimzadeh98/nexus/discussions)
@@ -124,6 +124,7 @@ pytest -q
 python -m nexus_core.cli ingest --dry-run
 python -m nexus_core.cli detect
 python -m nexus_core.cli discover
+python -m nexus_core.cli forecast
 python -m nexus_core.cli export-live
 `
 
@@ -157,7 +158,7 @@ Every checkbox lives in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Status (honest)
 
-**v0.4.0** - Phase 7 Discover done (graph neighborhood + sequence patterns). Phase 8 Forecast is next.
+**v0.5.0** - Phase 8 Forecast done (hazard baselines + scenarios). Phase 9 Verify is next.
 
 NEXUS is not yet a production intelligence cloud. Stars help; reproducible pipelines and public benchmarks matter more.
 

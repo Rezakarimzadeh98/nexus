@@ -1,0 +1,13 @@
+# Model registry (Phase 8+)
+#
+# Baseline forecast models live in code under nexus_core.forecast.
+# Optional serialized artifacts can be placed here later.
+#
+# Current registered models:
+# - hazard_rate_v1: Poisson hazard from event-type rates (default)
+
+models:
+  hazard_rate_v1:
+    kind: statistical_baseline
+    description: "P(event in horizon) = 1 - exp(-rate * horizon)"
+    certainty: never

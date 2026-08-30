@@ -105,3 +105,37 @@ class Signal(NexusModel):
     evidence: list[EvidenceRef] = Field(default_factory=list)
     contradictions: list[EvidenceRef] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ForecastQuestion(NexusModel):
+    """Explicit forecast question — never implied certainty."""
+
+    id: UUID = Field(default_factory=new_id)
+    kind: str = "event_in_horizon"
+    event_type: str
+    horizon_hours: float = Field(default=72.0, gt=0.0)
+    scope_key: str = "global"
+    text: str | None = None
+
+
+class Scenario(NexusModel):
+    id: UUID = Field(default_factory=new_id)
+    label: str
+    probability: float = Field(ge=0.0, le=1.0)
+    drivers: list[str] = Field(default_factory=list)
+    summary: str | None = None
+
+
+class Forecast(NexusModel):
+    id: UUID = Field(default_factory=new_id)
+    question: ForecastQuestion
+    probability: float = Field(ge=0.0, le=1.0)
+    confidence: float = Field(ge=0.0, le=1.0)
+    horizon_hours: float
+    model_id: str = "hazard_rate_v1"
+    created_at: datetime = Field(default_factory=utc_now)
+    evidence_event_ids: list[UUID] = Field(default_factory=list)
+    evidence_observation_ids: list[UUID] = Field(default_factory=list)
+    scenarios: list[Scenario] = Field(default_factory=list)
+    summary: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)

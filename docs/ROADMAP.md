@@ -188,28 +188,28 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 
 ---
 
-## Phase 8 — Forecast + Scenarios = **v0.3**
-**Status: ACTIVE**
+## Phase 8 — Forecast + Scenarios = **v0.3 product slice**
+**Status: DONE** · shipped in **v0.5.0**
 
 ### 8.1 Forecast engine
-- [ ] Explicit question schema (event-in-horizon, risk trajectory)
-- [ ] Outputs: probability, confidence, horizon, evidence ids
-- [ ] Non-LLM baselines first (hazard rates, simple models)
-- [ ] Optional model registry in `models/`
+- [x] Explicit question schema (event-in-horizon, risk trajectory)
+- [x] Outputs: probability, confidence, horizon, evidence ids
+- [x] Non-LLM baselines first (hazard rates, simple models)
+- [x] Optional model registry in `models/` (`registry.yaml`)
 
 ### 8.2 Scenario engine
-- [ ] 2–N scenarios with probabilities summing ~1
-- [ ] Drivers listed per scenario
+- [x] 2–N scenarios with probabilities summing ~1
+- [x] Drivers listed per scenario
 
 ### 8.3 UI
-- [ ] Forecast cards + scenario split view
+- [x] Forecast cards + scenario split view
 
-**Exit:** Forecasts always carry probability + evidence; never certainty claims.
+**Exit:** Forecasts always carry probability + evidence; never certainty claims. ✅
 
 ---
 
 ## Phase 9 — Verify + Evaluate = **v0.4**
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 9.1 Historical replay
 - [ ] Time-travel ingest cutoff
