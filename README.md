@@ -1,55 +1,170 @@
 # NEXUS
 
-**Universal intelligence engine** â€” turn scattered data into a living model of what changed, why it matters, and what may happen next â€” then score those claims against reality.
+**Universal Intelligence Engine**
 
-[Product lock](docs/PRODUCT.md) Â· [Roadmap to enterprise](docs/ROADMAP.md) Â· [Architecture](docs/ARCHITECTURE.md)
+Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next ? and whether those claims hold up against the truth.
 
-> Status: **Phase 0 complete** · next **Phase 1 — Foundation**. Not a production intelligence platform yet.
+[![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-Phase_1_Foundation-amber.svg)](docs/ROADMAP.md)
+[![Discussions](https://img.shields.io/badge/discussions-join-1f6feb)](https://github.com/Rezakarimzadeh98/nexus/discussions)
 
-## Why
+![NEXUS social preview](docs/assets/social-preview.png)
 
-Humans cannot jointly read millions of heterogeneous updates. Counting dashboards miss context; chatbots skip state, evidence, and evaluation. NEXUS is built as structured intelligence engines with a measurable proof question â€” see [PRODUCT.md](docs/PRODUCT.md).
+[Product](docs/PRODUCT.md) · [Roadmap](docs/ROADMAP.md) · [Architecture](docs/ARCHITECTURE.md) · [Share kit](docs/SHARE.md) · [Contributing](CONTRIBUTING.md)
 
-## Roadmap (compressed)
+---
 
-| Phase | Outcome |
+## The problem people feel
+
+There is too much data and not enough understanding.
+
+Sources disagree. Timelines drift. Dashboards count events but cannot say *what changed in the system*. Chat-style tools answer a prompt and forget state, provenance, and scorekeeping.
+
+**NEXUS is built for a different job:** keep a living model, detect meaningful change, show the evidence, forecast with probability ? then measure whether you were right.
+
+---
+
+## What NEXUS does
+
+```text
+10,000,000 data points
+        ?
+   entities · events · relations
+        ?
+     living current state
+        ?
+   signals · patterns · forecasts
+        ?
+   evidence · outcomes · evaluation
+```
+
+| Capability | Plain meaning |
 | --- | --- |
-| 0 | Docs + public repo |
-| 1 | Foundation (Compose, CI, types) |
-| 2â€“3 | Ingest + normalize |
-| 4â€“5 | Entity/event + **state/signal/anomaly** |
-| 6 | Dashboard v0.1 (**What Changed**) |
-| 7â€“8 | Graph/patterns + forecast/scenarios |
-| 9â€“10 | Evaluation + feedback learning |
-| 11 | v1.0 adapters + SDK + API platform |
-| 12 | Enterprise (tenancy, SSO, SLA, scale) |
+| **Observe** | Pull heterogeneous sources continuously |
+| **Understand** | Normalize time, language, duplicates |
+| **Connect** | Entities, events, relationships |
+| **Detect** | State shifts, signals, anomalies with explanations |
+| **Discover** | Recurring patterns from history |
+| **Forecast** | Probabilistic scenarios ? never false certainty |
+| **Verify** | Compare predictions to what actually happened |
+| **Learn** | Feed errors back into thresholds and models |
 
-Full checklists: [docs/ROADMAP.md](docs/ROADMAP.md).
+![NEXUS intelligence loop](docs/assets/loop-diagram.png)
 
-## Repository layout (target)
+---
+
+## Not another ?ask the model? stack
+
+```text
+Wrong shape                         NEXUS shape
+???????????                         ???????????
+Data ? LLM ? Answer                 Data ? structured intelligence
+                                    ? state ? signals ? patterns
+                                    ? forecast ? outcome ? evaluation
+```
+
+Large language models may help with extraction, classification, and explanation.  
+They are **not** the product. Forecasting and anomaly detection ship with measurable baselines first.
+
+---
+
+## Domain-agnostic core
+
+The engine only knows public concepts:
+
+`Entity` · `Event` · `Observation` · `Relationship` · `State` · `Signal` · `Pattern` · `Forecast` · `Evidence` · `Outcome`
+
+Adapters plug domains on top ? news, finance, cyber, supply chain, open analytical research ? without rewriting the core.
+
+---
+
+## What you will see (target experience)
+
+![Dashboard preview ? What Changed](docs/assets/dashboard-preview.png)
+
+A visitor should open the demo and immediately see:
+
+- live counters (data, entities, events, signals)
+- a **What Changed?** feed
+- one click into **evidence**, timeline, related entities, and forecast context
+
+Live dashboard ships in **Phase 6**. Until then this preview is the product north star.
+
+---
+
+## Proof question
+
+> Can heterogeneous public data become a living model that detects important change earlier than naive counting, explains it with source-linked evidence, and produces forecasts we can score against reality?
+
+If benchmarks say yes, NEXUS is more than a demo ? it is a platform.
+
+---
+
+## Roadmap at a glance
+
+| Phase | Name | You get |
+| ---: | --- | --- |
+| 0 | Lock & bootstrap | Product, architecture, public repo |
+| **1** | **Foundation** | Compose, CI, schemas, core types |
+| 2?3 | Observe & understand | Ingest + normalize (5?10 public sources) |
+| 4?5 | Connect & detect | Entities/events + **state / signal / anomaly** + API |
+| 6 | Show | Dashboard v0.1 ? What Changed + evidence |
+| 7?8 | Discover & forecast | Graph, patterns, scenarios, probabilities |
+| 9?10 | Verify & learn | Replay, Brier/lead-time, feedback loops |
+| 11 | Platform (v1.0) | Adapters, SDK, API, web platform |
+| 12 | Enterprise | Multi-tenant, SSO, SLA, scale, governance |
+
+Every checkbox lives in [`docs/ROADMAP.md`](docs/ROADMAP.md). The roadmap is updated as phases complete ? this README stays the public front door.
+
+---
+
+## Repository layout
 
 ```text
 nexus/
-â”œâ”€â”€ core/           # engines (ingestion â†’ feedback)
-â”œâ”€â”€ adapters/       # generic, finance, cyber, â€¦
-â”œâ”€â”€ models/         # trained/baseline artifacts
-â”œâ”€â”€ pipelines/      # orchestration
-â”œâ”€â”€ api/            # FastAPI
-â”œâ”€â”€ dashboard/      # web UI
-â”œâ”€â”€ datasets/       # fixtures / sample public extracts
-â”œâ”€â”€ benchmarks/     # evaluation definitions
-â”œâ”€â”€ experiments/
-â”œâ”€â”€ tests/
-â”œâ”€â”€ docs/
-â””â”€â”€ infrastructure/ # compose, later helm
+??? core/             # engines: ingestion ? feedback
+??? adapters/         # generic · finance · cyber · ?
+??? models/           # baselines and trained artifacts
+??? pipelines/        # orchestration
+??? api/              # HTTP API
+??? dashboard/        # web experience
+??? datasets/         # fixtures / public extracts
+??? benchmarks/       # evaluation definitions
+??? experiments/
+??? tests/
+??? docs/             # product, roadmap, architecture, assets
+??? infrastructure/   # Compose today · Helm later
 ```
 
-## Non-goals (early)
+---
 
-- Operational military targeting
-- â€œLLM â†’ answerâ€ as the product
-- Claiming certain futures
+## Status (honest)
+
+**Phase 0 is complete. Phase 1 (Foundation) is next.**
+
+NEXUS is not yet a production intelligence cloud. Stars and forks help; reproducible pipelines and public benchmarks matter more.
+
+---
+
+## Non-goals
+
+- Operational military targeting or action guidance  
+- Treating ?prompt ? answer? as the whole product  
+- Declaring the future as certain  
+
+---
+
+## Get involved
+
+- Read the [product lock](docs/PRODUCT.md) and [roadmap](docs/ROADMAP.md)
+- Open a [Discussion](https://github.com/Rezakarimzadeh98/nexus/discussions) with a domain or data problem
+- Take a roadmap checkbox and open a focused PR ([Contributing](CONTRIBUTING.md))
+- Star the repo if the proof question matters to you
+
+Ready-to-post launch text: [`docs/SHARE.md`](docs/SHARE.md)
+
+---
 
 ## License
 
-MIT Â© Reza Karimzadeh
+MIT © [Reza Karimzadeh](https://github.com/Rezakarimzadeh98)

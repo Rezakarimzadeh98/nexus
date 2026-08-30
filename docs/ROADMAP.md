@@ -22,7 +22,8 @@ Status legend: `PLANNED` · `ACTIVE` · `DONE` · `BLOCKED`
 - [x] ROADMAP.md (this file)
 - [x] ARCHITECTURE.md
 - [x] ADRs folder + ADR-0001 core concepts
-- [ ] SHARE.md (launch copy later)
+- [x] SHARE.md (launch / viral copy kit)
+- [x] Public visuals (social preview, loop diagram, dashboard north star)
 
 ### 0.3 Repo skeleton
 - [x] Directory tree (`core/`, `adapters/`, `api/`, `dashboard/`, …)
@@ -316,10 +317,11 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 
 ---
 
-## Execution rule for the agent
+## Execution rules (maintainers)
 
-1. Only one **ACTIVE** major phase at a time (plus small docs fixes).  
+1. Only one **ACTIVE** major phase at a time (plus small docs/visual fixes).  
 2. Do not start Phase N+1 until Phase N **Exit** is checked.  
-3. Prefer vertical slice (one path works end-to-end) over building all engines empty.  
-4. Update this file’s checkboxes when work lands.  
-5. Session todos mirror the Active phase sub-tasks only.
+3. Prefer a vertical slice (one path works end-to-end) over empty engine stubs.  
+4. Update this file’s checkboxes when work lands; refresh README status and public visuals.  
+5. Session work should mirror the Active phase sub-tasks only.  
+6. Public copy stays free of internal tooling names; the project speaks for itself.
