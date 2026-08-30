@@ -13,10 +13,12 @@ from nexus_core.db.models import (
     EntityRow,
     EventRow,
     ObservationRow,
+    PatternRow,
     RelationRow,
     SignalRow,
     StateSnapshotRow,
 )
+from nexus_core.discovery.run import run_discovery
 from nexus_core.ids import utc_now
 from nexus_core.types import Observation, Signal, StateSnapshot
 
@@ -38,8 +40,11 @@ def build_live_snapshot(
     snapshots: list[StateSnapshot] | None = None,
     signals: list[Signal] | None = None,
     recent_limit: int = 25,
+    discovery: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """JSON payload for the public live demo / Pages site."""
+    if discovery is None:
+        discovery = run_discovery(session, persist=False)
     counts = {
         "observations": session.execute(
             select(func.count()).select_from(ObservationRow)
@@ -51,6 +56,7 @@ def build_live_snapshot(
             select(func.count()).select_from(StateSnapshotRow)
         ).scalar_one(),
         "signals": session.execute(select(func.count()).select_from(SignalRow)).scalar_one(),
+        "patterns": session.execute(select(func.count()).select_from(PatternRow)).scalar_one(),
     }
 
     recent_rows = list(
@@ -143,6 +149,9 @@ def build_live_snapshot(
         "signals": signal_payload,
         "recent_observations": recent,
         "observations_by_id": obs_index,
+        "graph": discovery.get("graph", {"nodes": [], "edges": []}),
+        "patterns": discovery.get("patterns", []),
+        "pattern_matches": discovery.get("pattern_matches", []),
     }
 
 

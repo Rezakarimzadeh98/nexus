@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import DateTime, Float, String, Text, func
+from sqlalchemy import DateTime, Float, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -90,4 +90,18 @@ class SignalRow(Base):
     detected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     evidence: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     contradictions: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
+
+
+class PatternRow(Base):
+    __tablename__ = "patterns"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    sequence: Mapped[list[str]] = mapped_column(ARRAY(Text), default=list)
+    support: Mapped[float] = mapped_column(Float, default=0.0)
+    confidence: Mapped[float] = mapped_column(Float, default=0.0)
+    count: Mapped[int] = mapped_column(Integer, default=0)
+    example_event_ids: Mapped[list[UUID]] = mapped_column(
+        ARRAY(PGUUID(as_uuid=True)), default=list
+    )
     metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)

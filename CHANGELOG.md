@@ -2,6 +2,19 @@
 
 All notable changes to NEXUS are documented here.
 
+## [0.4.0] - 2026-08-30
+
+### Added
+
+- Phase 7 discovery: scoped entity neighborhood graph + sequence pattern mining (A->B->C)
+- Pattern match alerts when a recent prefix historically continues
+- CLI `nexus discover`; API `/graph/neighborhood`, `/patterns`
+- Alembic `0002_patterns`; dashboard Seen before + Neighborhood views
+
+### Changed
+
+- Package version **0.4.0**
+
 ## [0.3.1] - 2026-08-30
 
 ### Added

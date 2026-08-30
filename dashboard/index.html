@@ -145,6 +145,20 @@
     .obs a { color: var(--accent); text-decoration: none; }
     .obs a:hover { text-decoration: underline; }
     .obs .src { color: var(--muted); font-size: 0.8rem; }
+    .graph-wrap {
+      border: 1px solid var(--line);
+      background: var(--card);
+      padding: 0.75rem;
+      overflow: hidden;
+    }
+    .graph-wrap svg { width: 100%; height: auto; display: block; }
+    .pattern {
+      border: 1px solid var(--line);
+      background: var(--card);
+      padding: 0.9rem 1rem;
+    }
+    .pattern h3 { margin: 0 0 0.35rem; font-size: 1rem; }
+    .pattern p { margin: 0; color: var(--muted); font-size: 0.9rem; }
     footer {
       margin-top: 3rem; color: var(--muted); font-size: 0.85rem;
       border-top: 1px solid var(--line); padding-top: 1rem;
@@ -162,7 +176,7 @@
   <div class="wrap">
     <header>
       <p class="brand">NEXUS</p>
-      <p class="tag">Live public feeds to living state to What Changed, with evidence.</p>
+      <p class="tag">Live public feeds to living state to What Changed, with evidence and patterns.</p>
       <p class="byline">By <a href="https://github.com/Rezakarimzadeh98" rel="author">Reza Karimzadeh</a></p>
       <div class="meta" id="meta">Loading live snapshot...</div>
     </header>
@@ -175,15 +189,25 @@
     </section>
 
     <section class="section">
+      <h2>Seen before</h2>
+      <div class="feed" id="patterns"></div>
+    </section>
+
+    <section class="section">
+      <h2>Neighborhood</h2>
+      <div class="graph-wrap" id="graph"></div>
+    </section>
+
+    <section class="section">
       <h2>Recent observations</h2>
       <div id="obs"></div>
     </section>
 
     <footer>
-      <div>Maintained by <a href="https://github.com/Rezakarimzadeh98">Reza Karimzadeh</a> · MIT</div>
+      <div>Maintained by <a href="https://github.com/Rezakarimzadeh98">Reza Karimzadeh</a> | MIT</div>
       <div>
         <a href="https://github.com/Rezakarimzadeh98/nexus">github.com/Rezakarimzadeh98/nexus</a>
-        · snapshot refreshes from scheduled live ingest
+        | snapshot refreshes from scheduled live ingest
       </div>
     </footer>
   </div>
@@ -225,6 +249,64 @@
       }).join("")}</div>`;
     }
 
+    function renderGraph(graph) {
+      const nodes = (graph && graph.nodes) || [];
+      const edges = (graph && graph.edges) || [];
+      if (!nodes.length) {
+        return `<p style="color:var(--muted);padding:0.5rem">Graph neighborhood will appear after entities and relations land.</p>`;
+      }
+      const w = 900, h = 420, cx = w / 2, cy = h / 2, r = Math.min(w, h) * 0.36;
+      const pos = {};
+      nodes.forEach((n, i) => {
+        const a = (i / nodes.length) * Math.PI * 2 - Math.PI / 2;
+        pos[n.id] = { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r };
+      });
+      if (graph.center_id && pos[graph.center_id]) {
+        pos[graph.center_id] = { x: cx, y: cy };
+      }
+      const lines = edges.slice(0, 80).map((e) => {
+        const a = pos[e.source], b = pos[e.target];
+        if (!a || !b) return "";
+        return `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="rgba(61,155,122,0.35)" stroke-width="1.2" />`;
+      }).join("");
+      const dots = nodes.map((n) => {
+        const p = pos[n.id];
+        const isCenter = n.id === graph.center_id;
+        return `<g>
+          <circle cx="${p.x}" cy="${p.y}" r="${isCenter ? 8 : 5}" fill="${isCenter ? "#d4a24c" : "#3d9b7a"}" />
+          <text x="${p.x + 10}" y="${p.y + 4}" fill="#e8f0ea" font-size="11">${esc((n.label || "").slice(0, 28))}</text>
+        </g>`;
+      }).join("");
+      return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Entity neighborhood graph">${lines}${dots}</svg>`;
+    }
+
+    function renderPatterns(patterns, matches) {
+      const alerts = matches || [];
+      const mined = patterns || [];
+      if (!alerts.length && !mined.length) {
+        return `<div class="pattern"><p>No frequent sequences yet — baselines form as event history grows.</p></div>`;
+      }
+      const alertHtml = alerts.slice(0, 5).map((m) => `
+        <article class="pattern">
+          <h3>${esc(m.title || "Pattern match")}</h3>
+          <p>${esc(m.summary || "")}</p>
+          <div class="chips">
+            <span class="chip">confidence ${(m.confidence ?? 0).toFixed(2)}</span>
+            <span class="chip">${esc((m.sequence || []).join(" -> "))}</span>
+          </div>
+        </article>`).join("");
+      const minedHtml = mined.slice(0, 6).map((p) => `
+        <article class="pattern">
+          <h3>${esc((p.sequence || []).join(" -> "))}</h3>
+          <p>We've seen this shape before (${esc(p.count)} times).</p>
+          <div class="chips">
+            <span class="chip">support ${(p.support ?? 0).toFixed(2)}</span>
+            <span class="chip">confidence ${(p.confidence ?? 0).toFixed(2)}</span>
+          </div>
+        </article>`).join("");
+      return alertHtml + minedHtml;
+    }
+
     async function load() {
       const meta = document.getElementById("meta");
       try {
@@ -237,7 +319,7 @@
           `<span>generated <strong>${esc(new Date(data.generated_at).toUTCString())}</strong></span>`;
 
         const counts = data.counts || {};
-        const order = ["observations", "entities", "events", "signals", "relations"];
+        const order = ["observations", "entities", "events", "signals", "patterns", "relations"];
         document.getElementById("counters").innerHTML = order.map((k) => {
           const n = counts[k] ?? 0;
           return `<div class="counter"><span class="n">${esc(n)}</span><span class="l">${esc(k)}</span></div>`;
@@ -290,6 +372,12 @@
             });
           });
         }
+
+        document.getElementById("patterns").innerHTML = renderPatterns(
+          data.patterns || [],
+          data.pattern_matches || []
+        );
+        document.getElementById("graph").innerHTML = renderGraph(data.graph || {});
 
         const obs = data.recent_observations || [];
         document.getElementById("obs").innerHTML = obs.slice(0, 12).map((o) => {

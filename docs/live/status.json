@@ -1,5 +1,5 @@
 {
-  "version": "0.3.1",
+  "version": "0.4.0",
   "generated_at": "2026-08-30T00:00:00+00:00",
   "maintainer": {
     "name": "Reza Karimzadeh",
@@ -14,10 +14,14 @@
     "events": 0,
     "relations": 0,
     "state_snapshots": 0,
-    "signals": 0
+    "signals": 0,
+    "patterns": 0
   },
   "states": [],
   "signals": [],
   "recent_observations": [],
-  "observations_by_id": {}
+  "observations_by_id": {},
+  "graph": { "center_id": null, "depth": 0, "nodes": [], "edges": [] },
+  "patterns": [],
+  "pattern_matches": []
 }

@@ -172,24 +172,24 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 
 ---
 
-## Phase 7 — Discover (Graph + Patterns) = **v0.2**
-**Status: ACTIVE**
+## Phase 7 — Discover (Graph + Patterns) = **v0.2 product slice**
+**Status: DONE** · shipped in **v0.4.0**
 
 ### 7.1 Knowledge graph
-- [ ] Query API for neighborhood
-- [ ] Dashboard graph view (scoped, not whole-world dump)
+- [x] Query API for neighborhood (`/graph/neighborhood`)
+- [x] Dashboard graph view (scoped hub neighborhood)
 
 ### 7.2 Pattern engine
-- [ ] Mine frequent sequences A→B→C (support/confidence)
-- [ ] Pattern match alerts when prefix repeats
-- [ ] Link patterns to historical examples
+- [x] Mine frequent sequences A→B→C (support/confidence)
+- [x] Pattern match alerts when prefix repeats
+- [x] Link patterns to historical examples (example event ids)
 
-**Exit:** “We’ve seen this shape before” with examples.
+**Exit:** “We’ve seen this shape before” with examples. ✅
 
 ---
 
 ## Phase 8 — Forecast + Scenarios = **v0.3**
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 8.1 Forecast engine
 - [ ] Explicit question schema (event-in-horizon, risk trajectory)

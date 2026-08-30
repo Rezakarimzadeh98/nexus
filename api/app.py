@@ -229,6 +229,70 @@ def get_observation(observation_id: UUID) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Observation not found") from None
 
 
+@app.get("/patterns")
+def list_patterns(limit: int = 20) -> list[dict[str, Any]]:
+    limit = max(1, min(limit, 100))
+    try:
+        from nexus_core.db.models import PatternRow
+
+        engine = make_engine(get_settings())
+        factory = make_session_factory(engine)
+        with factory() as session:
+            rows = session.execute(select(PatternRow).limit(limit)).scalars().all()
+            return [
+                {
+                    "id": str(r.id),
+                    "sequence": r.sequence,
+                    "support": r.support,
+                    "confidence": r.confidence,
+                    "count": r.count,
+                    "example_event_ids": [str(x) for x in (r.example_event_ids or [])],
+                    "metadata": r.metadata_json or {},
+                }
+                for r in rows
+            ]
+    except Exception:
+        snap = _load_snapshot()
+        if snap is None:
+            raise HTTPException(status_code=503, detail="Unavailable") from None
+        return list(snap.get("patterns", []))[:limit]
+
+
+@app.get("/graph/neighborhood")
+def graph_neighborhood(
+    entity_id: UUID | None = None,
+    canonical_key: str | None = None,
+    depth: int = 1,
+    limit: int = 48,
+) -> dict[str, Any]:
+    try:
+        from nexus_core.discovery.graph import build_neighborhood
+
+        engine = make_engine(get_settings())
+        factory = make_session_factory(engine)
+        with factory() as session:
+            nb = build_neighborhood(
+                session,
+                entity_id=entity_id,
+                canonical_key=canonical_key,
+                depth=depth,
+                limit=limit,
+            )
+            if nb is None:
+                raise HTTPException(status_code=404, detail="No graph neighborhood")
+            return nb.as_dict()
+    except HTTPException:
+        raise
+    except Exception:
+        snap = _load_snapshot()
+        if snap is None:
+            raise HTTPException(status_code=503, detail="Unavailable") from None
+        graph = snap.get("graph")
+        if not graph:
+            raise HTTPException(status_code=404, detail="No graph neighborhood") from None
+        return graph
+
+
 @app.get("/ui/status.json")
 def ui_status() -> FileResponse:
     path = _snapshot_path()

@@ -8,7 +8,14 @@ from sqlalchemy import func, select
 from nexus_core import __version__
 from nexus_core.config import get_settings
 from nexus_core.db import make_engine, make_session_factory
-from nexus_core.db.models import EntityRow, EventRow, ObservationRow, RelationRow, SignalRow
+from nexus_core.db.models import (
+    EntityRow,
+    EventRow,
+    ObservationRow,
+    PatternRow,
+    RelationRow,
+    SignalRow,
+)
 from nexus_core.detection import (
     build_live_snapshot,
     compute_state_snapshots,
@@ -18,6 +25,7 @@ from nexus_core.detection import (
     write_live_snapshot,
 )
 from nexus_core.detection.export import observations_from_rows
+from nexus_core.discovery import run_discovery
 from nexus_core.extraction import extract_entities, extract_events, extract_relations
 from nexus_core.extraction.store import persist_entities, persist_events, persist_relations
 from nexus_core.ingestion import ingest_many
@@ -54,6 +62,12 @@ def main(argv: list[str] | None = None) -> int:
     export_p = sub.add_parser("export-live", help="Write public live snapshot JSON")
     export_p.add_argument("--out", default="docs/live/status.json")
 
+    discover_p = sub.add_parser(
+        "discover",
+        help="Mine patterns and build scoped graph neighborhood",
+    )
+    discover_p.add_argument("--min-count", type=int, default=2)
+
     sub.add_parser("status", help="Show version and database counters")
 
     args = parser.parse_args(argv)
@@ -88,6 +102,7 @@ def main(argv: list[str] | None = None) -> int:
                 ("events", EventRow),
                 ("relations", RelationRow),
                 ("signals", SignalRow),
+                ("patterns", PatternRow),
             ):
                 count = session.execute(select(func.count()).select_from(model)).scalar_one()
                 print(f"{label}\t{count}")
@@ -197,6 +212,21 @@ def main(argv: list[str] | None = None) -> int:
             payload = build_live_snapshot(session)
             write_live_snapshot(out, payload)
         print(f"wrote\t{out}\tsignals={len(payload.get('signals', []))}")
+        return 0
+
+    if args.command == "discover":
+        engine = make_engine(settings)
+        factory = make_session_factory(engine)
+        with factory() as session:
+            discovery = run_discovery(session, min_count=args.min_count, persist=True)
+            session.commit()
+        counts = discovery.get("counts", {})
+        print(
+            f"version={__version__}\tpatterns={counts.get('patterns', 0)}\t"
+            f"matches={counts.get('pattern_matches', 0)}\t"
+            f"graph_nodes={counts.get('graph_nodes', 0)}\t"
+            f"graph_edges={counts.get('graph_edges', 0)}"
+        )
         return 0
 
     parser.print_help()
