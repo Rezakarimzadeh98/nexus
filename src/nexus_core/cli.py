@@ -50,6 +50,11 @@ def main(argv: list[str] | None = None) -> int:
     ingest_p.add_argument("--fixture-root", default="datasets")
     ingest_p.add_argument("--dry-run", action="store_true")
     ingest_p.add_argument("--source-id", default=None)
+    ingest_p.add_argument(
+        "--allow-partial",
+        action="store_true",
+        help="Exit 0 if at least one source succeeds (live demo resilience)",
+    )
 
     list_p = sub.add_parser("sources", help="List configured sources")
     list_p.add_argument("--sources", default="adapters/generic/sources.yaml")
@@ -141,6 +146,7 @@ def main(argv: list[str] | None = None) -> int:
                 results = ingest_many(session, sources, fixture_root=fixture_root, persist=True)
                 session.commit()
         failures = 0
+        successes = 0
         for result in results:
             if result.error == "disabled":
                 print(f"{result.source_id}\tdisabled")
@@ -153,6 +159,10 @@ def main(argv: list[str] | None = None) -> int:
             if result.error:
                 failures += 1
                 log.error("source failed: %s", result.source_id)
+            else:
+                successes += 1
+        if failures and args.allow_partial and successes > 0:
+            return 0
         return 1 if failures else 0
 
     if args.command == "extract":

@@ -46,7 +46,7 @@ jobs:
       - name: Migrate
         run: alembic upgrade head
       - name: Live official sources
-        run: python -m nexus_core.cli ingest --sources adapters/generic/sources.yaml
+        run: python -m nexus_core.cli ingest --sources adapters/generic/sources.yaml --allow-partial
       - name: Extract entities and events
         run: python -m nexus_core.cli extract --limit 200
       - name: Detect state and signals
