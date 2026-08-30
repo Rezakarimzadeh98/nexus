@@ -62,28 +62,28 @@ Status legend: `PLANNED` · `ACTIVE` · `DONE` · `BLOCKED`
 ---
 
 ## Phase 2 — Observe (Ingestion)
-**Status: ACTIVE**
+**Status: DONE**
 
 ### 2.1 Ingestion engine
-- [ ] Source registry (id, type, schedule, credentials ref)
-- [ ] Connectors: RSS, HTTP JSON, CSV file, static fixture
-- [ ] Job runner (cron / CLI `nexus ingest`)
-- [ ] Raw blob store + content hash (dedupe at raw layer)
+- [x] Source registry (id, type, schedule, credentials ref)
+- [x] Connectors: RSS, HTTP JSON, CSV file, static fixture
+- [x] Job runner (cron / CLI `nexus ingest`)
+- [x] Raw blob store + content hash (dedupe at raw layer)
 
 ### 2.2 First sources (5–10 public)
-- [ ] Curate list in `adapters/generic/sources.yaml`
-- [ ] Rate limits + robots/ToS respect
-- [ ] Failure isolation per source
+- [x] Curate list in `adapters/generic/sources.yaml`
+- [x] Rate limits + robots/ToS respect
+- [x] Failure isolation per source
 
 ### 2.3 Provenance
-- [ ] Every observation links to `source_id`, `fetched_at`, `raw_uri` / hash
+- [x] Every observation links to `source_id`, `fetched_at`, `raw_uri` / hash
 
-**Exit:** Continuous or on-demand ingest writes observations with provenance.
+**Exit:** Continuous or on-demand ingest writes observations with provenance. ✅
 
 ---
 
 ## Phase 3 — Understand + Normalize
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 3.1 Normalization engine
 - [ ] Canonical time (UTC)

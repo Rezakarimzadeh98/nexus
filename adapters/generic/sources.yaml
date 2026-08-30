@@ -1,0 +1,32 @@
+# Curated public / fixture sources for NEXUS Phase 2.
+# Prefer ToS-respecting public feeds. Network sources are optional in CI;
+# fixtures always run offline.
+
+sources:
+  - id: fixture-demo-news
+    type: fixture
+    enabled: true
+    path: fixtures/demo_news.json
+    poll_seconds: 300
+    metadata:
+      license: demo
+      domain: generic
+
+  - id: fixture-demo-csv
+    type: csv
+    enabled: true
+    path: fixtures/demo_events.csv
+    poll_seconds: 300
+    metadata:
+      license: demo
+
+  # Optional live public RSS (disabled by default for reproducible CI)
+  - id: bbc-world-rss
+    type: rss
+    enabled: false
+    url: https://feeds.bbci.co.uk/news/world/rss.xml
+    poll_seconds: 1800
+    rate_limit_per_minute: 10
+    metadata:
+      publisher: BBC
+      note: Enable locally after reviewing feed terms

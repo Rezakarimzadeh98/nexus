@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "title": "NEXUS foundation reaches Phase 1",
+      "summary": "Core contracts and Postgres schema are ready for ingestion.",
+      "url": "https://github.com/Rezakarimzadeh98/nexus",
+      "language": "en"
+    },
+    {
+      "title": "Public intelligence needs scorekeeping",
+      "summary": "Forecasts without outcomes are theater.",
+      "url": "https://github.com/Rezakarimzadeh98/nexus#proof-question",
+      "language": "en"
+    }
+  ]
+}

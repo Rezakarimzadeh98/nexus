@@ -46,3 +46,9 @@ jobs:
         run: alembic upgrade head
       - name: DB ping
         run: python -c "from nexus_core.db import make_engine, ping_database; assert ping_database(make_engine())"
+      - name: Ingest fixtures
+        run: python -m nexus_core.cli ingest --sources adapters/generic/sources.yaml --fixture-root datasets
+      - name: Ingest dedupe
+        run: |
+          python -m nexus_core.cli ingest --sources adapters/generic/sources.yaml --fixture-root datasets | tee /tmp/ingest2.txt
+          grep -q "inserted=0" /tmp/ingest2.txt

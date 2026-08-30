@@ -5,7 +5,7 @@ from enum import StrEnum
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field
 
 from nexus_core.ids import new_id, utc_now
 
@@ -39,7 +39,7 @@ class Observation(NexusModel):
     source_id: str
     title: str | None = None
     body: str | None = None
-    url: HttpUrl | None = None
+    url: str | None = None
     published_at: datetime | None = None
     fetched_at: datetime = Field(default_factory=utc_now)
     language: str | None = None

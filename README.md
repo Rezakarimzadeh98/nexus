@@ -5,7 +5,7 @@
 Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next — and whether those claims hold up against the truth.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-Phase_2_Ingestion-0f766e.svg)](docs/ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-Phase_3_Normalize-0f766e.svg)](docs/ROADMAP.md)
 [![CI](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml)
 [![Discussions](https://img.shields.io/badge/discussions-join-1f6feb)](https://github.com/Rezakarimzadeh98/nexus/discussions)
 
@@ -103,7 +103,7 @@ docker compose -f infrastructure/compose.yml up -d
 python -m pip install -e ".[dev]"
 alembic upgrade head
 pytest -q
-nexus
+python -m nexus_core.cli ingest --dry-run
 `
 
 ---
@@ -153,7 +153,7 @@ nexus/
 
 ## Status (honest)
 
-**Phase 1 (Foundation) is complete. Phase 2 (Ingestion) is next.**
+**Phase 2 (Ingestion) is complete. Phase 3 (Normalize) is next.**
 
 NEXUS is not yet a production intelligence cloud. Stars help; reproducible pipelines and public benchmarks matter more.
 
