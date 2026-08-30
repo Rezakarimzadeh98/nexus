@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from sqlalchemy import func, select
@@ -27,6 +28,7 @@ from nexus_core.detection import (
 )
 from nexus_core.detection.export import observations_from_rows
 from nexus_core.discovery import run_discovery
+from nexus_core.evaluation import run_evaluation
 from nexus_core.extraction import extract_entities, extract_events, extract_relations
 from nexus_core.extraction.store import persist_entities, persist_events, persist_relations
 from nexus_core.forecast import run_forecast
@@ -72,6 +74,10 @@ def main(argv: list[str] | None = None) -> int:
 
     forecast_p = sub.add_parser("forecast", help="Baseline hazard-rate forecasts + scenarios")
     forecast_p.add_argument("--horizon-hours", type=float, default=72.0)
+
+    eval_p = sub.add_parser("evaluate", help="Blind forecast protocol + detection scorecard")
+    eval_p.add_argument("--horizon-hours", type=float, default=72.0)
+    eval_p.add_argument("--out", default=None, help="Optional JSON path for scorecard")
 
     sub.add_parser("status", help="Show version and database counters")
 
@@ -256,6 +262,23 @@ def main(argv: list[str] | None = None) -> int:
             f"version={__version__}\t"
             f"forecasts={result_fc.get('counts', {}).get('forecasts', 0)}\t"
             f"horizon_hours={args.horizon_hours}"
+        )
+        return 0
+
+    if args.command == "evaluate":
+        engine = make_engine(settings)
+        factory = make_session_factory(engine)
+        with factory() as session:
+            scorecard = run_evaluation(session, horizon_hours=args.horizon_hours)
+        if args.out:
+            Path(args.out).write_text(json.dumps(scorecard, indent=2) + "\n", encoding="utf-8")
+        brier = scorecard.get("brier_score")
+        f1 = (scorecard.get("signal_classification") or {}).get("f1")
+        print(
+            f"version={__version__}\tbrier={brier}\t"
+            f"naive_brier={scorecard.get('naive_brier_score')}\t"
+            f"f1={f1}\tfpr={scorecard.get('false_positive_rate')}\t"
+            f"lead_h={(scorecard.get('detection_lead') or {}).get('mean_lead_hours')}"
         )
         return 0
 

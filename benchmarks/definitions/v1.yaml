@@ -1,0 +1,26 @@
+# NEXUS public benchmark definition v1
+name: nexus-public-v1
+description: >
+  Blind forecast protocol + signal detection scorecard over official public feeds.
+  Change labels are velocity-based proxies (documented), not human adjudication.
+
+protocol:
+  blind_forecast:
+    horizon_hours: 72
+    lookback_hours: 336
+    model: hazard_rate_v1
+  signal_detection:
+    velocity_threshold: 1.5
+    short_hours: 24
+    baseline_days: 7
+
+metrics:
+  - brier_score
+  - naive_brier_score
+  - precision
+  - recall
+  - f1
+  - false_positive_rate
+  - mean_lead_hours
+
+runner: python -m nexus_core.cli evaluate

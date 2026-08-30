@@ -208,29 +208,29 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 
 ---
 
-## Phase 9 — Verify + Evaluate = **v0.4**
-**Status: ACTIVE**
+## Phase 9 — Verify + Evaluate = **v0.4 product slice**
+**Status: DONE** · shipped in **v0.6.0**
 
 ### 9.1 Historical replay
-- [ ] Time-travel ingest cutoff
-- [ ] Blind forecast protocol
+- [x] Time-travel ingest cutoff
+- [x] Blind forecast protocol
 
 ### 9.2 Evaluation engine
-- [ ] Precision/Recall/F1 for signals vs labeled changes
-- [ ] Brier score + calibration for forecasts
-- [ ] Detection lead time vs naive baseline
-- [ ] False positive rate dashboards
+- [x] Precision/Recall/F1 for signals vs labeled changes (velocity-proxy labels)
+- [x] Brier score + calibration for forecasts
+- [x] Detection lead time vs naive baseline
+- [x] False positive rate dashboards
 
 ### 9.3 Benchmarks package
-- [ ] Public benchmark definition + scripts in `benchmarks/`
-- [ ] Published baseline numbers in docs
+- [x] Public benchmark definition + scripts in `benchmarks/`
+- [x] Published baseline numbers in docs (`docs/BENCHMARKS.md` + live scorecard)
 
-**Exit:** Proof question answerable with numbers, not vibes.
+**Exit:** Proof question answerable with numbers, not vibes. ✅
 
 ---
 
 ## Phase 10 — Learn (Feedback) = **v0.5**
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 10.1 Feedback engine
 - [ ] Store prediction vs actual outcome

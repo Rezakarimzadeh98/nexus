@@ -2,6 +2,18 @@
 
 All notable changes to NEXUS are documented here.
 
+## [0.6.0] - 2026-08-30
+
+### Added
+
+- Phase 9 evaluation: blind forecast protocol, Brier score, precision/recall/F1, FPR, lead time
+- CLI `nexus evaluate`; API `/evaluation`; live Scorecard panel
+- `benchmarks/definitions/v1.yaml`, `benchmarks/run_baseline.py`, `docs/BENCHMARKS.md`
+
+### Changed
+
+- Package version **0.6.0**
+
 ## [0.5.0] - 2026-08-30
 
 ### Added

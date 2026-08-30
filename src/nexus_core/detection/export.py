@@ -20,6 +20,7 @@ from nexus_core.db.models import (
     StateSnapshotRow,
 )
 from nexus_core.discovery.run import run_discovery
+from nexus_core.evaluation.run import run_evaluation
 from nexus_core.forecast.run import run_forecast
 from nexus_core.ids import utc_now
 from nexus_core.types import Observation, Signal, StateSnapshot
@@ -44,6 +45,7 @@ def build_live_snapshot(
     recent_limit: int = 25,
     discovery: dict[str, Any] | None = None,
     forecast: dict[str, Any] | None = None,
+    evaluation: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """JSON payload for the public live demo / Pages site."""
     if discovery is None:
@@ -66,6 +68,8 @@ def build_live_snapshot(
             persist=False,
             pattern_match_types={t for t in matched if t},
         )
+    if evaluation is None:
+        evaluation = run_evaluation(session, horizon_hours=72.0)
     counts = {
         "observations": session.execute(
             select(func.count()).select_from(ObservationRow)
@@ -175,6 +179,24 @@ def build_live_snapshot(
         "patterns": discovery.get("patterns", []),
         "pattern_matches": discovery.get("pattern_matches", []),
         "forecasts": forecast.get("forecasts", []),
+        "evaluation": {
+            "brier_score": evaluation.get("brier_score"),
+            "naive_brier_score": evaluation.get("naive_brier_score"),
+            "brier_improvement_vs_naive": evaluation.get("brier_improvement_vs_naive"),
+            "false_positive_rate": evaluation.get("false_positive_rate"),
+            "signal_classification": evaluation.get("signal_classification"),
+            "detection_lead": evaluation.get("detection_lead"),
+            "labels": evaluation.get("labels"),
+            "notes": evaluation.get("notes"),
+            "blind_forecast": {
+                "cutoff": (evaluation.get("blind_forecast") or {}).get("cutoff"),
+                "horizon_hours": (evaluation.get("blind_forecast") or {}).get(
+                    "horizon_hours"
+                ),
+                "n_scored": (evaluation.get("blind_forecast") or {}).get("n_scored"),
+                "brier_score": (evaluation.get("blind_forecast") or {}).get("brier_score"),
+            },
+        },
     }
 
 

@@ -55,6 +55,8 @@ jobs:
         run: python -m nexus_core.cli discover --min-count 2
       - name: Forecast baselines
         run: python -m nexus_core.cli forecast --horizon-hours 72
+      - name: Evaluate scorecard
+        run: python -m nexus_core.cli evaluate --horizon-hours 72 --out benchmarks/last_scorecard.json
       - name: Export live snapshot
         run: python -m nexus_core.cli export-live --out docs/live/status.json
       - name: Build Pages site

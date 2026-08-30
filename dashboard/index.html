@@ -205,6 +205,14 @@
     <div class="counters" id="counters"></div>
 
     <section class="section">
+      <h2>Scorecard</h2>
+      <p style="color:var(--muted);margin:0 0 0.75rem;font-size:0.92rem">
+        Blind forecast protocol + detection metrics. Proxy labels — see docs/BENCHMARKS.md.
+      </p>
+      <div class="metrics" id="scorecard"></div>
+    </section>
+
+    <section class="section">
       <h2>What Changed?</h2>
       <div class="feed" id="signals"></div>
     </section>
@@ -307,6 +315,25 @@
         </g>`;
       }).join("");
       return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Entity neighborhood graph">${lines}${dots}</svg>`;
+    }
+
+    function renderScorecard(evaluation) {
+      const e = evaluation || {};
+      const clf = e.signal_classification || {};
+      const lead = e.detection_lead || {};
+      const cells = [
+        ["Brier", e.brier_score == null ? "—" : Number(e.brier_score).toFixed(3)],
+        ["Naive Brier", e.naive_brier_score == null ? "—" : Number(e.naive_brier_score).toFixed(3)],
+        ["Δ vs naive", e.brier_improvement_vs_naive == null ? "—" : Number(e.brier_improvement_vs_naive).toFixed(3)],
+        ["F1", clf.f1 == null ? "—" : Number(clf.f1).toFixed(2)],
+        ["Precision", clf.precision == null ? "—" : Number(clf.precision).toFixed(2)],
+        ["Recall", clf.recall == null ? "—" : Number(clf.recall).toFixed(2)],
+        ["FPR", e.false_positive_rate == null ? "—" : Number(e.false_positive_rate).toFixed(2)],
+        ["Lead (h)", lead.mean_lead_hours == null ? "—" : Number(lead.mean_lead_hours).toFixed(1)],
+      ];
+      return cells.map(([label, val]) =>
+        `<div class="metric"><b>${esc(val)}</b>${esc(label)}</div>`
+      ).join("");
     }
 
     function renderForecasts(forecasts) {
@@ -429,6 +456,7 @@
           });
         }
 
+        document.getElementById("scorecard").innerHTML = renderScorecard(data.evaluation || {});
         document.getElementById("forecasts").innerHTML = renderForecasts(data.forecasts || []);
         document.getElementById("patterns").innerHTML = renderPatterns(
           data.patterns || [],

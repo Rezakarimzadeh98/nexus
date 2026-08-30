@@ -371,6 +371,22 @@ def get_forecast(forecast_id: UUID) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Forecast not found") from None
 
 
+@app.get("/evaluation")
+def get_evaluation() -> dict[str, Any]:
+    try:
+        from nexus_core.evaluation import run_evaluation
+
+        engine = make_engine(get_settings())
+        factory = make_session_factory(engine)
+        with factory() as session:
+            return run_evaluation(session, horizon_hours=72.0)
+    except Exception:
+        snap = _load_snapshot()
+        if snap is None or "evaluation" not in snap:
+            raise HTTPException(status_code=503, detail="Unavailable") from None
+        return snap["evaluation"]
+
+
 @app.get("/ui/status.json")
 def ui_status() -> FileResponse:
     path = _snapshot_path()
