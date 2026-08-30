@@ -9,6 +9,7 @@ from nexus_core.ingestion.connectors import fetch_raw, observations_from_raw
 from nexus_core.ingestion.models import SourceConfig
 from nexus_core.ingestion.store import persist_observations
 from nexus_core.logging import get_logger
+from nexus_core.normalization import normalize_batch
 
 log = get_logger("nexus.ingest")
 
@@ -35,6 +36,7 @@ def ingest_source(
     try:
         raw = fetch_raw(source, fixture_root=fixture_root)
         observations = observations_from_raw(source, raw)
+        observations, _stats = normalize_batch(observations)
         inserted = 0
         if persist:
             if session is None:

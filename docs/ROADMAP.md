@@ -83,37 +83,37 @@ Status legend: `PLANNED` · `ACTIVE` · `DONE` · `BLOCKED`
 ---
 
 ## Phase 3 — Understand + Normalize
-**Status: ACTIVE**
+**Status: DONE**
 
 ### 3.1 Normalization engine
-- [ ] Canonical time (UTC)
-- [ ] Language detect (optional)
-- [ ] Text cleanup / empty drop
-- [ ] Near-duplicate detection (title+time+source)
+- [x] Canonical time (UTC)
+- [x] Language detect (optional)
+- [x] Text cleanup / empty drop
+- [x] Near-duplicate detection (title+time+source)
 
 ### 3.2 Canonical observation schema
-- [ ] `title`, `body`, `published_at`, `url`, `source_id`, `lang`, `raw_ref`
+- [x] `title`, `body`, `published_at`, `url`, `source_id`, `lang`, `raw_ref`
 
 ### 3.3 Quality metrics
-- [ ] % failed parses, dup rate, lag histogram
+- [x] % failed parses, dup rate, lag histogram
 
-**Exit:** Normalized observations queryable; dup rate measured.
+**Exit:** Normalized observations queryable; dup rate measured. ✅ (batch stats + ingest path)
 
 ---
 
 ## Phase 4 — Connect (Entity + Event + optional LLM assist)
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 4.1 Entity engine
-- [ ] Rule/heuristic extractors (ORG, PERSON, GPE, PRODUCT…)
+- [x] Rule/heuristic extractors (ORG, PERSON, GPE, PRODUCT…) — initial ORG heuristics
 - [ ] Optional LLM extract path behind interface
 - [ ] Entity resolution (same real-world thing → one id)
 - [ ] Entity store + aliases
 
 ### 4.2 Event engine
-- [ ] Event types for generic domain (Announcement, Agreement, Conflict, MarketMove, …)
-- [ ] Link events ↔ entities ↔ observations
-- [ ] Confidence on extractions
+- [x] Event types for generic domain (Announcement, Agreement, Conflict, MarketMove, …) — starter set
+- [x] Link events ↔ entities ↔ observations — observation + entity id lists
+- [x] Confidence on extractions
 
 ### 4.3 Relationship engine (minimal)
 - [ ] Edges: `mentioned_with`, `located_in`, `org_of` (expand later)

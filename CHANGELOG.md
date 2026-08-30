@@ -6,6 +6,8 @@ All notable changes to NEXUS are documented here.
 
 ### Added
 
+- Phase 3 normalization: UTC canonicalization, cleanup, language hint, near-duplicate keys, ingest integration
+- Phase 4 (in progress): heuristic entity/event extraction module
 - Phase 2 ingestion: source registry, RSS/JSON/CSV/fixture connectors, `nexus ingest` CLI, fixture sources, item-level dedupe
 - Phase 1 foundation: `nexus_core` package, settings, structured logging, UTC/id helpers
 - PostgreSQL schema v1 + Alembic migration `0001_initial`
