@@ -1,0 +1,54 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+    },
+    "sequence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sequence",
+      "type": "array"
+    },
+    "support": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Support",
+      "type": "number"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "count": {
+      "default": 0,
+      "title": "Count",
+      "type": "integer"
+    },
+    "example_event_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Example Event Ids",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "sequence",
+    "support",
+    "confidence"
+  ],
+  "title": "SequencePattern",
+  "type": "object"
+}

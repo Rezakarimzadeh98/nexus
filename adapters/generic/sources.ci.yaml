@@ -16,3 +16,4 @@ sources:
     poll_seconds: 300
     metadata:
       license: demo
+      domain: generic

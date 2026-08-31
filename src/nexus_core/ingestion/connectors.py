@@ -13,7 +13,7 @@ from nexus_core.ids import utc_now
 from nexus_core.ingestion.models import SourceConfig, SourceType
 from nexus_core.types import Observation
 
-USER_AGENT = "NEXUS-Ingest/0.3 (+https://github.com/Rezakarimzadeh98/nexus; Reza Karimzadeh)"
+USER_AGENT = "NEXUS-Ingest/1.0 (+https://github.com/Rezakarimzadeh98/nexus; Reza Karimzadeh)"
 
 
 @dataclass
@@ -80,7 +80,13 @@ def observations_from_raw(source: SourceConfig, raw: RawFetch) -> list[Observati
 
     if source.type == SourceType.HTTP_JSON:
         data = json.loads(raw.payload.decode("utf-8"))
-        items = data if isinstance(data, list) else data.get("items", data.get("articles", []))
+        items_key = str(source.metadata.get("items_key") or "")
+        if isinstance(data, list):
+            items = data
+        elif items_key and isinstance(data.get(items_key), list):
+            items = data[items_key]
+        else:
+            items = data.get("items", data.get("articles", []))
         if isinstance(items, dict):
             items = [items]
         return [
@@ -101,6 +107,9 @@ def observations_from_raw(source: SourceConfig, raw: RawFetch) -> list[Observati
 
     if source.type == SourceType.NVD_CVE:
         return _parse_nvd(source.id, raw.payload, fetch_digest, fetched, raw.origin)
+
+    if source.type == SourceType.CISA_KEV:
+        return _parse_cisa_kev(source.id, raw.payload, fetch_digest, fetched, raw.origin)
 
     raise ValueError(f"unsupported source type: {source.type}")
 
@@ -233,6 +242,49 @@ def _parse_nvd(
                 raw_hash=item_fingerprint(source_id, str(cve_id), url, body),
                 raw_uri=origin,
                 metadata={"fetch_hash": fetch_digest, "publisher": "NIST NVD", "cve_id": cve_id},
+            )
+        )
+    return out
+
+
+def _parse_cisa_kev(
+    source_id: str,
+    payload: bytes,
+    fetch_digest: str,
+    fetched: Any,
+    origin: str,
+) -> list[Observation]:
+    data = json.loads(payload.decode("utf-8"))
+    vulns = data.get("vulnerabilities", [])
+    out: list[Observation] = []
+    for item in vulns[:50]:
+        cve_id = item.get("cveID")
+        title = item.get("vulnerabilityName") or cve_id
+        vendor = item.get("vendorProject")
+        product = item.get("product")
+        body = item.get("shortDescription") or f"{vendor} / {product}"
+        url = (
+            f"https://nvd.nist.gov/vuln/detail/{cve_id}"
+            if cve_id
+            else "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+        )
+        out.append(
+            Observation(
+                source_id=source_id,
+                title=str(title) if title else None,
+                body=str(body) if body else None,
+                url=url,
+                fetched_at=fetched,
+                raw_hash=item_fingerprint(source_id, str(title), url, str(body)),
+                raw_uri=origin,
+                metadata={
+                    "fetch_hash": fetch_digest,
+                    "publisher": "CISA",
+                    "cve_id": cve_id,
+                    "vendor": vendor,
+                    "product": product,
+                    "date_added": item.get("dateAdded"),
+                },
             )
         )
     return out

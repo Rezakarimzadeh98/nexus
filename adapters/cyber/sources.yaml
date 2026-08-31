@@ -1,0 +1,26 @@
+# Public vulnerability / advisory feeds.
+
+sources:
+  - id: nvd-cves-recent
+    type: nvd_cve
+    enabled: true
+    url: https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=20
+    poll_seconds: 3600
+    rate_limit_per_minute: 5
+    metadata:
+      publisher: NIST NVD
+      domain: cyber
+      license: US Government work / NVD terms
+      reference: https://nvd.nist.gov/developers/vulnerabilities
+
+  - id: cisa-kev
+    type: cisa_kev
+    enabled: true
+    url: https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+    poll_seconds: 3600
+    rate_limit_per_minute: 10
+    metadata:
+      publisher: CISA
+      domain: cyber
+      license: US Government work
+      reference: https://www.cisa.gov/known-exploited-vulnerabilities-catalog

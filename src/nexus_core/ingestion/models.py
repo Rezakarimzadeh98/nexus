@@ -14,6 +14,7 @@ class SourceType(StrEnum):
     EONET = "eonet"
     ATOM = "atom"
     NVD_CVE = "nvd_cve"
+    CISA_KEV = "cisa_kev"
 
 
 @dataclass(frozen=True)

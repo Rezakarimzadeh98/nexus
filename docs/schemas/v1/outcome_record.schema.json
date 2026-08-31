@@ -1,0 +1,75 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+    },
+    "forecast_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Forecast Id"
+    },
+    "event_type": {
+      "title": "Event Type",
+      "type": "string"
+    },
+    "probability": {
+      "title": "Probability",
+      "type": "number"
+    },
+    "outcome": {
+      "title": "Outcome",
+      "type": "integer"
+    },
+    "horizon_hours": {
+      "title": "Horizon Hours",
+      "type": "number"
+    },
+    "model_id": {
+      "default": "hazard_rate_v1",
+      "title": "Model Id",
+      "type": "string"
+    },
+    "recorded_at": {
+      "format": "date-time",
+      "title": "Recorded At",
+      "type": "string"
+    },
+    "cutoff": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cutoff"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "event_type",
+    "probability",
+    "outcome",
+    "horizon_hours"
+  ],
+  "title": "OutcomeRecord",
+  "type": "object"
+}

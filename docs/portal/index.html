@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NEXUS Docs Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#12201c; --teal:#0f766e; --bg:#f3f7f5; --card:#fff; --line:rgba(18,32,28,.1); }
+    body { margin:0; font-family:"IBM Plex Sans",system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+    header { padding:2rem 1.25rem 1rem; max-width:900px; margin:0 auto; }
+    h1 { font-family:Syne,sans-serif; margin:0 0 .4rem; letter-spacing:-.03em; }
+    .sub { opacity:.8; margin:0; }
+    main { max-width:900px; margin:0 auto; padding:0 1.25rem 3rem; display:grid; gap:.75rem; }
+    a.card {
+      display:block; background:var(--card); border:1px solid var(--line); border-radius:.4rem;
+      padding:1rem 1.1rem; text-decoration:none; color:inherit; transition:transform .15s ease, border-color .15s;
+    }
+    a.card:hover { transform:translateY(-2px); border-color:var(--teal); }
+    a.card strong { display:block; margin-bottom:.25rem; }
+    a.card span { opacity:.75; font-size:.95rem; line-height:1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>NEXUS docs</h1>
+    <p class="sub">Product spine, adapters, schemas, OpenAPI, and architecture.</p>
+  </header>
+  <main>
+    <a class="card" href="../PRODUCT.md"><strong>Product</strong><span>One-line definition, non-goals, proof question.</span></a>
+    <a class="card" href="../ROADMAP.md"><strong>Roadmap</strong><span>Phase checklist through enterprise.</span></a>
+    <a class="card" href="../ARCHITECTURE.md"><strong>Architecture</strong><span>Observe → Learn loop and engine map.</span></a>
+    <a class="card" href="../adapters.md"><strong>Adapters</strong><span>Domain packs and DomainAdapter contract.</span></a>
+    <a class="card" href="../adr/0002-public-api-stability.md"><strong>ADR-0002</strong><span>Public API / schema stability for 1.x.</span></a>
+    <a class="card" href="../openapi/v1.json"><strong>OpenAPI v1</strong><span>Machine-readable HTTP contract.</span></a>
+    <a class="card" href="../schemas/v1/"><strong>JSON Schemas v1</strong><span>Interchange types for Observation … Outcome.</span></a>
+    <a class="card" href="../BENCHMARKS.md"><strong>Benchmarks</strong><span>Scorekeeping protocol.</span></a>
+    <a class="card" href="../../site/"><strong>Marketing site</strong><span>Brand landing for the OSS platform.</span></a>
+    <a class="card" href="https://rezakarimzadeh98.github.io/nexus/"><strong>Live demo</strong><span>What Changed public snapshot.</span></a>
+  </main>
+</body>
+</html>

@@ -1,0 +1,9 @@
+sources:
+  - id: fixture-cyber-advisories
+    type: fixture
+    enabled: true
+    path: fixtures/cyber_advisories.json
+    poll_seconds: 300
+    metadata:
+      license: demo
+      domain: cyber

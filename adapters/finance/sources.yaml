@@ -1,0 +1,16 @@
+# Public finance / disclosure feeds (ToS-safe).
+# Prefer US government Atom/RSS over scraped commercial terminals.
+
+sources:
+  - id: sec-edgar-current
+    type: atom
+    enabled: true
+    url: https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=&company=&dateb=&owner=include&count=20&output=atom
+    poll_seconds: 1800
+    rate_limit_per_minute: 6
+    metadata:
+      publisher: U.S. SEC EDGAR
+      domain: finance
+      license: US Government work
+      reference: https://www.sec.gov/edgar/searchedgar/accessing-edgar-data
+      user_agent_note: Respect SEC fair-access guidelines

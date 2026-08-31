@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "title": "CVE-2099-0001",
+      "summary": "Synthetic advisory: remote code execution in demo package (CI only).",
+      "url": "https://nvd.nist.gov/",
+      "language": "en"
+    },
+    {
+      "title": "KEV-DEMO-1",
+      "summary": "Synthetic known-exploited entry for offline pipeline tests.",
+      "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
+      "language": "en"
+    }
+  ]
+}

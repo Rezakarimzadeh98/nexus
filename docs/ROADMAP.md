@@ -246,34 +246,34 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 ---
 
 ## Phase 11 — Platformize = **v1.0**
-**Status: ACTIVE**
+**Status: DONE** · shipped in **v1.0.0**
 
 ### 11.1 Generic core freeze
-- [ ] Stable public APIs / schemas (semver)
-- [ ] Adapter interface documented + example
+- [x] Stable public APIs / schemas (semver) — ADR-0002 + `docs/schemas/v1`
+- [x] Adapter interface documented + example — `docs/adapters.md`, `DomainAdapter`
 
 ### 11.2 Domain adapters
-- [ ] `generic` (default)
-- [ ] `finance` (public market data)
-- [ ] `cyber` (public vuln/incident feeds)
-- [ ] `supply_chain` (public trade/shipping if available)
-- [ ] `defense` (**open-source analytical only**, non-operational)
+- [x] `generic` (default)
+- [x] `finance` (public market data)
+- [x] `cyber` (public vuln/incident feeds)
+- [x] `supply_chain` (public trade/shipping if available)
+- [x] `defense` (**open-source analytical only**, non-operational)
 
 ### 11.3 SDK + API
-- [ ] Python SDK
-- [ ] OpenAPI complete
-- [ ] Auth for write paths
+- [x] Python SDK (`nexus_sdk`)
+- [x] OpenAPI complete (`docs/openapi/v1.json`)
+- [x] Auth for write paths (`NEXUS_API_KEY` / Bearer)
 
 ### 11.4 Web platform
-- [ ] Marketing site + live demo environment
-- [ ] Docs portal
+- [x] Marketing site + live demo environment (`site/` + Pages demo)
+- [x] Docs portal (`docs/portal/`)
 
-**Exit:** “Framework + Engine + Research + OSS platform” claim is honest.
+**Exit:** “Framework + Engine + Research + OSS platform” claim is honest. ✅
 
 ---
 
 ## Phase 12 — Enterprise
-**Status: PLANNED**
+**Status: ACTIVE**
 
 ### 12.1 Tenancy & identity
 - [ ] Multi-tenant isolation

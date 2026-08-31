@@ -5,12 +5,17 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from nexus_core.discovery.patterns import PatternMatch, SequencePattern
+from nexus_core.learning.store import OutcomeRecord
 from nexus_core.types import (
     Entity,
     EventRecord,
     EvidenceRef,
+    Forecast,
+    ForecastQuestion,
     Observation,
     Relation,
+    Scenario,
     Signal,
     StateSnapshot,
 )
@@ -24,6 +29,12 @@ MODELS = {
     "state_snapshot": StateSnapshot,
     "signal": Signal,
     "evidence_ref": EvidenceRef,
+    "forecast_question": ForecastQuestion,
+    "scenario": Scenario,
+    "forecast": Forecast,
+    "sequence_pattern": SequencePattern,
+    "pattern_match": PatternMatch,
+    "outcome_record": OutcomeRecord,
 }
 
 

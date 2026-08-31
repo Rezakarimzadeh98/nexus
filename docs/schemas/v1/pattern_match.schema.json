@@ -1,0 +1,90 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+    },
+    "pattern_id": {
+      "format": "uuid",
+      "title": "Pattern Id",
+      "type": "string"
+    },
+    "sequence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sequence",
+      "type": "array"
+    },
+    "matched_prefix": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Matched Prefix",
+      "type": "array"
+    },
+    "expected_next": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Next"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "summary": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Summary"
+    },
+    "detected_at": {
+      "format": "date-time",
+      "title": "Detected At",
+      "type": "string"
+    },
+    "example_event_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Example Event Ids",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "pattern_id",
+    "sequence",
+    "matched_prefix",
+    "confidence",
+    "title"
+  ],
+  "title": "PatternMatch",
+  "type": "object"
+}

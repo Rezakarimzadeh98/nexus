@@ -1,0 +1,16 @@
+# Open-source analytical reporting ONLY — non-operational.
+# See PRODUCT.md non-goals. No targeting, C2, or closed military data.
+
+sources:
+  - id: reliefweb-updates
+    type: rss
+    enabled: true
+    url: https://reliefweb.int/updates/rss.xml
+    poll_seconds: 3600
+    rate_limit_per_minute: 8
+    metadata:
+      publisher: UN OCHA ReliefWeb
+      domain: defense
+      license: ReliefWeb terms — attribution required
+      reference: https://reliefweb.int/
+      analytical_only: true

@@ -29,6 +29,14 @@ class Settings(BaseSettings):
         default=None,
         description="Optional Redis URL for later phases",
     )
+    api_key: str | None = Field(
+        default=None,
+        description="Bearer token required for write paths when set",
+    )
+    snapshot_path: str = Field(
+        default="docs/live/status.json",
+        description="Fallback live snapshot JSON path",
+    )
 
 
 @lru_cache

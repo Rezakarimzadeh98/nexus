@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nexus-core"
-version = "0.7.0"
-description = "NEXUS core contracts, persistence, detection, and foundation utilities"
+version = "1.0.0"
+description = "NEXUS core contracts, persistence, detection, adapters, and foundation utilities"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
@@ -24,6 +24,9 @@ dependencies = [
 api = [
   "fastapi>=0.115",
   "uvicorn[standard]>=0.30",
+]
+sdk = [
+  "httpx>=0.27",
 ]
 dev = [
   "pytest>=8.2",
@@ -56,5 +59,5 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
-packages = ["nexus_core"]
+packages = ["nexus_core", "nexus_sdk"]
 mypy_path = "src"

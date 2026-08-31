@@ -1,0 +1,10 @@
+sources:
+  - id: fixture-defense-analytical
+    type: fixture
+    enabled: true
+    path: fixtures/defense_analytical.json
+    poll_seconds: 300
+    metadata:
+      license: demo
+      domain: defense
+      analytical_only: true

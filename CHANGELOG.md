@@ -2,6 +2,22 @@
 
 All notable changes to NEXUS are documented here.
 
+## [1.0.0] - 2026-08-31
+
+### Added
+
+- Phase 11 platform: `DomainAdapter` registry, five domain packs, docs/adapters + ADR-0002
+- Python SDK (`nexus_sdk.NexusClient`)
+- Authenticated write jobs `POST /v1/jobs/ingest` and `/v1/jobs/detect`
+- OpenAPI export `docs/openapi/v1.json`; expanded JSON schemas (forecast/outcome/pattern)
+- Marketing site (`site/`) and docs portal (`docs/portal/`)
+- CISA KEV connector; CLI `nexus adapters` and `--adapter`
+
+### Changed
+
+- Package / API version **1.0.0**
+- Generic live sources slimmed (cyber feeds moved to `adapters/cyber`)
+
 ## [0.7.0] - 2026-08-30
 
 ### Added

@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "description": "Explicit forecast question \u2014 never implied certainty.",
+  "properties": {
+    "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "default": "event_in_horizon",
+      "title": "Kind",
+      "type": "string"
+    },
+    "event_type": {
+      "title": "Event Type",
+      "type": "string"
+    },
+    "horizon_hours": {
+      "default": 72.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Horizon Hours",
+      "type": "number"
+    },
+    "scope_key": {
+      "default": "global",
+      "title": "Scope Key",
+      "type": "string"
+    },
+    "text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Text"
+    }
+  },
+  "required": [
+    "event_type"
+  ],
+  "title": "ForecastQuestion",
+  "type": "object"
+}

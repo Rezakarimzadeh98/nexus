@@ -1,0 +1,16 @@
+# Public supply-chain / logistics signals when ToS allows.
+# Live URLs may be rotated; CI uses fixtures.
+
+sources:
+  - id: freightex-demo-rss
+    type: rss
+    enabled: true
+    url: https://www.freightwaves.com/news/feed
+    poll_seconds: 3600
+    rate_limit_per_minute: 8
+    metadata:
+      publisher: FreightWaves (public RSS)
+      domain: supply_chain
+      license: Publisher copyright — attribution required
+      reference: https://www.freightwaves.com/
+      note: Editorial logistics news, not AIS telemetry

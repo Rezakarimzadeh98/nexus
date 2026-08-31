@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "title": "Port congestion spike (demo)",
+      "summary": "Synthetic logistics signal: average wait time rose at demo hub.",
+      "url": "https://example.com/supply-chain/demo",
+      "language": "en"
+    },
+    {
+      "title": "Carrier schedule revision (demo)",
+      "summary": "Synthetic schedule change affecting eastbound lanes.",
+      "url": "https://example.com/supply-chain/demo-2",
+      "language": "en"
+    }
+  ]
+}

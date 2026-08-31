@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NEXUS — Universal Intelligence Engine</title>
+  <meta name="description" content="Living state from heterogeneous data: signals, evidence, scored forecasts." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #0e1714;
+      --fog: #e7f0ec;
+      --teal: #0f766e;
+      --amber: #c45c26;
+      --line: rgba(14, 23, 20, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(15, 118, 110, 0.18), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(196, 92, 38, 0.12), transparent 50%),
+        linear-gradient(180deg, #f4faf7 0%, #e7f0ec 45%, #dfeae5 100%);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+    nav { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 3rem; }
+    nav a { color: var(--ink); text-decoration: none; font-weight: 500; opacity: 0.8; }
+    nav a:hover { opacity: 1; text-decoration: underline; }
+    .brand {
+      font-family: Syne, sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      font-size: clamp(3rem, 10vw, 5.5rem);
+      line-height: 0.95;
+      margin: 0 0 0.75rem;
+      animation: rise 0.8s ease-out both;
+    }
+    .tag {
+      font-size: 1.05rem;
+      max-width: 34rem;
+      line-height: 1.55;
+      opacity: 0.88;
+      animation: rise 0.9s 0.1s ease-out both;
+    }
+    .cta { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.75rem; animation: rise 1s 0.18s ease-out both; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0.75rem 1.15rem; border-radius: 0.35rem; font-weight: 600;
+      text-decoration: none; border: 1px solid var(--line);
+    }
+    .btn-primary { background: var(--teal); color: #fff; border-color: transparent; }
+    .btn-ghost { background: rgba(255,255,255,0.55); color: var(--ink); }
+    .panel {
+      margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--line);
+      animation: rise 1.1s 0.25s ease-out both;
+    }
+    .panel h2 { font-family: Syne, sans-serif; font-size: 1.35rem; margin: 0 0 0.5rem; }
+    .panel p { margin: 0; max-width: 40rem; line-height: 1.55; opacity: 0.85; }
+    footer { margin-top: 3rem; font-size: 0.9rem; opacity: 0.7; }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a href="https://github.com/Rezakarimzadeh98/nexus">GitHub</a>
+      <a href="https://rezakarimzadeh98.github.io/nexus/">Live demo</a>
+      <a href="../portal/">Docs portal</a>
+      <a href="https://github.com/Rezakarimzadeh98/nexus/blob/main/docs/ROADMAP.md">Roadmap</a>
+    </nav>
+    <h1 class="brand">NEXUS</h1>
+    <p class="tag">Universal Intelligence Engine — turn scattered data into living state, evidenced signals, and forecasts you can score.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://rezakarimzadeh98.github.io/nexus/">Open live demo</a>
+      <a class="btn btn-ghost" href="https://github.com/Rezakarimzadeh98/nexus">View source</a>
+    </div>
+    <section class="panel">
+      <h2>v1.0 platform</h2>
+      <p>Frozen core schemas, domain adapters (generic · finance · cyber · supply chain · defense analytical), Python SDK, OpenAPI, and authenticated write jobs — open core by Reza Karimzadeh.</p>
+    </section>
+    <footer>MIT · Maintainer <a href="https://github.com/Rezakarimzadeh98">Reza Karimzadeh</a></footer>
+  </div>
+</body>
+</html>

@@ -42,6 +42,13 @@ jobs:
         run: pytest -q
       - name: Export schemas
         run: python scripts/export_schemas.py
+      - name: Export OpenAPI
+        run: PYTHONPATH=. python scripts/export_openapi.py
+      - name: Adapter CI packs
+        run: |
+          for d in generic finance cyber supply_chain defense; do
+            python -m nexus_core.cli ingest --adapter "$d" --sources "adapters/$d/sources.ci.yaml" --fixture-root datasets --dry-run
+          done
       - name: Alembic upgrade
         run: alembic upgrade head
       - name: DB ping

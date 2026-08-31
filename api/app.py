@@ -1,23 +1,27 @@
-"""NEXUS HTTP API — What Changed."""
+"""NEXUS HTTP API — What Changed + platform jobs."""
 
 from __future__ import annotations
 
 import json
 import os
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 
 from nexus_core import __version__
+from nexus_core.adapters import get_adapter, list_adapters
+from nexus_core.auth import require_api_key
 from nexus_core.config import get_settings
 from nexus_core.db import make_engine, make_session_factory, ping_database
 from nexus_core.db.models import ObservationRow, SignalRow, StateSnapshotRow
+from nexus_core.ingestion import ingest_many
 
 MAINTAINER = {
     "name": "Reza Karimzadeh",
@@ -25,11 +29,26 @@ MAINTAINER = {
     "repo": "https://github.com/Rezakarimzadeh98/nexus",
 }
 
+TAGS_METADATA = [
+    {"name": "meta", "description": "Health and service metadata"},
+    {"name": "live", "description": "Public live snapshot"},
+    {"name": "signals", "description": "What Changed signals"},
+    {"name": "state", "description": "Living state snapshots"},
+    {"name": "observations", "description": "Normalized observations"},
+    {"name": "discovery", "description": "Graph and patterns"},
+    {"name": "forecasts", "description": "Probabilistic forecasts"},
+    {"name": "evaluation", "description": "Scorecards"},
+    {"name": "learning", "description": "Outcomes and calibration"},
+    {"name": "adapters", "description": "Domain adapters"},
+    {"name": "jobs", "description": "Authenticated write / pipeline jobs"},
+]
+
 app = FastAPI(
     title="NEXUS API",
     description=(
-        "Universal Intelligence Engine — state, signals, evidence. "
-        "Maintained by Reza Karimzadeh (https://github.com/Rezakarimzadeh98)."
+        "Universal Intelligence Engine — state, signals, evidence, forecasts. "
+        "Maintained by Reza Karimzadeh (https://github.com/Rezakarimzadeh98). "
+        "Write paths require `Authorization: Bearer <NEXUS_API_KEY>` when configured."
     ),
     version=__version__,
     contact={
@@ -37,17 +56,32 @@ app = FastAPI(
         "url": "https://github.com/Rezakarimzadeh98",
         "email": "r.karimzadeh1998@gmail.com",
     },
+    openapi_tags=TAGS_METADATA,
 )
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
 
+class IngestJobRequest(BaseModel):
+    adapter: str = Field(default="generic")
+    offline: bool = Field(default=True, description="Use sources.ci.yaml fixtures")
+    dry_run: bool = Field(default=True)
+    fixture_root: str = Field(default="datasets")
+    source_id: str | None = None
+
+
+class DetectJobRequest(BaseModel):
+    limit: int = Field(default=500, ge=1, le=5000)
+    velocity_threshold: float = Field(default=1.5, gt=0)
+    min_short_volume: float = Field(default=2.0, ge=0)
+
+
 def _snapshot_path() -> Path | None:
-    raw = os.environ.get("NEXUS_SNAPSHOT_PATH", "docs/live/status.json")
+    raw = os.environ.get("NEXUS_SNAPSHOT_PATH") or get_settings().snapshot_path
     path = Path(raw)
     return path if path.is_file() else None
 
@@ -59,7 +93,22 @@ def _load_snapshot() -> dict[str, Any] | None:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-@app.get("/health")
+@app.get("/", tags=["meta"])
+def root() -> dict[str, Any]:
+    return {
+        "name": "NEXUS",
+        "version": __version__,
+        "maintainer": MAINTAINER,
+        "demo": "https://rezakarimzadeh98.github.io/nexus/",
+        "docs": "/docs",
+        "openapi": "/openapi.json",
+        "ui": "/ui/",
+        "site": "/site/",
+        "portal": "/portal/",
+    }
+
+
+@app.get("/health", tags=["meta"])
 def health() -> dict[str, Any]:
     db_ok = False
     try:
@@ -71,23 +120,12 @@ def health() -> dict[str, Any]:
         "version": __version__,
         "database": db_ok,
         "snapshot": _snapshot_path() is not None,
+        "auth_required_for_writes": bool(get_settings().api_key),
         "maintainer": MAINTAINER,
     }
 
 
-@app.get("/")
-def root() -> dict[str, Any]:
-    return {
-        "name": "NEXUS",
-        "version": __version__,
-        "maintainer": MAINTAINER,
-        "demo": "https://rezakarimzadeh98.github.io/nexus/",
-        "docs": "/docs",
-        "ui": "/ui/",
-    }
-
-
-@app.get("/live")
+@app.get("/live", tags=["live"])
 def live() -> dict[str, Any]:
     snap = _load_snapshot()
     if snap is None:
@@ -95,7 +133,7 @@ def live() -> dict[str, Any]:
     return snap
 
 
-@app.get("/signals")
+@app.get("/signals", tags=["signals"])
 def list_signals(limit: int = 20) -> list[dict[str, Any]]:
     limit = max(1, min(limit, 100))
     try:
@@ -129,7 +167,7 @@ def list_signals(limit: int = 20) -> list[dict[str, Any]]:
         return list(snap.get("signals", []))[:limit]
 
 
-@app.get("/signals/{signal_id}")
+@app.get("/signals/{signal_id}", tags=["signals"])
 def get_signal(signal_id: UUID) -> dict[str, Any]:
     try:
         engine = make_engine(get_settings())
@@ -163,7 +201,7 @@ def get_signal(signal_id: UUID) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Signal not found") from None
 
 
-@app.get("/state/{scope_key:path}")
+@app.get("/state/{scope_key:path}", tags=["state"])
 def get_state(scope_key: str) -> dict[str, Any]:
     try:
         engine = make_engine(get_settings())
@@ -196,7 +234,7 @@ def get_state(scope_key: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="State not found") from None
 
 
-@app.get("/observations/{observation_id}")
+@app.get("/observations/{observation_id}", tags=["observations"])
 def get_observation(observation_id: UUID) -> dict[str, Any]:
     try:
         engine = make_engine(get_settings())
@@ -229,7 +267,7 @@ def get_observation(observation_id: UUID) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Observation not found") from None
 
 
-@app.get("/patterns")
+@app.get("/patterns", tags=["discovery"])
 def list_patterns(limit: int = 20) -> list[dict[str, Any]]:
     limit = max(1, min(limit, 100))
     try:
@@ -258,7 +296,7 @@ def list_patterns(limit: int = 20) -> list[dict[str, Any]]:
         return list(snap.get("patterns", []))[:limit]
 
 
-@app.get("/graph/neighborhood")
+@app.get("/graph/neighborhood", tags=["discovery"])
 def graph_neighborhood(
     entity_id: UUID | None = None,
     canonical_key: str | None = None,
@@ -293,7 +331,7 @@ def graph_neighborhood(
         return graph
 
 
-@app.get("/forecasts")
+@app.get("/forecasts", tags=["forecasts"])
 def list_forecasts(limit: int = 20) -> list[dict[str, Any]]:
     limit = max(1, min(limit, 100))
     try:
@@ -332,7 +370,7 @@ def list_forecasts(limit: int = 20) -> list[dict[str, Any]]:
         return list(snap.get("forecasts", []))[:limit]
 
 
-@app.get("/forecasts/{forecast_id}")
+@app.get("/forecasts/{forecast_id}", tags=["forecasts"])
 def get_forecast(forecast_id: UUID) -> dict[str, Any]:
     try:
         from nexus_core.db.models import ForecastRow
@@ -371,7 +409,7 @@ def get_forecast(forecast_id: UUID) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Forecast not found") from None
 
 
-@app.get("/evaluation")
+@app.get("/evaluation", tags=["evaluation"])
 def get_evaluation() -> dict[str, Any]:
     try:
         from nexus_core.evaluation import run_evaluation
@@ -387,7 +425,7 @@ def get_evaluation() -> dict[str, Any]:
         return snap["evaluation"]
 
 
-@app.get("/learning")
+@app.get("/learning", tags=["learning"])
 def get_learning() -> dict[str, Any]:
     try:
         from sqlalchemy import func
@@ -411,7 +449,98 @@ def get_learning() -> dict[str, Any]:
         return snap["learning"]
 
 
-@app.get("/ui/status.json")
+@app.get("/v1/adapters", tags=["adapters"])
+def adapters_list() -> list[dict[str, Any]]:
+    return [a.as_dict() for a in list_adapters()]
+
+
+@app.get("/v1/adapters/{domain}", tags=["adapters"])
+def adapters_get(domain: str) -> dict[str, Any]:
+    try:
+        return get_adapter(domain).as_dict()
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/v1/jobs/ingest", tags=["jobs"])
+def job_ingest(
+    body: IngestJobRequest,
+    _: Annotated[str | None, Depends(require_api_key)] = None,
+) -> dict[str, Any]:
+    try:
+        adapter = get_adapter(body.adapter)
+    except KeyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
+
+    sources = adapter.load_source_configs(offline=body.offline)
+    if body.source_id:
+        sources = [s for s in sources if s.id == body.source_id]
+    fixture_root = Path(body.fixture_root)
+
+    if body.dry_run:
+        results = ingest_many(None, sources, fixture_root=fixture_root, persist=False)
+    else:
+        engine = make_engine(get_settings())
+        factory = make_session_factory(engine)
+        with factory() as session:
+            results = ingest_many(session, sources, fixture_root=fixture_root, persist=True)
+            session.commit()
+
+    return {
+        "adapter": body.adapter,
+        "dry_run": body.dry_run,
+        "offline": body.offline,
+        "results": [
+            {
+                "source_id": r.source_id,
+                "fetched": r.fetched,
+                "observation_count": r.observation_count,
+                "inserted": r.inserted,
+                "error": r.error,
+            }
+            for r in results
+        ],
+    }
+
+
+@app.post("/v1/jobs/detect", tags=["jobs"])
+def job_detect(
+    body: DetectJobRequest,
+    _: Annotated[str | None, Depends(require_api_key)] = None,
+) -> dict[str, Any]:
+    from nexus_core.detection import (
+        compute_state_snapshots,
+        detect_signals,
+        persist_signals,
+        persist_states,
+    )
+    from nexus_core.detection.export import observations_from_rows
+
+    engine = make_engine(get_settings())
+    factory = make_session_factory(engine)
+    with factory() as session:
+        rows = session.execute(
+            select(ObservationRow).order_by(ObservationRow.fetched_at.desc()).limit(body.limit)
+        ).scalars().all()
+        observations = observations_from_rows(rows)
+        states = compute_state_snapshots(observations)
+        signals = detect_signals(
+            states,
+            observations,
+            velocity_threshold=body.velocity_threshold,
+            min_short_volume=body.min_short_volume,
+        )
+        persist_states(session, states)
+        persist_signals(session, signals)
+        session.commit()
+    return {
+        "observations": len(observations),
+        "states": len(states),
+        "signals": len(signals),
+    }
+
+
+@app.get("/ui/status.json", tags=["live"])
 def ui_status() -> FileResponse:
     path = _snapshot_path()
     if path is None:
@@ -419,6 +548,14 @@ def ui_status() -> FileResponse:
     return FileResponse(path, media_type="application/json")
 
 
-_DASHBOARD_DIR = Path(__file__).resolve().parents[1] / "dashboard"
+_ROOT = Path(__file__).resolve().parents[1]
+_DASHBOARD_DIR = _ROOT / "dashboard"
+_SITE_DIR = _ROOT / "site"
+_PORTAL_DIR = _ROOT / "docs" / "portal"
+
 if _DASHBOARD_DIR.is_dir():
     app.mount("/ui", StaticFiles(directory=str(_DASHBOARD_DIR), html=True), name="ui")
+if _SITE_DIR.is_dir():
+    app.mount("/site", StaticFiles(directory=str(_SITE_DIR), html=True), name="site")
+if _PORTAL_DIR.is_dir():
+    app.mount("/portal", StaticFiles(directory=str(_PORTAL_DIR), html=True), name="portal")

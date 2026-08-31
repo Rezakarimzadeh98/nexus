@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "title": "Open analytical situation update (demo)",
+      "summary": "Synthetic public reporting digest — analytical only, non-operational.",
+      "url": "https://reliefweb.int/",
+      "language": "en"
+    },
+    {
+      "title": "Humanitarian access note (demo)",
+      "summary": "Synthetic open-source analytical note with provenance for CI.",
+      "url": "https://reliefweb.int/",
+      "language": "en"
+    }
+  ]
+}

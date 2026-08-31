@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "title": "Demo 10-K filing summary",
+      "summary": "Synthetic disclosure for offline CI — company reported segment shifts.",
+      "url": "https://www.sec.gov/edgar",
+      "language": "en"
+    },
+    {
+      "title": "Demo 8-K material event",
+      "summary": "Synthetic current report describing a public acquisition announcement.",
+      "url": "https://www.sec.gov/edgar",
+      "language": "en"
+    }
+  ]
+}

@@ -7,10 +7,10 @@ By [Reza Karimzadeh](https://github.com/Rezakarimzadeh98) | [Authors](AUTHORS.md
 Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next - and whether those claims hold up against the truth.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v0.7.0-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v0.7.0)
+[![Version](https://img.shields.io/badge/version-v1.0.0-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v1.0.0)
 [![CI](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml)
 [![Live ingest](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml)
-[![Status](https://img.shields.io/badge/status-Phase_11_Platform-0f766e.svg)](docs/ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-v1.0_Platform-0f766e.svg)](docs/ROADMAP.md)
 [![Live demo](https://img.shields.io/badge/live-demo-3d9b7a)](https://rezakarimzadeh98.github.io/nexus/)
 [![Author](https://img.shields.io/badge/author-Reza_Karimzadeh-1f6feb)](https://github.com/Rezakarimzadeh98)
 [![Discussions](https://img.shields.io/badge/discussions-join-1f6feb)](https://github.com/Rezakarimzadeh98/nexus/discussions)
@@ -118,16 +118,28 @@ Requirements: Python 3.11+, Docker Compose (for Postgres).
 `ash
 cp .env.example .env
 docker compose -f infrastructure/compose.yml up -d postgres
-python -m pip install -e ".[dev,api]"
+python -m pip install -e ".[dev,api,sdk]"
 alembic upgrade head
 pytest -q
-python -m nexus_core.cli ingest --dry-run
+python -m nexus_core.cli adapters
+python -m nexus_core.cli ingest --adapter generic --dry-run
+python -m nexus_core.cli ingest --adapter cyber --sources adapters/cyber/sources.ci.yaml --fixture-root datasets --dry-run
 python -m nexus_core.cli detect
 python -m nexus_core.cli discover
 python -m nexus_core.cli forecast
 python -m nexus_core.cli evaluate
 python -m nexus_core.cli learn
 python -m nexus_core.cli export-live
+`
+
+SDK:
+
+`
+from nexus_sdk import NexusClient
+
+with NexusClient("http://127.0.0.1:8080", api_key="…") as client:
+    print(client.health())
+    print(client.adapters())
 `
 
 ---
@@ -160,9 +172,11 @@ Every checkbox lives in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Status (honest)
 
-**v0.7.0** - Phase 10 Learn done (outcomes + recalibration). Phase 11 Platform is next.
+**v1.0.0** — Phase 11 Platform done: frozen schemas, five domain adapters, Python SDK, OpenAPI, write-path auth, marketing site + docs portal. Live demo remains the public What Changed surface.
 
-NEXUS is not yet a production intelligence cloud. Stars help; reproducible pipelines and public benchmarks matter more.
+Phase 12 (Enterprise) is next: tenancy, SSO, scale, governance.
+
+NEXUS is an open intelligence **platform**, not yet a multi-tenant production cloud.
 
 ---
 

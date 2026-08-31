@@ -1,13 +1,5 @@
-# Official public data sources for NEXUS (curated references).
-# Prefer government / intergovernmental / standards bodies.
-# Fixtures stay in sources.ci.yaml for offline CI only.
-#
-# Citations:
-# - USGS Earthquake Hazards Program — https://earthquake.usgs.gov/
-# - NASA Earth Observatory Natural Event Tracker (EONET) — https://eonet.gsfc.nasa.gov/
-# - arXiv API (Cornell University) — https://info.arxiv.org/help/api/
-# - NIST National Vulnerability Database — https://nvd.nist.gov/
-# - World Health Organization news RSS — https://www.who.int/
+# Official public feeds kept under the generic multi-domain wedge.
+# Domain-specific packs also live under adapters/{finance,cyber,...}.
 
 sources:
   - id: usgs-significant-month
@@ -18,6 +10,7 @@ sources:
     rate_limit_per_minute: 30
     metadata:
       publisher: USGS
+      domain: generic
       license: Public domain (US Government work)
       reference: https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 
@@ -29,6 +22,7 @@ sources:
     rate_limit_per_minute: 20
     metadata:
       publisher: NASA GSFC
+      domain: generic
       license: NASA data policy (public)
       reference: https://eonet.gsfc.nasa.gov/docs/v3
 
@@ -40,19 +34,9 @@ sources:
     rate_limit_per_minute: 10
     metadata:
       publisher: arXiv (Cornell University)
+      domain: generic
       license: arXiv API Terms of Use
       reference: https://info.arxiv.org/help/api/index.html
-
-  - id: nvd-cves-recent
-    type: nvd_cve
-    enabled: true
-    url: https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=20
-    poll_seconds: 3600
-    rate_limit_per_minute: 5
-    metadata:
-      publisher: NIST NVD
-      license: US Government work / NVD terms
-      reference: https://nvd.nist.gov/developers/vulnerabilities
 
   - id: who-news-rss
     type: rss
@@ -62,5 +46,6 @@ sources:
     rate_limit_per_minute: 10
     metadata:
       publisher: World Health Organization
+      domain: generic
       license: WHO copyright — attribution required for reuse
       reference: https://www.who.int/

@@ -40,13 +40,36 @@ from nexus_core.logging import configure_logging, get_logger
 from nexus_core.types import Observation
 
 
+def _resolve_sources_path(
+    *,
+    adapter: str | None,
+    sources: str | None,
+    offline: bool = False,
+) -> Path:
+    if sources:
+        return Path(sources)
+    domain = adapter or "generic"
+    from nexus_core.adapters import get_adapter
+
+    return get_adapter(domain).sources_path(offline=offline)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="nexus", description="NEXUS CLI")
     parser.add_argument("--version", action="store_true", help="Print version")
     sub = parser.add_subparsers(dest="command")
 
     ingest_p = sub.add_parser("ingest", help="Ingest configured sources (official by default)")
-    ingest_p.add_argument("--sources", default="adapters/generic/sources.yaml")
+    ingest_p.add_argument(
+        "--adapter",
+        default=None,
+        help="Domain adapter name (generic|finance|cyber|supply_chain|defense)",
+    )
+    ingest_p.add_argument(
+        "--sources",
+        default=None,
+        help="Path to sources YAML (overrides adapter)",
+    )
     ingest_p.add_argument("--fixture-root", default="datasets")
     ingest_p.add_argument("--dry-run", action="store_true")
     ingest_p.add_argument("--source-id", default=None)
@@ -57,7 +80,12 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     list_p = sub.add_parser("sources", help="List configured sources")
-    list_p.add_argument("--sources", default="adapters/generic/sources.yaml")
+    list_p.add_argument("--adapter", default=None)
+    list_p.add_argument("--sources", default=None)
+    list_p.add_argument("--offline", action="store_true", help="Use sources.ci.yaml for adapter")
+
+    adapters_p = sub.add_parser("adapters", help="List domain adapters")
+    adapters_p.add_argument("--json", action="store_true")
 
     extract_p = sub.add_parser(
         "extract",
@@ -106,8 +134,24 @@ def main(argv: list[str] | None = None) -> int:
         parser.print_help()
         return 0
 
+    if args.command == "adapters":
+        from nexus_core.adapters import list_adapters
+
+        adapter_rows = [a.as_dict() for a in list_adapters()]
+        if args.json:
+            print(json.dumps(adapter_rows, indent=2))
+        else:
+            for row in adapter_rows:
+                print(f"{row['domain']}\t{row['display_name']}")
+        return 0
+
     if args.command == "sources":
-        sources = load_sources(args.sources)
+        sources_path = _resolve_sources_path(
+            adapter=args.adapter,
+            sources=args.sources,
+            offline=bool(getattr(args, "offline", False)),
+        )
+        sources = load_sources(sources_path)
         for row in dump_sources_summary(sources):
             print(f"{row['id']}\t{row['type']}\tenabled={row['enabled']}")
         return 0
@@ -133,7 +177,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "ingest":
-        sources = load_sources(args.sources)
+        sources_path = _resolve_sources_path(
+            adapter=args.adapter,
+            sources=args.sources,
+            offline=False,
+        )
+        sources = load_sources(sources_path)
         if args.source_id:
             sources = [s for s in sources if s.id == args.source_id]
         fixture_root = Path(args.fixture_root)

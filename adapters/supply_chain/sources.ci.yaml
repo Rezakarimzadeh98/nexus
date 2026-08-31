@@ -1,0 +1,9 @@
+sources:
+  - id: fixture-supply-chain
+    type: fixture
+    enabled: true
+    path: fixtures/supply_chain_events.json
+    poll_seconds: 300
+    metadata:
+      license: demo
+      domain: supply_chain

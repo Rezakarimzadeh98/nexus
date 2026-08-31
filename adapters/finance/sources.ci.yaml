@@ -1,0 +1,9 @@
+sources:
+  - id: fixture-finance-disclosures
+    type: fixture
+    enabled: true
+    path: fixtures/finance_disclosures.json
+    poll_seconds: 300
+    metadata:
+      license: demo
+      domain: finance
