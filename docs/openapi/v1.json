@@ -8,7 +8,7 @@
       "url": "https://github.com/Rezakarimzadeh98",
       "email": "r.karimzadeh1998@gmail.com"
     },
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "paths": {
     "/": {
@@ -761,6 +761,534 @@
         }
       }
     },
+    "/v1/auth/oidc": {
+      "get": {
+        "tags": [
+          "enterprise"
+        ],
+        "summary": "Oidc Config",
+        "operationId": "oidc_config_v1_auth_oidc_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Oidc Config V1 Auth Oidc Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tenants": {
+      "get": {
+        "tags": [
+          "enterprise"
+        ],
+        "summary": "Tenants List",
+        "operationId": "tenants_list_v1_tenants_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Tenants List V1 Tenants Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "enterprise"
+        ],
+        "summary": "Tenants Create",
+        "operationId": "tenants_create_v1_tenants_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Tenants Create V1 Tenants Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tenants/{slug}/memberships": {
+      "post": {
+        "tags": [
+          "enterprise"
+        ],
+        "summary": "Memberships Create",
+        "operationId": "memberships_create_v1_tenants__slug__memberships_post",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MembershipCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Memberships Create V1 Tenants  Slug  Memberships Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/audit": {
+      "get": {
+        "tags": [
+          "enterprise"
+        ],
+        "summary": "Audit List",
+        "operationId": "audit_list_v1_audit_get",
+        "parameters": [
+          {
+            "name": "tenant_slug",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tenant Slug"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "title": "Response Audit List V1 Audit Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/enqueue": {
+      "post": {
+        "tags": [
+          "enterprise"
+        ],
+        "summary": "Jobs Enqueue",
+        "operationId": "jobs_enqueue_v1_jobs_enqueue_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnqueueRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Jobs Enqueue V1 Jobs Enqueue Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "enterprise"
+        ],
+        "summary": "Jobs Get",
+        "operationId": "jobs_get_v1_jobs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Jobs Get V1 Jobs  Job Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/metrics": {
+      "get": {
+        "tags": [
+          "enterprise"
+        ],
+        "summary": "Metrics",
+        "description": "Lightweight SLO / ops snapshot for alerting scrapers.",
+        "operationId": "metrics_v1_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Metrics V1 Metrics Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ui/status.json": {
       "get": {
         "tags": [
@@ -807,6 +1335,35 @@
         },
         "type": "object",
         "title": "DetectJobRequest"
+      },
+      "EnqueueRequest": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "tenant_slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Slug"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "EnqueueRequest"
       },
       "HTTPValidationError": {
         "properties": {
@@ -858,6 +1415,59 @@
         },
         "type": "object",
         "title": "IngestJobRequest"
+      },
+      "MembershipCreate": {
+        "properties": {
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "default": "viewer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject"
+        ],
+        "title": "MembershipCreate"
+      },
+      "TenantCreate": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region",
+            "default": "global"
+          },
+          "monthly_ingest_quota": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Monthly Ingest Quota",
+            "default": 100000
+          },
+          "retention_days": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Retention Days",
+            "default": 365
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "name"
+        ],
+        "title": "TenantCreate"
       },
       "ValidationError": {
         "properties": {
@@ -938,6 +1548,10 @@
     {
       "name": "jobs",
       "description": "Authenticated write / pipeline jobs"
+    },
+    {
+      "name": "enterprise",
+      "description": "Tenancy, audit, queue, SSO, admin"
     }
   ]
 }

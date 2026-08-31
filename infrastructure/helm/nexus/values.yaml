@@ -1,0 +1,51 @@
+replicaCount: 1
+image:
+  repository: ghcr.io/rezakarimzadeh98/nexus
+  tag: "1.1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+postgres:
+  enabled: true
+  host: nexus-postgresql
+  database: nexus
+  user: nexus
+  existingSecret: ""
+
+redis:
+  enabled: true
+  url: redis://nexus-redis-master:6379/0
+
+worker:
+  enabled: true
+  replicaCount: 1
+
+env:
+  NEXUS_ENVIRONMENT: production
+  NEXUS_LOG_LEVEL: INFO
+  NEXUS_DEFAULT_TENANT_SLUG: public
+
+secrets:
+  # Prefer external Secrets Manager / ExternalSecrets — do not bake keys into values.
+  apiKeyExistingSecret: ""
+  apiKeySecretKey: api-key
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+ingress:
+  enabled: false
+  className: ""
+  hosts:
+    - host: nexus.example.com
+      paths:
+        - path: /
+          pathType: Prefix

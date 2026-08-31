@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     )
     redis_url: str | None = Field(
         default=None,
-        description="Optional Redis URL for later phases",
+        description="Optional Redis URL (cache / future broker)",
     )
     api_key: str | None = Field(
         default=None,
@@ -36,6 +36,30 @@ class Settings(BaseSettings):
     snapshot_path: str = Field(
         default="docs/live/status.json",
         description="Fallback live snapshot JSON path",
+    )
+    default_tenant_slug: str = Field(
+        default="public",
+        description="Default tenant slug when X-Nexus-Tenant omitted",
+    )
+    oidc_issuer: str | None = Field(
+        default=None,
+        description="OIDC issuer URL for SSO discovery",
+    )
+    oidc_audience: str | None = Field(
+        default=None,
+        description="Expected JWT audience",
+    )
+    oidc_client_secret: str | None = Field(
+        default=None,
+        description="HS256 demo secret for OIDC bearer validation",
+    )
+    slo_ingest_success_ratio: float = Field(
+        default=0.95,
+        description="Target successful ingest job ratio (SLO)",
+    )
+    secrets_backend: str = Field(
+        default="env",
+        description="env | file — how secrets are loaded (enterprise)",
     )
 
 

@@ -143,3 +143,54 @@ class OutcomeRow(Base):
     recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     cutoff: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
+
+
+class TenantRow(Base):
+    __tablename__ = "tenants"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    slug: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    name: Mapped[str] = mapped_column(Text)
+    region: Mapped[str] = mapped_column(String(32), default="global", index=True)
+    status: Mapped[str] = mapped_column(String(32), default="active", index=True)
+    monthly_ingest_quota: Mapped[int] = mapped_column(Integer, default=100_000)
+    retention_days: Mapped[int] = mapped_column(Integer, default=365)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
+
+
+class MembershipRow(Base):
+    __tablename__ = "memberships"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    tenant_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), index=True)
+    subject: Mapped[str] = mapped_column(String(256), index=True)
+    role: Mapped[str] = mapped_column(String(32), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class AuditEventRow(Base):
+    __tablename__ = "audit_events"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    tenant_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), nullable=True, index=True)
+    actor: Mapped[str] = mapped_column(String(256), index=True)
+    action: Mapped[str] = mapped_column(String(128), index=True)
+    resource: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    detail: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+
+
+class JobRow(Base):
+    __tablename__ = "jobs"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True)
+    tenant_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), nullable=True, index=True)
+    kind: Mapped[str] = mapped_column(String(64), index=True)
+    status: Mapped[str] = mapped_column(String(32), default="queued", index=True)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)

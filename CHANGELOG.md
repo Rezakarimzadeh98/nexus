@@ -2,6 +2,20 @@
 
 All notable changes to NEXUS are documented here.
 
+## [1.1.0] - 2026-08-31
+
+### Added
+
+- Phase 12 enterprise: tenants, memberships, audit log, DB job queue + worker
+- OIDC discovery + HS256 demo SSO; RBAC helpers; admin console (`/admin/`)
+- Metrics/SLO endpoint, retention CLI, observation import CLI
+- Helm chart, SUPPORT/SLA/runbook/model card/risk/PII/pen-test docs
+- CI CycloneDX SBOM artifact
+
+### Changed
+
+- Package / API version **1.1.0**
+
 ## [1.0.0] - 2026-08-31
 
 ### Added

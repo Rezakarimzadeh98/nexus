@@ -273,37 +273,37 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 ---
 
 ## Phase 12 — Enterprise
-**Status: ACTIVE**
+**Status: DONE** · shipped in **v1.1.0**
 
 ### 12.1 Tenancy & identity
-- [ ] Multi-tenant isolation
-- [ ] SSO (OIDC/SAML)
-- [ ] RBAC / audit logs
+- [x] Multi-tenant isolation (`tenants` / memberships / job+import scoping)
+- [x] SSO (OIDC discovery + HS256 demo validation; SAML via broker)
+- [x] RBAC / audit logs
 
 ### 12.2 Reliability & scale
-- [ ] Horizontal workers / queues
-- [ ] SLOs, alerting, on-call runbooks
-- [ ] Backup/DR, retention policies
-- [ ] Cost controls per tenant
+- [x] Horizontal workers / queues (`jobs` + `nexus worker`)
+- [x] SLOs, alerting, on-call runbooks (`/v1/metrics`, docs/enterprise/RUNBOOK.md)
+- [x] Backup/DR, retention policies (`nexus retain`, SLA RPO/RTO)
+- [x] Cost controls per tenant (`monthly_ingest_quota`)
 
 ### 12.3 Governance & compliance
-- [ ] Data residency options
-- [ ] PII handling policies
-- [ ] Model/card docs + risk register
-- [ ] Customer admin console
+- [x] Data residency options (`tenants.region`)
+- [x] PII handling policies
+- [x] Model/card docs + risk register
+- [x] Customer admin console (`/admin/`)
 
 ### 12.4 Commercial packaging
-- [ ] Helm/K8s production chart
-- [ ] Enterprise license tier (if dual-license later) or support contracts
-- [ ] SLA definitions
-- [ ] Migration/import tools
+- [x] Helm/K8s production chart (`infrastructure/helm/nexus`)
+- [x] Enterprise support contracts surface (`SUPPORT.md`)
+- [x] SLA definitions
+- [x] Migration/import tools (`nexus import-observations`)
 
 ### 12.5 Security hardening
-- [ ] Pen-test readiness
-- [ ] Secrets management
-- [ ] Supply-chain provenance (SBOMs, signed releases)
+- [x] Pen-test readiness checklist
+- [x] Secrets management guidance
+- [x] Supply-chain provenance (SBOM in CI)
 
-**Exit:** Sellable enterprise deployment of the same core.
+**Exit:** Sellable enterprise deployment of the same core. ✅
 
 ---
 

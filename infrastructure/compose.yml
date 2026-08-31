@@ -34,6 +34,20 @@ services:
     volumes:
       - ../docs/live:/app/docs/live:ro
       - ../dashboard:/app/dashboard:ro
+      - ../admin:/app/admin:ro
+      - ../site:/app/site:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile.api
+    command: ["python", "-m", "nexus_core.cli", "worker"]
+    environment:
+      NEXUS_DATABASE_URL: postgresql+psycopg://nexus:nexus@postgres:5432/nexus
+      NEXUS_ENVIRONMENT: local
     depends_on:
       postgres:
         condition: service_healthy

@@ -17,7 +17,7 @@ from sqlalchemy import select
 
 from nexus_core import __version__
 from nexus_core.adapters import get_adapter, list_adapters
-from nexus_core.auth import require_api_key
+from nexus_core.auth import AuthContext, require_api_key
 from nexus_core.config import get_settings
 from nexus_core.db import make_engine, make_session_factory, ping_database
 from nexus_core.db.models import ObservationRow, SignalRow, StateSnapshotRow
@@ -41,6 +41,7 @@ TAGS_METADATA = [
     {"name": "learning", "description": "Outcomes and calibration"},
     {"name": "adapters", "description": "Domain adapters"},
     {"name": "jobs", "description": "Authenticated write / pipeline jobs"},
+    {"name": "enterprise", "description": "Tenancy, audit, queue, SSO, admin"},
 ]
 
 app = FastAPI(
@@ -115,14 +116,21 @@ def health() -> dict[str, Any]:
         db_ok = ping_database(make_engine(get_settings()))
     except Exception:
         db_ok = False
-    return {
-        "status": "ok" if db_ok or _snapshot_path() else "degraded",
-        "version": __version__,
-        "database": db_ok,
-        "snapshot": _snapshot_path() is not None,
-        "auth_required_for_writes": bool(get_settings().api_key),
-        "maintainer": MAINTAINER,
-    }
+        settings = get_settings()
+        auth_needed = bool(settings.api_key or settings.oidc_client_secret)
+        oidc_on = bool(settings.oidc_issuer or settings.oidc_client_secret)
+        return {
+            "status": "ok" if db_ok or _snapshot_path() else "degraded",
+            "version": __version__,
+            "database": db_ok,
+            "snapshot": _snapshot_path() is not None,
+            "auth_required_for_writes": auth_needed,
+            "enterprise": {
+                "oidc_configured": oidc_on,
+                "default_tenant": settings.default_tenant_slug,
+            },
+            "maintainer": MAINTAINER,
+        }
 
 
 @app.get("/live", tags=["live"])
@@ -465,7 +473,7 @@ def adapters_get(domain: str) -> dict[str, Any]:
 @app.post("/v1/jobs/ingest", tags=["jobs"])
 def job_ingest(
     body: IngestJobRequest,
-    _: Annotated[str | None, Depends(require_api_key)] = None,
+    auth: Annotated[AuthContext, Depends(require_api_key)],
 ) -> dict[str, Any]:
     try:
         adapter = get_adapter(body.adapter)
@@ -490,6 +498,7 @@ def job_ingest(
         "adapter": body.adapter,
         "dry_run": body.dry_run,
         "offline": body.offline,
+        "actor": auth.subject,
         "results": [
             {
                 "source_id": r.source_id,
@@ -506,7 +515,7 @@ def job_ingest(
 @app.post("/v1/jobs/detect", tags=["jobs"])
 def job_detect(
     body: DetectJobRequest,
-    _: Annotated[str | None, Depends(require_api_key)] = None,
+    auth: Annotated[AuthContext, Depends(require_api_key)],
 ) -> dict[str, Any]:
     from nexus_core.detection import (
         compute_state_snapshots,
@@ -537,7 +546,233 @@ def job_detect(
         "observations": len(observations),
         "states": len(states),
         "signals": len(signals),
+        "actor": auth.subject,
     }
+
+
+class TenantCreate(BaseModel):
+    slug: str
+    name: str
+    region: str = "global"
+    monthly_ingest_quota: int = Field(default=100_000, ge=0)
+    retention_days: int = Field(default=365, ge=1)
+
+
+class MembershipCreate(BaseModel):
+    subject: str
+    role: str = "viewer"
+
+
+class EnqueueRequest(BaseModel):
+    kind: str
+    payload: dict[str, Any] = Field(default_factory=dict)
+    tenant_slug: str | None = None
+
+
+@app.get("/v1/auth/oidc", tags=["enterprise"])
+def oidc_config() -> dict[str, Any]:
+    from nexus_core.enterprise.oidc import oidc_discovery
+
+    return oidc_discovery()
+
+
+@app.get("/v1/tenants", tags=["enterprise"])
+def tenants_list(
+    auth: Annotated[AuthContext, Depends(require_api_key)],
+) -> list[dict[str, Any]]:
+    from nexus_core.enterprise.tenancy import list_tenants
+
+    engine = make_engine(get_settings())
+    factory = make_session_factory(engine)
+    with factory() as session:
+        return [t.model_dump(mode="json") for t in list_tenants(session)]
+
+
+@app.post("/v1/tenants", tags=["enterprise"])
+def tenants_create(
+    body: TenantCreate,
+    auth: Annotated[AuthContext, Depends(require_api_key)],
+) -> dict[str, Any]:
+    from nexus_core.enterprise.audit import AuditEvent, record_audit
+    from nexus_core.enterprise.tenancy import Tenant, create_tenant
+
+    engine = make_engine(get_settings())
+    factory = make_session_factory(engine)
+    tenant = Tenant(
+        slug=body.slug,
+        name=body.name,
+        region=body.region,
+        monthly_ingest_quota=body.monthly_ingest_quota,
+        retention_days=body.retention_days,
+    )
+    with factory() as session:
+        create_tenant(session, tenant)
+        record_audit(
+            session,
+            AuditEvent(
+                tenant_id=tenant.id,
+                actor=auth.subject,
+                action="tenant.create",
+                resource=tenant.slug,
+            ),
+        )
+        session.commit()
+    return tenant.model_dump(mode="json")
+
+
+@app.post("/v1/tenants/{slug}/memberships", tags=["enterprise"])
+def memberships_create(
+    slug: str,
+    body: MembershipCreate,
+    auth: Annotated[AuthContext, Depends(require_api_key)],
+) -> dict[str, Any]:
+    from nexus_core.enterprise.audit import AuditEvent, record_audit
+    from nexus_core.enterprise.rbac import Role
+    from nexus_core.enterprise.tenancy import get_tenant_by_slug, upsert_membership
+
+    try:
+        Role(body.role.lower())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="role must be viewer|operator|admin") from exc
+
+    engine = make_engine(get_settings())
+    factory = make_session_factory(engine)
+    with factory() as session:
+        tenant = get_tenant_by_slug(session, slug)
+        if tenant is None:
+            raise HTTPException(status_code=404, detail="Tenant not found")
+        mid = upsert_membership(
+            session,
+            tenant_id=tenant.id,
+            subject=body.subject,
+            role=body.role.lower(),
+        )
+        record_audit(
+            session,
+            AuditEvent(
+                tenant_id=tenant.id,
+                actor=auth.subject,
+                action="membership.create",
+                resource=body.subject,
+                detail={"role": body.role.lower()},
+            ),
+        )
+        session.commit()
+    return {"id": str(mid), "tenant": slug, "subject": body.subject, "role": body.role.lower()}
+
+
+@app.get("/v1/audit", tags=["enterprise"])
+def audit_list(
+    auth: Annotated[AuthContext, Depends(require_api_key)],
+    tenant_slug: str | None = None,
+    limit: int = 50,
+) -> list[dict[str, Any]]:
+    from nexus_core.enterprise.audit import list_audit
+    from nexus_core.enterprise.tenancy import get_tenant_by_slug
+
+    engine = make_engine(get_settings())
+    factory = make_session_factory(engine)
+    with factory() as session:
+        tenant_id = None
+        if tenant_slug:
+            t = get_tenant_by_slug(session, tenant_slug)
+            if t is None:
+                raise HTTPException(status_code=404, detail="Tenant not found")
+            tenant_id = t.id
+        events = list_audit(session, tenant_id=tenant_id, limit=limit)
+        return [e.model_dump(mode="json") for e in events]
+
+
+@app.post("/v1/jobs/enqueue", tags=["enterprise"])
+def jobs_enqueue(
+    body: EnqueueRequest,
+    auth: Annotated[AuthContext, Depends(require_api_key)],
+) -> dict[str, Any]:
+    from nexus_core.enterprise.audit import AuditEvent, record_audit
+    from nexus_core.enterprise.jobs import JobRecord, enqueue_job
+    from nexus_core.enterprise.tenancy import get_tenant_by_slug
+
+    engine = make_engine(get_settings())
+    factory = make_session_factory(engine)
+    with factory() as session:
+        tenant_id = None
+        if body.tenant_slug:
+            t = get_tenant_by_slug(session, body.tenant_slug)
+            if t is None:
+                raise HTTPException(status_code=404, detail="Tenant not found")
+            tenant_id = t.id
+        job = JobRecord(tenant_id=tenant_id, kind=body.kind, payload=body.payload)
+        enqueue_job(session, job)
+        record_audit(
+            session,
+            AuditEvent(
+                tenant_id=tenant_id,
+                actor=auth.subject,
+                action="job.enqueue",
+                resource=body.kind,
+                detail={"job_id": str(job.id)},
+            ),
+        )
+        session.commit()
+    return job.model_dump(mode="json")
+
+
+@app.get("/v1/jobs/{job_id}", tags=["enterprise"])
+def jobs_get(
+    job_id: UUID,
+    auth: Annotated[AuthContext, Depends(require_api_key)],
+) -> dict[str, Any]:
+    from nexus_core.enterprise.jobs import get_job
+
+    engine = make_engine(get_settings())
+    factory = make_session_factory(engine)
+    with factory() as session:
+        job = get_job(session, job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail="Job not found")
+        return job.model_dump(mode="json")
+
+
+@app.get("/v1/metrics", tags=["enterprise"])
+def metrics() -> dict[str, Any]:
+    """Lightweight SLO / ops snapshot for alerting scrapers."""
+    from sqlalchemy import func
+
+    from nexus_core.db.models import JobRow, ObservationRow
+
+    settings = get_settings()
+    engine = make_engine(settings)
+    factory = make_session_factory(engine)
+    try:
+        with factory() as session:
+            obs = session.execute(select(func.count()).select_from(ObservationRow)).scalar_one()
+            queued = session.execute(
+                select(func.count()).select_from(JobRow).where(JobRow.status == "queued")
+            ).scalar_one()
+            succeeded = session.execute(
+                select(func.count()).select_from(JobRow).where(JobRow.status == "succeeded")
+            ).scalar_one()
+            failed = session.execute(
+                select(func.count()).select_from(JobRow).where(JobRow.status == "failed")
+            ).scalar_one()
+        total = succeeded + failed
+        ratio = (succeeded / total) if total else 1.0
+        return {
+            "observations": obs,
+            "jobs_queued": queued,
+            "jobs_succeeded": succeeded,
+            "jobs_failed": failed,
+            "ingest_success_ratio": round(ratio, 4),
+            "slo_ingest_success_ratio": settings.slo_ingest_success_ratio,
+            "slo_ok": ratio >= settings.slo_ingest_success_ratio,
+        }
+    except Exception:
+        return {
+            "observations": 0,
+            "jobs_queued": 0,
+            "slo_ok": True,
+            "degraded": True,
+        }
 
 
 @app.get("/ui/status.json", tags=["live"])
@@ -552,6 +787,7 @@ _ROOT = Path(__file__).resolve().parents[1]
 _DASHBOARD_DIR = _ROOT / "dashboard"
 _SITE_DIR = _ROOT / "site"
 _PORTAL_DIR = _ROOT / "docs" / "portal"
+_ADMIN_DIR = _ROOT / "admin"
 
 if _DASHBOARD_DIR.is_dir():
     app.mount("/ui", StaticFiles(directory=str(_DASHBOARD_DIR), html=True), name="ui")
@@ -559,3 +795,5 @@ if _SITE_DIR.is_dir():
     app.mount("/site", StaticFiles(directory=str(_SITE_DIR), html=True), name="site")
 if _PORTAL_DIR.is_dir():
     app.mount("/portal", StaticFiles(directory=str(_PORTAL_DIR), html=True), name="portal")
+if _ADMIN_DIR.is_dir():
+    app.mount("/admin", StaticFiles(directory=str(_ADMIN_DIR), html=True), name="admin")

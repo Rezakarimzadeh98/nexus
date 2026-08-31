@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NEXUS Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#12201c; --teal:#0f766e; --bg:#eef4f1; --line:rgba(18,32,28,.12); }
+    body { margin:0; font-family:"IBM Plex Sans",system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+    header { max-width:960px; margin:0 auto; padding:1.5rem 1.25rem 0.5rem; }
+    h1 { font-family:Syne,sans-serif; margin:0; letter-spacing:-.03em; }
+    .sub { opacity:.75; margin:.35rem 0 1rem; }
+    main { max-width:960px; margin:0 auto; padding:0 1.25rem 2.5rem; display:grid; gap:1rem; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:.4rem; padding:1rem; }
+    label { display:block; font-size:.85rem; margin-bottom:.25rem; opacity:.8; }
+    input { width:100%; padding:.55rem .65rem; border:1px solid var(--line); border-radius:.3rem; margin-bottom:.75rem; }
+    button { background:var(--teal); color:#fff; border:0; padding:.6rem 1rem; border-radius:.3rem; font-weight:600; cursor:pointer; }
+    pre { background:#0e1714; color:#d7ebe4; padding:.85rem; border-radius:.35rem; overflow:auto; font-size:.85rem; }
+    .row { display:flex; gap:.75rem; flex-wrap:wrap; }
+    .row > * { flex:1; min-width:180px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>NEXUS Admin</h1>
+    <p class="sub">Customer admin console — tenants, audit, metrics. Set API key for write calls.</p>
+  </header>
+  <main>
+    <section class="card">
+      <div class="row">
+        <div>
+          <label>API base</label>
+          <input id="base" value="" placeholder="http://127.0.0.1:8080" />
+        </div>
+        <div>
+          <label>API key (optional)</label>
+          <input id="key" type="password" placeholder="NEXUS_API_KEY" />
+        </div>
+      </div>
+      <button type="button" id="refresh">Refresh</button>
+    </section>
+    <section class="card">
+      <h2>Metrics / SLO</h2>
+      <pre id="metrics">…</pre>
+    </section>
+    <section class="card">
+      <h2>Tenants</h2>
+      <pre id="tenants">…</pre>
+    </section>
+    <section class="card">
+      <h2>Create tenant</h2>
+      <div class="row">
+        <div><label>slug</label><input id="slug" placeholder="acme" /></div>
+        <div><label>name</label><input id="name" placeholder="Acme Corp" /></div>
+        <div><label>region</label><input id="region" value="eu-west" /></div>
+      </div>
+      <button type="button" id="create">Create</button>
+      <pre id="createOut"></pre>
+    </section>
+  </main>
+  <script>
+    const baseEl = document.getElementById("base");
+    baseEl.value = location.origin;
+    function headers() {
+      const h = { "Content-Type": "application/json" };
+      const k = document.getElementById("key").value.trim();
+      if (k) h["Authorization"] = "Bearer " + k;
+      return h;
+    }
+    async function refresh() {
+      const base = baseEl.value.replace(/\/$/, "");
+      const metrics = await fetch(base + "/v1/metrics").then(r => r.json());
+      document.getElementById("metrics").textContent = JSON.stringify(metrics, null, 2);
+      const tenants = await fetch(base + "/v1/tenants", { headers: headers() }).then(r => r.json());
+      document.getElementById("tenants").textContent = JSON.stringify(tenants, null, 2);
+    }
+    document.getElementById("refresh").onclick = () => refresh().catch(e => alert(e));
+    document.getElementById("create").onclick = async () => {
+      const base = baseEl.value.replace(/\/$/, "");
+      const body = {
+        slug: document.getElementById("slug").value.trim(),
+        name: document.getElementById("name").value.trim(),
+        region: document.getElementById("region").value.trim() || "global",
+      };
+      const res = await fetch(base + "/v1/tenants", {
+        method: "POST", headers: headers(), body: JSON.stringify(body),
+      });
+      document.getElementById("createOut").textContent = await res.text();
+      await refresh();
+    };
+    refresh().catch(() => {});
+  </script>
+</body>
+</html>

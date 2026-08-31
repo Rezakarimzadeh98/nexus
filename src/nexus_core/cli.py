@@ -118,6 +118,28 @@ def main(argv: list[str] | None = None) -> int:
     learn_p.add_argument("--horizon-hours", type=float, default=72.0)
     learn_p.add_argument("--calibration-out", default="models/calibration.json")
 
+    tenant_p = sub.add_parser("tenant", help="Create or list enterprise tenants")
+    tenant_sub = tenant_p.add_subparsers(dest="tenant_cmd")
+    t_list = tenant_sub.add_parser("list", help="List tenants")
+    t_list.add_argument("--json", action="store_true")
+    t_create = tenant_sub.add_parser("create", help="Create a tenant")
+    t_create.add_argument("--slug", required=True)
+    t_create.add_argument("--name", required=True)
+    t_create.add_argument("--region", default="global")
+    t_create.add_argument("--quota", type=int, default=100_000)
+    t_create.add_argument("--retention-days", type=int, default=365)
+
+    worker_p = sub.add_parser("worker", help="Run enterprise job worker")
+    worker_p.add_argument("--once", action="store_true")
+    worker_p.add_argument("--max-iterations", type=int, default=None)
+
+    retain_p = sub.add_parser("retain", help="Apply retention policy")
+    retain_p.add_argument("--tenant-slug", default=None)
+
+    import_p = sub.add_parser("import-observations", help="Import observations JSON array")
+    import_p.add_argument("--path", required=True)
+    import_p.add_argument("--tenant-slug", default=None)
+
     sub.add_parser("status", help="Show version and database counters")
 
     args = parser.parse_args(argv)
@@ -367,6 +389,94 @@ def main(argv: list[str] | None = None) -> int:
             f"under={((learned.get('error_report') or {}).get('underconfident_count'))}\t"
             f"path={learned.get('calibration_path')}"
         )
+        return 0
+
+    if args.command == "tenant":
+        from nexus_core.enterprise.tenancy import Tenant, create_tenant, list_tenants
+
+        engine = make_engine(settings)
+        factory = make_session_factory(engine)
+        if args.tenant_cmd == "list":
+            with factory() as session:
+                tenant_rows = [t.model_dump(mode="json") for t in list_tenants(session)]
+            if getattr(args, "json", False):
+                print(json.dumps(tenant_rows, indent=2))
+            else:
+                for row in tenant_rows:
+                    print(f"{row['slug']}\t{row['name']}\t{row['region']}\t{row['status']}")
+            return 0
+        if args.tenant_cmd == "create":
+            tenant = Tenant(
+                slug=args.slug,
+                name=args.name,
+                region=args.region,
+                monthly_ingest_quota=args.quota,
+                retention_days=args.retention_days,
+            )
+            with factory() as session:
+                create_tenant(session, tenant)
+                session.commit()
+            print(f"created\t{tenant.slug}\t{tenant.id}")
+            return 0
+        print("usage: nexus tenant list|create ...")
+        return 1
+
+    if args.command == "worker":
+        from nexus_core.enterprise.worker import run_worker_loop, run_worker_once
+
+        if args.once:
+            did = run_worker_once()
+            print("processed" if did else "idle")
+            return 0
+        run_worker_loop(max_iterations=args.max_iterations)
+        return 0
+
+    if args.command == "retain":
+        from nexus_core.enterprise.retention import apply_retention
+        from nexus_core.enterprise.tenancy import get_tenant_by_slug
+
+        engine = make_engine(settings)
+        factory = make_session_factory(engine)
+        with factory() as session:
+            tenant_id = None
+            if args.tenant_slug:
+                t = get_tenant_by_slug(session, args.tenant_slug)
+                if t is None:
+                    print(f"unknown tenant {args.tenant_slug}")
+                    return 1
+                tenant_id = t.id
+            retain_out = apply_retention(session, tenant_id=tenant_id)
+            session.commit()
+        print(json.dumps(retain_out))
+        return 0
+
+    if args.command == "import-observations":
+        from nexus_core.ingestion.store import persist_observations
+        from nexus_core.types import Observation as ObsModel
+
+        path = Path(args.path)
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        items = raw if isinstance(raw, list) else raw.get("items", [])
+        imported: list[ObsModel] = []
+        for item in items:
+            meta = dict(item.get("metadata") or {})
+            if args.tenant_slug:
+                meta.setdefault("tenant_slug", args.tenant_slug)
+            imported.append(
+                ObsModel(
+                    source_id=str(item.get("source_id") or "import"),
+                    title=item.get("title"),
+                    body=item.get("body") or item.get("summary"),
+                    url=item.get("url"),
+                    metadata=meta,
+                )
+            )
+        engine = make_engine(settings)
+        factory = make_session_factory(engine)
+        with factory() as session:
+            n = persist_observations(session, imported)
+            session.commit()
+        print(f"imported={n}")
         return 0
 
     parser.print_help()
