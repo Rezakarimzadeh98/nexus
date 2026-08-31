@@ -45,6 +45,10 @@ class Settings(BaseSettings):
         default=None,
         description="OIDC issuer URL for SSO discovery",
     )
+    oidc_jwks_uri: str | None = Field(
+        default=None,
+        description="Optional override for JWKS URI (defaults from issuer)",
+    )
     oidc_audience: str | None = Field(
         default=None,
         description="Expected JWT audience",

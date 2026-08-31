@@ -27,6 +27,9 @@ class ObservationRow(Base):
     language: Mapped[str | None] = mapped_column(String(16), nullable=True)
     raw_hash: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     raw_uri: Mapped[str | None] = mapped_column(Text, nullable=True)
+    tenant_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), nullable=True, index=True
+    )
     metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
 
 
@@ -90,6 +93,9 @@ class SignalRow(Base):
     detected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     evidence: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     contradictions: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
+    tenant_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), nullable=True, index=True
+    )
     metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
 
 
@@ -125,6 +131,9 @@ class ForecastRow(Base):
     )
     scenarios: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list)
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    tenant_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), nullable=True, index=True
+    )
     metadata_json: Mapped[dict[str, Any]] = mapped_column("metadata", JSONB, default=dict)
 
 

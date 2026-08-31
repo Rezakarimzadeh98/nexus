@@ -37,7 +37,7 @@ def require_api_key(
     settings = get_settings()
     token = _extract_token(authorization, x_api_key)
 
-    if not settings.api_key and not settings.oidc_client_secret:
+    if not settings.api_key and not settings.oidc_client_secret and not settings.oidc_issuer:
         return AuthContext(subject="anonymous", via="anonymous")
 
     if not token:
@@ -50,7 +50,7 @@ def require_api_key(
     if settings.api_key and secrets.compare_digest(token, settings.api_key):
         return AuthContext(subject="api-key", via="api_key")
 
-    if settings.oidc_client_secret:
+    if settings.oidc_issuer or settings.oidc_client_secret or settings.oidc_jwks_uri:
         claims = validate_oidc_bearer(token)
         if claims and claims.get("sub"):
             return AuthContext(subject=str(claims["sub"]), via="oidc")

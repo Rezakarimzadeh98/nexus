@@ -2,6 +2,19 @@
 
 All notable changes to NEXUS are documented here.
 
+## [1.2.0] - 2026-08-31
+
+### Added
+
+- Phase 13 hardening: JWKS/RS256 OIDC (`NEXUS_OIDC_ISSUER` / `NEXUS_OIDC_JWKS_URI`)
+- `tenant_id` FK columns on observations, signals, forecasts (Alembic `0006`)
+- Monthly ingest quota enforcement; tenant-scoped `/signals`
+- GitHub Release workflow with CycloneDX SBOM + provenance attestations
+
+### Changed
+
+- Package / API version **1.2.0**
+
 ## [1.1.0] - 2026-08-31
 
 ### Added

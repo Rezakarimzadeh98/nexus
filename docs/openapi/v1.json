@@ -8,7 +8,7 @@
       "url": "https://github.com/Rezakarimzadeh98",
       "email": "r.karimzadeh1998@gmail.com"
     },
-    "version": "1.1.0"
+    "version": "1.2.0"
   },
   "paths": {
     "/": {
@@ -96,6 +96,22 @@
               "type": "integer",
               "default": 20,
               "title": "Limit"
+            }
+          },
+          {
+            "name": "X-Nexus-Tenant",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Nexus-Tenant"
             }
           }
         ],

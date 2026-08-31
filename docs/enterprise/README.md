@@ -8,14 +8,15 @@ Sellable packaging for the same NEXUS core (Phase 12).
 - API: `/v1/tenants`, `/v1/audit`, `/v1/jobs/enqueue`, `/v1/auth/oidc`
 - Admin console: `/admin/`
 - Roles: `viewer` | `operator` | `admin` (`nexus_core.enterprise.rbac`)
-- Isolation: tenant metadata on imports / jobs; future phases can add FK columns to core fact tables
+- Isolation: `tenant_id` FK on observations/signals/forecasts + memberships/audit/jobs
 
 ### SSO (OIDC)
 
 1. Set `NEXUS_OIDC_ISSUER` to your IdP realm.
 2. For demo HS256 validation set `NEXUS_OIDC_CLIENT_SECRET` (+ optional `NEXUS_OIDC_AUDIENCE`).
-3. Production: terminate OIDC at gateway or replace HS256 with JWKS/RS256 (see discovery payload at `GET /v1/auth/oidc`).
+3. Production: set issuer (JWKS/RS256 via PyJWT) or terminate OIDC at the gateway.
 4. SAML: front with a broker (Keycloak / Auth0) that issues OIDC to NEXUS.
+5. Demo-only: `NEXUS_OIDC_CLIENT_SECRET` enables HS256 validation.
 
 ## Reliability & scale
 
@@ -40,6 +41,9 @@ Sellable packaging for the same NEXUS core (Phase 12).
 
 ## Security
 
+- Prefer JWKS/RS256 with `NEXUS_OIDC_ISSUER` (and optional `NEXUS_OIDC_JWKS_URI`)
+- Fact tables carry nullable `tenant_id` FK (`observations`, `signals`, `forecasts`)
+- Monthly ingest quotas enforced on persist
 - Secrets via env / external secret stores (`NEXUS_SECRETS_BACKEND=env`)
-- SBOM generated in CI (`sbom/cyclonedx.json` artifact)
+- SBOM in CI; releases: `.github/workflows/release.yml` (SBOM + provenance attestations)
 - Checklist: [PENTEST.md](PENTEST.md)

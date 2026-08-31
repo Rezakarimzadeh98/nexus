@@ -5,14 +5,17 @@ from __future__ import annotations
 from nexus_core.enterprise.audit import AuditEvent, record_audit
 from nexus_core.enterprise.jobs import JobRecord, claim_next_job, enqueue_job, finish_job
 from nexus_core.enterprise.pii import redact_mapping, redact_text
+from nexus_core.enterprise.quota import QuotaExceeded, assert_ingest_quota
 from nexus_core.enterprise.rbac import Role, role_allows
 from nexus_core.enterprise.tenancy import Tenant, create_tenant, get_tenant_by_slug, list_tenants
 
 __all__ = [
     "AuditEvent",
     "JobRecord",
+    "QuotaExceeded",
     "Role",
     "Tenant",
+    "assert_ingest_quota",
     "claim_next_job",
     "create_tenant",
     "enqueue_job",

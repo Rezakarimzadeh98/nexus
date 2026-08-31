@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nexus-core"
-version = "1.1.0"
+version = "1.2.0"
 description = "NEXUS core contracts, persistence, detection, adapters, and foundation utilities"
 readme = "README.md"
 license = { text = "MIT" }
@@ -18,6 +18,7 @@ dependencies = [
   "psycopg[binary]>=3.1",
   "python-dotenv>=1.0",
   "pyyaml>=6.0",
+  "PyJWT[crypto]>=2.8",
 ]
 
 [project.optional-dependencies]

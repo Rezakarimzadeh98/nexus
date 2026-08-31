@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release-attest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,api,sdk]"
+          pip install build cyclonedx-bom==4.5.0
+      - name: Build wheel/sdist
+        run: python -m build
+      - name: SBOM
+        run: |
+          mkdir -p sbom dist
+          cyclonedx-py environment -o sbom/cyclonedx.json
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexus-release-${{ github.ref_name }}
+          path: |
+            dist/
+            sbom/cyclonedx.json
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*.whl
+            dist/*.tar.gz
+            sbom/cyclonedx.json

@@ -307,6 +307,25 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 
 ---
 
+## Phase 13 — Hardening
+**Status: DONE** · shipped in **v1.2.0**
+
+### 13.1 Identity
+- [x] JWKS / RS256 OIDC validation (`PyJWT` + issuer / jwks URI)
+- [x] HS256 demo path retained
+
+### 13.2 Isolation
+- [x] `tenant_id` FK on `observations`, `signals`, `forecasts` (Alembic `0006_tenant_fk`)
+- [x] Tenant-scoped signal listing (`X-Nexus-Tenant`)
+- [x] Monthly ingest quota enforcement
+
+### 13.3 Supply chain
+- [x] Release workflow with SBOM + build provenance attestations
+
+**Exit:** Production-minded hardening without rewriting the core loop. ✅
+
+---
+
 ## Cross-cutting (all phases)
 
 | Track | Always on |

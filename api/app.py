@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -117,8 +117,12 @@ def health() -> dict[str, Any]:
     except Exception:
         db_ok = False
         settings = get_settings()
-        auth_needed = bool(settings.api_key or settings.oidc_client_secret)
-        oidc_on = bool(settings.oidc_issuer or settings.oidc_client_secret)
+        auth_needed = bool(
+            settings.api_key or settings.oidc_client_secret or settings.oidc_issuer
+        )
+        oidc_on = bool(
+            settings.oidc_issuer or settings.oidc_client_secret or settings.oidc_jwks_uri
+        )
         return {
             "status": "ok" if db_ok or _snapshot_path() else "degraded",
             "version": __version__,
@@ -142,15 +146,22 @@ def live() -> dict[str, Any]:
 
 
 @app.get("/signals", tags=["signals"])
-def list_signals(limit: int = 20) -> list[dict[str, Any]]:
+def list_signals(
+    limit: int = 20,
+    x_nexus_tenant: Annotated[str | None, Header(alias="X-Nexus-Tenant")] = None,
+) -> list[dict[str, Any]]:
     limit = max(1, min(limit, 100))
     try:
+        from nexus_core.enterprise.scoping import resolve_tenant_id
+
         engine = make_engine(get_settings())
         factory = make_session_factory(engine)
         with factory() as session:
-            rows = session.execute(
-                select(SignalRow).order_by(SignalRow.detected_at.desc()).limit(limit)
-            ).scalars()
+            tenant_id = resolve_tenant_id(session, x_nexus_tenant)
+            stmt = select(SignalRow).order_by(SignalRow.detected_at.desc()).limit(limit)
+            if tenant_id is not None:
+                stmt = stmt.where(SignalRow.tenant_id == tenant_id)
+            rows = session.execute(stmt).scalars()
             return [
                 {
                     "id": str(r.id),
@@ -162,6 +173,7 @@ def list_signals(limit: int = 20) -> list[dict[str, Any]]:
                     "change_ratio": r.change_ratio,
                     "detected_at": r.detected_at.isoformat(),
                     "evidence": r.evidence or [],
+                    "tenant_id": str(r.tenant_id) if r.tenant_id else None,
                     "metadata": r.metadata_json or {},
                 }
                 for r in rows

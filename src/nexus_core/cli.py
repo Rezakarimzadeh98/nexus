@@ -458,10 +458,24 @@ def main(argv: list[str] | None = None) -> int:
         raw = json.loads(path.read_text(encoding="utf-8"))
         items = raw if isinstance(raw, list) else raw.get("items", [])
         imported: list[ObsModel] = []
+        tenant_uuid = None
+        if args.tenant_slug:
+            from nexus_core.enterprise.tenancy import get_tenant_by_slug
+
+            engine0 = make_engine(settings)
+            factory0 = make_session_factory(engine0)
+            with factory0() as session0:
+                t = get_tenant_by_slug(session0, args.tenant_slug)
+                if t is None:
+                    print(f"unknown tenant {args.tenant_slug}")
+                    return 1
+                tenant_uuid = t.id
         for item in items:
             meta = dict(item.get("metadata") or {})
             if args.tenant_slug:
                 meta.setdefault("tenant_slug", args.tenant_slug)
+            if tenant_uuid is not None:
+                meta["tenant_id"] = str(tenant_uuid)
             imported.append(
                 ObsModel(
                     source_id=str(item.get("source_id") or "import"),
