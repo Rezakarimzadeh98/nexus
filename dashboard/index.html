@@ -205,6 +205,14 @@
     <div class="counters" id="counters"></div>
 
     <section class="section">
+      <h2>Platform</h2>
+      <p style="color:var(--muted);margin:0 0 0.75rem;font-size:0.92rem">
+        Open core through enterprise packaging — adapters, tenancy, OIDC, workers.
+      </p>
+      <div class="feed" id="platform"></div>
+    </section>
+
+    <section class="section">
       <h2>Scorecard</h2>
       <p style="color:var(--muted);margin:0 0 0.75rem;font-size:0.92rem">
         Blind forecast protocol + detection metrics. Proxy labels — see docs/BENCHMARKS.md.
@@ -406,6 +414,29 @@
       return alertHtml + minedHtml;
     }
 
+    function renderPlatform(platform) {
+      if (!platform) {
+        return `<div class="pattern"><p>Platform metadata not in this snapshot yet.</p></div>`;
+      }
+      const adapters = (platform.adapters || []).map(
+        (a) => `<span class="chip">${esc(a)}</span>`
+      ).join("");
+      const features = (platform.features || []).slice(0, 8).map(
+        (f) => `<span class="chip">${esc(f)}</span>`
+      ).join("");
+      const ent = (platform.links && platform.links.enterprise)
+        ? `<p style="margin-top:0.75rem"><a href="${esc(platform.links.enterprise)}" rel="noopener" target="_blank">Enterprise docs</a></p>`
+        : "";
+      return `<article class="pattern">
+        <h3>v${esc(platform.phase || "?")} · ${esc(platform.status || "ready")}</h3>
+        <p>Domain adapters</p>
+        <div class="chips">${adapters || '<span class="chip">generic</span>'}</div>
+        <p style="margin-top:0.75rem">Capabilities</p>
+        <div class="chips">${features}</div>
+        ${ent}
+      </article>`;
+    }
+
     async function load() {
       const meta = document.getElementById("meta");
       try {
@@ -472,6 +503,7 @@
           });
         }
 
+        document.getElementById("platform").innerHTML = renderPlatform(data.platform || null);
         document.getElementById("scorecard").innerHTML = renderScorecard(data.evaluation || {});
         document.getElementById("learning").innerHTML = renderLearning(data.learning || {});
         document.getElementById("forecasts").innerHTML = renderForecasts(data.forecasts || []);

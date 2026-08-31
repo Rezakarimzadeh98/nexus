@@ -326,6 +326,22 @@ Dashboard or API can show **What Changed** with **confidence + evidence links**.
 
 ---
 
+## Phase 14 — Public polish
+**Status: DONE** · shipped in **v1.2.1**
+
+### 14.1 Live demo depth
+- [x] Multi-adapter live ingest (generic + cyber + finance)
+- [x] Platform panel on public What Changed dashboard
+- [x] Snapshot `platform` metadata (adapters, features, docs links)
+
+### 14.2 Ops honesty
+- [x] Fix `/health` response regression (CI green)
+- [x] SHARE kit refreshed for post-enterprise status
+
+**Exit:** Public demo reflects the platform claim. ✅
+
+---
+
 ## Cross-cutting (all phases)
 
 | Track | Always on |

@@ -7,10 +7,10 @@ By [Reza Karimzadeh](https://github.com/Rezakarimzadeh98) | [Authors](AUTHORS.md
 Turn scattered, high-volume data into a living model of reality: what is happening now, what just changed, what it connects to, what may happen next - and whether those claims hold up against the truth.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0f766e.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-v1.2.0-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v1.2.0)
+[![Version](https://img.shields.io/badge/version-v1.2.1-0f766e.svg)](https://github.com/Rezakarimzadeh98/nexus/releases/tag/v1.2.1)
 [![CI](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/ci.yml)
 [![Live ingest](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml/badge.svg)](https://github.com/Rezakarimzadeh98/nexus/actions/workflows/live-ingest.yml)
-[![Status](https://img.shields.io/badge/status-v1.2_Hardened-0f766e.svg)](docs/ROADMAP.md)
+[![Status](https://img.shields.io/badge/status-v1.2.1_Public-0f766e.svg)](docs/ROADMAP.md)
 [![Live demo](https://img.shields.io/badge/live-demo-3d9b7a)](https://rezakarimzadeh98.github.io/nexus/)
 [![Author](https://img.shields.io/badge/author-Reza_Karimzadeh-1f6feb)](https://github.com/Rezakarimzadeh98)
 [![Discussions](https://img.shields.io/badge/discussions-join-1f6feb)](https://github.com/Rezakarimzadeh98/nexus/discussions)
@@ -166,6 +166,7 @@ If benchmarks say yes, NEXUS is more than a demo - it is a platform.
 | 11 | Platform (v1.0) | Adapters, SDK, API, web platform |
 | 12 | Enterprise (v1.1) | Tenancy, SSO, workers, Helm, SLOs |
 | 13 | Hardening (v1.2) | JWKS OIDC, tenant FKs, quotas, attested releases |
+| 14 | Public polish (v1.2.1) | Multi-adapter live demo + Platform panel |
 
 Every checkbox lives in [docs/ROADMAP.md](docs/ROADMAP.md).
 
@@ -173,7 +174,7 @@ Every checkbox lives in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Status (honest)
 
-**v1.2.0** — Phase 13 Hardening done: JWKS OIDC, tenant FK isolation, ingest quotas, attested releases. Roadmap Phases 0–13 complete.
+**v1.2.1** — Phase 14 public polish: CI health fix, multi-adapter live ingest, Platform panel on the demo. Roadmap Phases 0–14 complete.
 
 ---
 

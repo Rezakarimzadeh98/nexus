@@ -116,25 +116,25 @@ def health() -> dict[str, Any]:
         db_ok = ping_database(make_engine(get_settings()))
     except Exception:
         db_ok = False
-        settings = get_settings()
-        auth_needed = bool(
-            settings.api_key or settings.oidc_client_secret or settings.oidc_issuer
-        )
-        oidc_on = bool(
-            settings.oidc_issuer or settings.oidc_client_secret or settings.oidc_jwks_uri
-        )
-        return {
-            "status": "ok" if db_ok or _snapshot_path() else "degraded",
-            "version": __version__,
-            "database": db_ok,
-            "snapshot": _snapshot_path() is not None,
-            "auth_required_for_writes": auth_needed,
-            "enterprise": {
-                "oidc_configured": oidc_on,
-                "default_tenant": settings.default_tenant_slug,
-            },
-            "maintainer": MAINTAINER,
-        }
+    settings = get_settings()
+    auth_needed = bool(
+        settings.api_key or settings.oidc_client_secret or settings.oidc_issuer
+    )
+    oidc_on = bool(
+        settings.oidc_issuer or settings.oidc_client_secret or settings.oidc_jwks_uri
+    )
+    return {
+        "status": "ok" if db_ok or _snapshot_path() else "degraded",
+        "version": __version__,
+        "database": db_ok,
+        "snapshot": _snapshot_path() is not None,
+        "auth_required_for_writes": auth_needed,
+        "enterprise": {
+            "oidc_configured": oidc_on,
+            "default_tenant": settings.default_tenant_slug,
+        },
+        "maintainer": MAINTAINER,
+    }
 
 
 @app.get("/live", tags=["live"])

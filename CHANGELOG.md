@@ -2,6 +2,20 @@
 
 All notable changes to NEXUS are documented here.
 
+## [1.2.1] - 2026-08-31
+
+### Fixed
+
+- `/health` always returns a JSON body (CI regression when DB ping succeeded)
+
+### Added
+
+- Phase 14 public polish: multi-adapter live ingest, dashboard Platform panel, snapshot metadata
+
+### Changed
+
+- Package / API version **1.2.1**
+
 ## [1.2.0] - 2026-08-31
 
 ### Added

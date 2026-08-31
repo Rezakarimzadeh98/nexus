@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from nexus_core import __version__
+from nexus_core.adapters import list_adapters
 from nexus_core.db.models import (
     EntityRow,
     EventRow,
@@ -168,6 +169,27 @@ def build_live_snapshot(
             "github": "https://github.com/Rezakarimzadeh98",
             "profile": "https://github.com/Rezakarimzadeh98",
             "repo": "https://github.com/Rezakarimzadeh98/nexus",
+        },
+        "platform": {
+            "phase": "14",
+            "status": "hardened",
+            "adapters": [a.domain for a in list_adapters()],
+            "features": [
+                "live-state",
+                "signals",
+                "forecasts",
+                "evaluation",
+                "learning",
+                "tenancy",
+                "oidc-jwks",
+                "job-workers",
+            ],
+            "links": {
+                "docs": "https://github.com/Rezakarimzadeh98/nexus/tree/main/docs",
+                "enterprise": (
+                    "https://github.com/Rezakarimzadeh98/nexus/tree/main/docs/enterprise"
+                ),
+            },
         },
         "proof_question": (
             "Can heterogeneous public data become a living model that detects "
