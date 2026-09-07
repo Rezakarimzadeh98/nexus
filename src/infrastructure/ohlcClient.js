@@ -1,3 +1,5 @@
+import { fetchWithTimeout, mapWithConcurrency } from "./httpClient.js";
+
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
 }
@@ -41,7 +43,7 @@ function parseCsv(csv) {
 
 async function fetchStooqSymbol(symbol) {
   const url = `https://stooq.com/q/d/l/?s=${symbol.toLowerCase()}&i=d`;
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url, { timeoutMs: 7000, retries: 1 });
   if (!response.ok) {
     return [];
   }
@@ -56,7 +58,11 @@ async function fetchYahooSymbol(symbol, fromDate, toDate) {
     symbol
   )}?period1=${period1}&period2=${period2}&interval=1d&events=history`;
 
-  const response = await fetch(url, { headers: { Accept: "application/json" } });
+  const response = await fetchWithTimeout(url, {
+    headers: { Accept: "application/json" },
+    timeoutMs: 7000,
+    retries: 1
+  });
   if (!response.ok) {
     return [];
   }
@@ -102,8 +108,8 @@ export async function fetchOhlcForPairs({ base, targets, days }) {
   const from = formatDate(start);
   const to = formatDate(end);
 
-  const entries = await Promise.all(
-    targets.map(async (target) => {
+  const entries = await mapWithConcurrency(targets, 3, async (target) => {
+    try {
       const direct = `${base}${target}`;
       const inverse = `${target}${base}`;
 
@@ -130,8 +136,10 @@ export async function fetchOhlcForPairs({ base, targets, days }) {
       }
 
       return [target, []];
-    })
-  );
+    } catch {
+      return [target, []];
+    }
+  });
 
   return new Map(entries);
 }

@@ -14,12 +14,29 @@ decisionRouter.get("/score", async (req, res) => {
   try {
     const query = validateDecisionQuery(req.query);
 
-    const [onlineRows, manualRows, ohlcByTarget, news] = await Promise.all([
+    const [onlineRowsResult, manualRowsResult, ohlcByTargetResult, newsResult] = await Promise.allSettled([
       fetchTimeseries(query),
       getManualRecords(),
       fetchOhlcForPairs(query),
       fetchNewsAndAnalyze({ query: query.newsQuery, max: query.newsMax })
     ]);
+
+    const onlineRows = onlineRowsResult.status === "fulfilled" ? onlineRowsResult.value : [];
+    const manualRows = manualRowsResult.status === "fulfilled" ? manualRowsResult.value : [];
+    const ohlcByTarget = ohlcByTargetResult.status === "fulfilled" ? ohlcByTargetResult.value : new Map();
+    const news = newsResult.status === "fulfilled"
+      ? newsResult.value
+      : {
+          query: query.newsQuery,
+          source: "google-news-rss",
+          totalArticles: 0,
+          sentiment: { positive: 0, negative: 0, neutral: 0, averageScore: 0 },
+          articles: []
+        };
+
+    if (!onlineRows.length && onlineRowsResult.status !== "fulfilled") {
+      throw new Error("Live FX provider is temporarily unavailable.");
+    }
 
     const scopedManualRows = manualRows.filter(
       (row) => row.base === query.base && query.targets.includes(row.target)
@@ -29,6 +46,13 @@ decisionRouter.get("/score", async (req, res) => {
     const summary = summarize(records, ohlcByTarget);
     const forecast = buildForecastBundle(records, query.horizon);
     const score = buildDecisionScore({ summary, forecast, news });
+    const warnings = [];
+    if (ohlcByTargetResult.status !== "fulfilled") {
+      warnings.push("OHLC provider unavailable; technical OHLC enrichments were skipped.");
+    }
+    if (newsResult.status !== "fulfilled") {
+      warnings.push("News provider unavailable; sentiment score used fallback values.");
+    }
 
     res.json({
       ok: true,
@@ -37,7 +61,8 @@ decisionRouter.get("/score", async (req, res) => {
       score,
       summary,
       forecast,
-      news
+      news,
+      warnings
     });
   } catch (error) {
     res.status(400).json({ ok: false, message: error.message });

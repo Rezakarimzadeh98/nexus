@@ -7,11 +7,13 @@ It combines secure API access, role-based governance, real market data, signal e
 ## Live Preview
 
 - Local app: http://localhost:8080
-- Public online tunnel: https://afraid-tips-make.loca.lt
+- Public online tunnel: https://97a4356f010a6a.lhr.life
 - GitHub repo: https://github.com/Rezakarimzadeh98/nexus
 - GitHub Pages landing: https://rezakarimzadeh98.github.io/nexus/
 
-Current tunnel status: validated on 2026-09-07 via `/api/health`.
+Current tunnel status: validated on 2026-09-07 via repeated `/api/health` checks (6/6 success).
+
+Tunnel note: `localhost.run` is currently more stable than `localtunnel` for this environment.
 
 ## Why NEXUS
 

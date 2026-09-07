@@ -10,7 +10,17 @@ const forecastRouter = Router();
 forecastRouter.get("/overview", async (req, res) => {
   try {
     const query = validateForecastQuery(req.query);
-    const [onlineRows, manualRows] = await Promise.all([fetchTimeseries(query), getManualRecords()]);
+    const [onlineRowsResult, manualRowsResult] = await Promise.allSettled([
+      fetchTimeseries(query),
+      getManualRecords()
+    ]);
+
+    const onlineRows = onlineRowsResult.status === "fulfilled" ? onlineRowsResult.value : [];
+    const manualRows = manualRowsResult.status === "fulfilled" ? manualRowsResult.value : [];
+
+    if (!onlineRows.length && onlineRowsResult.status !== "fulfilled") {
+      throw new Error("Live FX provider is temporarily unavailable.");
+    }
 
     const scopedManualRows = manualRows.filter(
       (row) => row.base === query.base && query.targets.includes(row.target)
@@ -23,7 +33,8 @@ forecastRouter.get("/overview", async (req, res) => {
       ok: true,
       query,
       source: "online+manual",
-      forecast
+      forecast,
+      warnings: manualRowsResult.status === "fulfilled" ? [] : ["Manual record store unavailable; using online data only."]
     });
   } catch (error) {
     res.status(400).json({ ok: false, message: error.message });

@@ -1,3 +1,5 @@
+import { fetchWithTimeout } from "../infrastructure/httpClient.js";
+
 const POSITIVE_WORDS = [
   "gain",
   "gains",
@@ -34,13 +36,21 @@ const NEGATIVE_WORDS = [
 
 export async function fetchNewsAndAnalyze({ query, max = 20 }) {
   const url = `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`;
-  const response = await fetch(url, { headers: { Accept: "application/xml,text/xml" } });
-  if (!response.ok) {
-    throw new Error(`News provider error: ${response.status}`);
+  let items = [];
+  try {
+    const response = await fetchWithTimeout(url, {
+      headers: { Accept: "application/xml,text/xml" },
+      timeoutMs: 7000,
+      retries: 1
+    });
+    if (!response.ok) {
+      throw new Error(`News provider error: ${response.status}`);
+    }
+    const xml = await response.text();
+    items = parseRssItems(xml).slice(0, max);
+  } catch {
+    items = [];
   }
-
-  const xml = await response.text();
-  const items = parseRssItems(xml).slice(0, max);
 
   const sentimentSummary = {
     positive: 0,

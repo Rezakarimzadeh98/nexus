@@ -1,4 +1,5 @@
 import { FX_API_BASE } from "../config/constants.js";
+import { fetchWithTimeout } from "./httpClient.js";
 
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
@@ -14,8 +15,10 @@ export async function fetchTimeseries({ base, targets, days }) {
   const toQuery = targets.join(",");
   const url = `${FX_API_BASE}/${from}..${to}?from=${base}&to=${toQuery}`;
 
-  const response = await fetch(url, {
-    headers: { Accept: "application/json" }
+  const response = await fetchWithTimeout(url, {
+    headers: { Accept: "application/json" },
+    timeoutMs: 7000,
+    retries: 1
   });
 
   if (!response.ok) {
