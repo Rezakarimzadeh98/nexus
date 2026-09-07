@@ -18,7 +18,7 @@
         <div class="brand-block">
           <div class="brand-mark">N</div>
           <div>
-            <div class="eyebrow">LIVE FX DASHBOARD</div>
+            <div class="eyebrow">LIVE MULTI-MARKET DASHBOARD</div>
             <h1>NEXUS</h1>
           </div>
         </div>
@@ -34,8 +34,8 @@
 
       <section class="panel compact-intro">
         <div>
-          <h2>Focused View</h2>
-          <p>Only key metrics and charts are visible. Use Advanced mode for full controls.</p>
+          <h2>Command View</h2>
+          <p>Core market signal view is always visible. Turn on Advanced mode for deep analytics and governance tools.</p>
         </div>
         <div class="cta-row">
           <button id="runAllBtn" type="button">Refresh All</button>
@@ -81,11 +81,12 @@
             </div>
             <label>Auto Refresh
               <select id="autoRefreshSelect">
-                <option value="off" selected>Off</option>
-                <option value="30">Every 30s</option>
-                <option value="60">Every 60s</option>
-                <option value="120">Every 2m</option>
-                <option value="300">Every 5m</option>
+                <option value="off">Off</option>
+                <option value="1">Every 1s</option>
+                <option value="2">Every 2s</option>
+                <option value="3">Every 3s</option>
+                <option value="5" selected>Every 5s</option>
+                <option value="10">Every 10s</option>
               </select>
             </label>
           </div>

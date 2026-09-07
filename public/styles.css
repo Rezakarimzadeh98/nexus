@@ -1,13 +1,13 @@
 :root {
-  --bg: #f4f7fb;
+  --bg: #f2f6fc;
   --panel: #ffffff;
   --line: #d7e0ed;
-  --text: #10233d;
+  --text: #0d223f;
   --muted: #5b6f8d;
-  --primary: #0f62fe;
-  --primary-strong: #0a7a46;
+  --primary: #005bd4;
+  --primary-strong: #0f9d58;
   --danger: #c62828;
-  --shadow: 0 10px 24px rgba(16, 35, 61, 0.08);
+  --shadow: 0 12px 28px rgba(16, 35, 61, 0.1);
 }
 
 * {
@@ -19,7 +19,10 @@ body {
   padding: 16px;
   font-family: "Manrope", "Segoe UI", sans-serif;
   color: var(--text);
-  background: radial-gradient(circle at 0% 0%, #e8f0ff 0%, #f4f7fb 50%, #eef3f9 100%);
+  background:
+    radial-gradient(circle at 5% -15%, #dbe9ff 0%, transparent 35%),
+    radial-gradient(circle at 100% 0%, #d9f5ee 0%, transparent 30%),
+    linear-gradient(135deg, #f7faff 0%, #eef4fb 50%, #f3f7fc 100%);
 }
 
 .page-shell {
@@ -39,7 +42,7 @@ p {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .brand-block {
@@ -74,10 +77,10 @@ h1 {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  background: #ffffffcc;
+  background: #ffffffd9;
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 8px 13px;
 }
 
 .status-dot {
@@ -126,7 +129,7 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 16px;
   box-shadow: var(--shadow);
-  padding: 14px;
+  padding: 16px;
 }
 
 .compact-intro {
@@ -134,7 +137,7 @@ h1 {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .compact-intro p {
@@ -145,7 +148,7 @@ h1 {
 .layout {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
 }
 
 .controls,
@@ -185,7 +188,7 @@ h2 {
 }
 
 .grid-6 {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 label {
@@ -231,8 +234,12 @@ button {
   padding: 10px 14px;
   font-weight: 700;
   cursor: pointer;
-  background: var(--primary);
+  background: linear-gradient(135deg, #0b67e8, #1b80ff);
   color: #fff;
+}
+
+button:hover {
+  filter: brightness(1.03);
 }
 
 button.secondary {
@@ -283,7 +290,7 @@ button:disabled {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 10px;
-  background: #f7faff;
+  background: linear-gradient(180deg, #f8fbff 0%, #f4f8ff 100%);
 }
 
 .kpi-item h3 {
@@ -355,7 +362,7 @@ canvas {
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: auto;
-  max-height: 320px;
+  max-height: 360px;
 }
 
 table {
@@ -375,7 +382,7 @@ td {
 th {
   position: sticky;
   top: 0;
-  background: #f5f9ff;
+  background: #eef4ff;
   color: #385983;
 }
 

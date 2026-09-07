@@ -50,6 +50,9 @@ runAllBtn?.addEventListener("click", runFullAnalysis);
 toggleAdvancedBtn?.addEventListener("click", toggleAdvancedMode);
 autoRefreshSelect?.addEventListener("change", configureAutoRefresh);
 marketSelect?.addEventListener("change", applyMarketPreset);
+analysisModeSelect?.addEventListener("change", () => {
+  loadDecisionScore();
+});
 resetManualBtn?.addEventListener("click", resetManualForm);
 openDashboardBtn?.addEventListener("click", () => {
   document.querySelector("main.layout")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -75,6 +78,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 runFullAnalysis();
+configureAutoRefresh();
 
 async function runFullAnalysis() {
   if (runLock) {
@@ -87,7 +91,7 @@ async function runFullAnalysis() {
     await loadOverview();
     await loadDecisionScore();
     if (advancedVisible) {
-      await Promise.all([loadNewsAnalysis(), checkMe()]);
+      await Promise.all([loadNewsAnalysis(), checkMe(), loadForecast()]);
     }
     updateLastRefresh();
     setStatus(advancedVisible ? "Advanced refresh completed." : "Dashboard refreshed.", false);
@@ -129,7 +133,13 @@ function configureAutoRefresh() {
     return;
   }
 
-  const ms = Number(interval) * 1000;
+  const sec = Number(interval);
+  if (!Number.isFinite(sec) || sec < 1) {
+    setStatus("Invalid refresh interval. Select a value >= 1 second.", true);
+    return;
+  }
+
+  const ms = sec * 1000;
   autoRefreshTimer = setInterval(() => {
     runFullAnalysis();
   }, ms);
@@ -245,6 +255,7 @@ async function loadDecisionScore() {
   const newsMax = Number(document.getElementById("newsMaxSelect")?.value || 20);
 
   try {
+    setStatus("Calculating decision score...", false);
     const response = await apiFetch(
       `/api/market/decision?market=${encodeURIComponent(market)}&symbols=${encodeURIComponent(
         symbols
@@ -257,9 +268,11 @@ async function loadDecisionScore() {
     state.decision = data.score;
     renderPredictionMethod(data.predictionMethod);
     renderDecisionBox();
+    setStatus(`Decision ready (${analysisMode} mode).`, false);
   } catch (error) {
     const content = document.getElementById("decisionContent");
     content.innerHTML = `<p>${escapeHtml(error.message)}</p>`;
+    setStatus(error.message || "Failed to compute decision score.", true);
   }
 }
 
@@ -543,7 +556,7 @@ function renderPredictionMethod(serverMethod) {
       "Each future step uses: prediction = level + step * trend.",
       "Confidence range is estimated from residual standard deviation.",
       "Model quality is tracked via MAE, RMSE, and MAPE backtests.",
-      "Final decision blends technical, forecast, and sentiment scores."
+      "Final decision blends technical, quant, and fundamental scores with mode-based weights."
     ]
   };
 
@@ -565,6 +578,18 @@ function applyMarketPreset() {
     all: "EURUSD=X,GBPUSD=X,USDJPY=X,AAPL,MSFT,BTC-USD,ETH-USD,GC=F,CL=F"
   };
   targetsInput.value = presets[market] || presets.all;
+
+  const newsInput = document.getElementById("newsQueryInput");
+  const newsThemes = {
+    forex: "forex macro central bank",
+    stocks: "equity earnings guidance",
+    crypto: "crypto regulation adoption",
+    commodities: "gold oil commodity supply",
+    all: "global markets risk sentiment"
+  };
+  if (newsInput) {
+    newsInput.value = newsThemes[market] || newsThemes.all;
+  }
 }
 
 async function loadNewsAnalysis() {
