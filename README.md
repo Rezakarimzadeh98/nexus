@@ -7,8 +7,9 @@ It combines secure API access, role-based governance, real market data, signal e
 ## Live Preview
 
 - Local app: http://localhost:8080
-- Public online tunnel: https://eight-months-like.loca.lt
+- Public online tunnel: use a fresh local tunnel session when needed (previous tunnel links may expire)
 - GitHub repo: https://github.com/Rezakarimzadeh98/nexus
+- GitHub Pages landing: https://rezakarimzadeh98.github.io/nexus/
 
 ## Why NEXUS
 
@@ -20,21 +21,18 @@ It combines secure API access, role-based governance, real market data, signal e
 
 ## Demo Media
 
-Enterprise-ready media blocks for repository visitors:
+Project-owned visuals (no stock placeholders):
 
-- Product overview image: https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1400&q=80
-- Analytics workflow image: https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1400&q=80
-- Live motion demo (GIF): https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif
-
-![Nexus dashboard preview](https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1400&q=80)
-![Nexus analysis workflow](https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1400&q=80)
-![Nexus demo animation](https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif)
+![NEXUS dashboard preview](docs/media/nexus-dashboard.svg)
+![NEXUS decision pipeline](docs/media/nexus-flow.svg)
+![NEXUS live refresh loop](docs/media/nexus-live-loop.svg)
 
 ## Product Walkthrough
 
-- 60-second live walkthrough: https://github.com/Rezakarimzadeh98/nexus/discussions
-- Live application entry point: https://eight-months-like.loca.lt
-- Web landing page: https://rezakarimzadeh98.github.io/nexus/
+- Start the platform: `npm start` then open `http://localhost:8080`
+- Run full analysis: use `Run Full Analysis` in the dashboard
+- Enable resilient live mode: set `Auto Refresh` to 30s/60s/120s/300s
+- Validate governance: load `/api/admin/me` and `/api/admin/audit` via dashboard controls
 
 ## Core Capabilities
 
@@ -137,7 +135,13 @@ The current implementation was validated with live API calls and returned:
 
 ## Production-Ready Positioning
 
-This project is structured as an enterprise-style intelligence dashboard with a clear product story, professional documentation, live data operation, analytics engine, and security controls. It is suitable for product showcases, portfolio demos, analyst tooling, and operational monitoring scenarios.
+This project is structured as an enterprise intelligence system with:
+
+- Real-time ingestion and analytics workflows
+- Forecast and sentiment-enriched decisioning
+- UI-level operational controls (full analysis orchestration + auto refresh)
+- Governance primitives (auth, role boundaries, rate limits, audit events)
+- Presentation assets suitable for executive and technical audiences
 
 ## Repository Status
 

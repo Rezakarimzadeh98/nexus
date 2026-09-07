@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="NEXUS live refresh loop">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5eead4" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" fill="#0c1526"/>
+  <text x="48" y="72" fill="#edf4ff" font-size="40" font-family="Segoe UI, Arial, sans-serif" font-weight="700">NEXUS Live Operation Loop</text>
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#ecf4ff">
+    <rect x="50" y="140" width="250" height="92" rx="14" fill="#1a2a46" stroke="#3a567d"/>
+    <text x="90" y="195">Fetch Live Data</text>
+
+    <rect x="340" y="140" width="250" height="92" rx="14" fill="#1a2a46" stroke="#3a567d"/>
+    <text x="380" y="195">Run Forecast</text>
+
+    <rect x="630" y="140" width="250" height="92" rx="14" fill="#1a2a46" stroke="#3a567d"/>
+    <text x="662" y="195">Score Decision</text>
+
+    <rect x="920" y="140" width="230" height="92" rx="14" fill="#1a2a46" stroke="#3a567d"/>
+    <text x="948" y="195">Refresh UI</text>
+  </g>
+
+  <path d="M300 186 L340 186" stroke="url(#g)" stroke-width="5"/>
+  <path d="M590 186 L630 186" stroke="url(#g)" stroke-width="5"/>
+  <path d="M880 186 L920 186" stroke="url(#g)" stroke-width="5"/>
+  <path d="M1035 236 C1035 330, 170 330, 170 236" stroke="url(#g)" stroke-width="5" fill="none"/>
+  <circle cx="170" cy="236" r="8" fill="#5eead4">
+    <animate attributeName="cx" values="170;1035;170" dur="4s" repeatCount="indefinite"/>
+  </circle>
+
+  <text x="48" y="384" fill="#9bb0cf" font-size="20" font-family="Segoe UI, Arial, sans-serif">Auto-refresh + retry + timeout protections keep the online UX stable under network variability.</text>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="NEXUS dashboard preview">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07101b" />
+      <stop offset="100%" stop-color="#111c30" />
+    </linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5eead4" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)" />
+  <rect x="40" y="40" width="1520" height="820" rx="24" fill="#0f1a2c" stroke="#30435f" />
+  <rect x="80" y="80" width="240" height="56" rx="14" fill="url(#brand)" />
+  <text x="112" y="117" fill="#07131d" font-size="30" font-family="Segoe UI, Arial, sans-serif" font-weight="700">NEXUS</text>
+  <text x="350" y="116" fill="#9db3d1" font-size="24" font-family="Segoe UI, Arial, sans-serif">Enterprise Intelligence Platform</text>
+
+  <rect x="80" y="170" width="280" height="120" rx="16" fill="#182740" stroke="#395174" />
+  <rect x="380" y="170" width="280" height="120" rx="16" fill="#182740" stroke="#395174" />
+  <rect x="680" y="170" width="280" height="120" rx="16" fill="#182740" stroke="#395174" />
+  <rect x="980" y="170" width="280" height="120" rx="16" fill="#182740" stroke="#395174" />
+  <rect x="1280" y="170" width="240" height="120" rx="16" fill="#182740" stroke="#395174" />
+
+  <text x="100" y="214" fill="#9db3d1" font-size="21" font-family="Segoe UI, Arial, sans-serif">Total Records</text>
+  <text x="100" y="262" fill="#ecf4ff" font-size="42" font-family="Segoe UI, Arial, sans-serif" font-weight="700">190</text>
+
+  <text x="400" y="214" fill="#9db3d1" font-size="21" font-family="Segoe UI, Arial, sans-serif">Signal Quality</text>
+  <text x="400" y="262" fill="#5eead4" font-size="42" font-family="Segoe UI, Arial, sans-serif" font-weight="700">High</text>
+
+  <text x="700" y="214" fill="#9db3d1" font-size="21" font-family="Segoe UI, Arial, sans-serif">Decision Layer</text>
+  <text x="700" y="262" fill="#ecf4ff" font-size="42" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Composite</text>
+
+  <text x="1000" y="214" fill="#9db3d1" font-size="21" font-family="Segoe UI, Arial, sans-serif">Forecast Horizon</text>
+  <text x="1000" y="262" fill="#ecf4ff" font-size="42" font-family="Segoe UI, Arial, sans-serif" font-weight="700">7D</text>
+
+  <text x="1300" y="214" fill="#9db3d1" font-size="21" font-family="Segoe UI, Arial, sans-serif">Status</text>
+  <text x="1300" y="262" fill="#22c55e" font-size="34" font-family="Segoe UI, Arial, sans-serif" font-weight="700">LIVE</text>
+
+  <rect x="80" y="320" width="980" height="300" rx="20" fill="#131f34" stroke="#334865" />
+  <polyline points="120,560 200,510 280,535 360,450 440,470 520,420 600,430 680,380 760,390 840,360 920,330 1000,340"
+    fill="none" stroke="#5eead4" stroke-width="6" />
+  <text x="110" y="360" fill="#9db3d1" font-size="20" font-family="Segoe UI, Arial, sans-serif">FX Trend (EUR, GBP, JPY)</text>
+
+  <rect x="1080" y="320" width="440" height="300" rx="20" fill="#131f34" stroke="#334865" />
+  <text x="1110" y="360" fill="#9db3d1" font-size="20" font-family="Segoe UI, Arial, sans-serif">Decision Score</text>
+  <text x="1110" y="470" fill="#ecf4ff" font-size="88" font-family="Segoe UI, Arial, sans-serif" font-weight="700">44.5</text>
+  <text x="1110" y="530" fill="#fbbf24" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Neutral Bias</text>
+
+  <rect x="80" y="650" width="1440" height="170" rx="20" fill="#131f34" stroke="#334865" />
+  <text x="110" y="695" fill="#9db3d1" font-size="20" font-family="Segoe UI, Arial, sans-serif">Operational Note</text>
+  <text x="110" y="740" fill="#ecf4ff" font-size="24" font-family="Segoe UI, Arial, sans-serif">Live data + validated manual records + role-based governance + audit visibility</text>
+</svg>

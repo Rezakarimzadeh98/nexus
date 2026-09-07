@@ -24,6 +24,11 @@ const checkMeBtn = document.getElementById("checkMeBtn");
 const loadAuditBtn = document.getElementById("loadAuditBtn");
 const openDashboardBtn = document.getElementById("openDashboardBtn");
 const openSecurityBtn = document.getElementById("openSecurityBtn");
+const runAllBtn = document.getElementById("runAllBtn");
+const autoRefreshSelect = document.getElementById("autoRefreshSelect");
+const lastUpdateText = document.getElementById("lastUpdateText");
+
+let autoRefreshTimer = null;
 
 loadBtn.addEventListener("click", loadOverview);
 addBtn.addEventListener("click", addManualRecord);
@@ -32,6 +37,8 @@ loadForecastBtn.addEventListener("click", loadForecast);
 saveApiKeyBtn.addEventListener("click", saveApiKey);
 checkMeBtn.addEventListener("click", checkMe);
 loadAuditBtn.addEventListener("click", loadAudit);
+runAllBtn?.addEventListener("click", runFullAnalysis);
+autoRefreshSelect?.addEventListener("change", configureAutoRefresh);
 openDashboardBtn?.addEventListener("click", () => {
   document.querySelector("main.layout")?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
@@ -41,10 +48,40 @@ openSecurityBtn?.addEventListener("click", () => {
 
 apiKeyInput.value = state.apiKey;
 
-loadOverview();
-loadNewsAnalysis();
-loadForecast();
-loadDecisionScore();
+runFullAnalysis();
+
+async function runFullAnalysis() {
+  setButtonState(runAllBtn, true, "Running...");
+  try {
+    await loadOverview();
+    await Promise.all([loadNewsAnalysis(), loadDecisionScore(), checkMe()]);
+    updateLastRefresh();
+    setStatus("Full analysis completed.", false);
+  } catch (error) {
+    setStatus(error.message || "Full analysis failed.", true);
+  } finally {
+    setButtonState(runAllBtn, false, "Run Full Analysis");
+  }
+}
+
+function configureAutoRefresh() {
+  if (autoRefreshTimer) {
+    clearInterval(autoRefreshTimer);
+    autoRefreshTimer = null;
+  }
+
+  const interval = autoRefreshSelect?.value || "off";
+  if (interval === "off") {
+    setStatus("Auto refresh disabled.", false);
+    return;
+  }
+
+  const ms = Number(interval) * 1000;
+  autoRefreshTimer = setInterval(() => {
+    runFullAnalysis();
+  }, ms);
+  setStatus(`Auto refresh enabled every ${interval} seconds.`, false);
+}
 
 async function loadOverview() {
   const base = baseSelect.value.trim().toUpperCase();
@@ -518,6 +555,25 @@ function setStatus(text, isError) {
   statusText.className = isError ? "status error" : "status";
 }
 
+function updateLastRefresh() {
+  if (!lastUpdateText) {
+    return;
+  }
+  const now = new Date();
+  lastUpdateText.textContent = `Last update: ${now.toLocaleTimeString("en-US", { hour12: false })}`;
+}
+
+function setButtonState(button, isBusy, busyLabel) {
+  if (!button) {
+    return;
+  }
+  if (!button.dataset.label) {
+    button.dataset.label = button.textContent || "";
+  }
+  button.disabled = isBusy;
+  button.textContent = isBusy ? busyLabel : button.dataset.label;
+}
+
 function formatRate(value) {
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 6 }).format(Number(value));
 }
@@ -564,15 +620,38 @@ async function loadAudit() {
   }
 }
 
-function apiFetch(url, options = {}) {
-  const merged = {
-    ...options,
-    headers: {
-      ...(options.headers || {}),
-      "x-api-key": state.apiKey
+async function apiFetch(url, options = {}) {
+  const retries = options.retries ?? 1;
+  const timeoutMs = options.timeoutMs ?? 12000;
+  let lastError = null;
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const merged = {
+        ...options,
+        signal: controller.signal,
+        headers: {
+          ...(options.headers || {}),
+          "x-api-key": state.apiKey,
+        },
+      };
+
+      const response = await fetch(url, merged);
+      clearTimeout(timer);
+      return response;
+    } catch (error) {
+      clearTimeout(timer);
+      lastError = error;
+      if (attempt === retries) {
+        break;
+      }
     }
-  };
-  return fetch(url, merged);
+  }
+
+  throw new Error(lastError?.name === "AbortError" ? "Network timeout: request took too long." : "Network error: failed to reach server.");
 }
 
 function formatNum(value) {

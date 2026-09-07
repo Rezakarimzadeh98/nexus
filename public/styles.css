@@ -94,10 +94,20 @@ h1 {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
   background: rgba(15, 118, 110, 0.12);
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 10px 14px;
+}
+
+.status-sep {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.muted {
+  color: var(--muted);
 }
 
 .status-dot {
@@ -194,6 +204,12 @@ button:hover {
   transform: translateY(-1px);
 }
 
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
 button.secondary {
   background: rgba(148, 163, 184, 0.1);
   color: var(--text);
@@ -245,6 +261,13 @@ button.secondary {
 .grid-4 {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.grid-6 {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 12px;
   margin-top: 12px;
 }
@@ -470,6 +493,7 @@ th {
   }
 
   .grid-4,
+  .grid-6,
   .grid-5 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -488,6 +512,7 @@ th {
   .kpi-grid,
   .decision-grid,
   .grid-4,
+  .grid-6,
   .grid-5 {
     grid-template-columns: 1fr;
   }

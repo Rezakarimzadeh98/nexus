@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="NEXUS data and decision flow">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#08111d" />
+      <stop offset="100%" stop-color="#12213a" />
+    </linearGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5eead4" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)" />
+  <text x="60" y="90" fill="#edf4ff" font-family="Segoe UI, Arial, sans-serif" font-size="44" font-weight="700">NEXUS Decision Pipeline</text>
+  <text x="60" y="132" fill="#9bb0cf" font-family="Segoe UI, Arial, sans-serif" font-size="24">From live market inputs to enterprise-grade decision outputs</text>
+
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <rect x="80" y="220" width="300" height="120" rx="16" fill="#182740" stroke="#365075" />
+    <text x="110" y="270" fill="#ecf4ff" font-size="28" font-weight="600">FX Live Rates</text>
+    <text x="110" y="310" fill="#9bb0cf" font-size="20">Frankfurter API</text>
+
+    <rect x="80" y="390" width="300" height="120" rx="16" fill="#182740" stroke="#365075" />
+    <text x="110" y="440" fill="#ecf4ff" font-size="28" font-weight="600">OHLC Candles</text>
+    <text x="110" y="480" fill="#9bb0cf" font-size="20">Yahoo + Stooq fallback</text>
+
+    <rect x="80" y="560" width="300" height="120" rx="16" fill="#182740" stroke="#365075" />
+    <text x="110" y="610" fill="#ecf4ff" font-size="28" font-weight="600">Market News</text>
+    <text x="110" y="650" fill="#9bb0cf" font-size="20">RSS sentiment extraction</text>
+
+    <rect x="520" y="300" width="330" height="140" rx="16" fill="#1a2a46" stroke="#3e5a82" />
+    <text x="550" y="355" fill="#ecf4ff" font-size="30" font-weight="700">Analytics Engine</text>
+    <text x="550" y="398" fill="#9bb0cf" font-size="21">Indicators + KPIs + trends</text>
+
+    <rect x="520" y="500" width="330" height="140" rx="16" fill="#1a2a46" stroke="#3e5a82" />
+    <text x="550" y="555" fill="#ecf4ff" font-size="30" font-weight="700">Forecast Engine</text>
+    <text x="550" y="598" fill="#9bb0cf" font-size="21">Holt model + confidence bands</text>
+
+    <rect x="980" y="390" width="420" height="180" rx="20" fill="#16263f" stroke="#47628a" />
+    <text x="1015" y="455" fill="#ecf4ff" font-size="34" font-weight="700">Decision Engine</text>
+    <text x="1015" y="505" fill="#9bb0cf" font-size="23">Technical + Forecast + Sentiment</text>
+    <text x="1015" y="545" fill="#5eead4" font-size="24" font-weight="700">Composite Score + Verdict</text>
+
+    <rect x="980" y="610" width="420" height="150" rx="20" fill="#16263f" stroke="#47628a" />
+    <text x="1015" y="670" fill="#ecf4ff" font-size="30" font-weight="700">Governance Layer</text>
+    <text x="1015" y="714" fill="#9bb0cf" font-size="22">API key auth + roles + rate limit + audit</text>
+  </g>
+
+  <g stroke="url(#edge)" stroke-width="4" fill="none" stroke-linecap="round">
+    <path d="M380 280 C450 280, 470 330, 520 350"/>
+    <path d="M380 450 C450 450, 470 380, 520 370"/>
+    <path d="M380 620 C450 620, 470 550, 520 540"/>
+    <path d="M850 370 C920 370, 930 430, 980 450"/>
+    <path d="M850 560 C930 560, 930 500, 980 490"/>
+    <path d="M1190 570 C1190 600, 1190 610, 1190 610"/>
+  </g>
+</svg>
