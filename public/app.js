@@ -33,11 +33,16 @@ const liveModeBadge = document.getElementById("liveModeBadge");
 const latencyText = document.getElementById("latencyText");
 const resetManualBtn = document.getElementById("resetManualBtn");
 const methodContent = document.getElementById("methodContent");
+const runtimeApiInput = document.getElementById("runtimeApiInput");
+const connectRuntimeBtn = document.getElementById("connectRuntimeBtn");
+const useLocalRuntimeBtn = document.getElementById("useLocalRuntimeBtn");
+const runtimeStatusText = document.getElementById("runtimeStatusText");
 
 let autoRefreshTimer = null;
 let runLock = false;
 let latencyAvgMs = null;
 let advancedVisible = false;
+let runtimeBaseUrl = resolveInitialRuntimeBaseUrl();
 
 loadBtn.addEventListener("click", loadOverview);
 addBtn.addEventListener("click", addManualRecord);
@@ -54,6 +59,8 @@ analysisModeSelect?.addEventListener("change", () => {
   loadDecisionScore();
 });
 resetManualBtn?.addEventListener("click", resetManualForm);
+connectRuntimeBtn?.addEventListener("click", connectRuntime);
+useLocalRuntimeBtn?.addEventListener("click", useLocalRuntime);
 openDashboardBtn?.addEventListener("click", () => {
   document.querySelector("main.layout")?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
@@ -79,6 +86,126 @@ document.addEventListener("keydown", (event) => {
 
 runFullAnalysis();
 configureAutoRefresh();
+syncRuntimeUi();
+
+function normalizeRuntimeBase(raw) {
+  if (!raw) {
+    return "";
+  }
+  let value = String(raw).trim();
+  if (!value) {
+    return "";
+  }
+  if (!/^https?:\/\//i.test(value)) {
+    value = `https://${value}`;
+  }
+  try {
+    return new URL(value).origin;
+  } catch {
+    return "";
+  }
+}
+
+function resolveInitialRuntimeBaseUrl() {
+  let runtimeParam = "";
+  try {
+    runtimeParam = new URLSearchParams(window.location.search).get("runtime") || "";
+  } catch {
+    runtimeParam = "";
+  }
+
+  const saved = localStorage.getItem("nexus_runtime_base") || "";
+  const fromParam = normalizeRuntimeBase(runtimeParam);
+  const fromSaved = normalizeRuntimeBase(saved);
+
+  if (fromParam) {
+    localStorage.setItem("nexus_runtime_base", fromParam);
+    return fromParam;
+  }
+  if (fromSaved) {
+    return fromSaved;
+  }
+
+  const isGithubPages = /github\.io$/i.test(window.location.hostname);
+  return isGithubPages ? "" : window.location.origin;
+}
+
+function syncRuntimeUi() {
+  if (runtimeApiInput) {
+    runtimeApiInput.value = runtimeBaseUrl || "";
+  }
+  if (runtimeStatusText) {
+    runtimeStatusText.textContent = runtimeBaseUrl ? `Runtime: ${runtimeBaseUrl}` : "Runtime: not connected";
+  }
+}
+
+function buildApiUrl(path) {
+  if (runtimeBaseUrl) {
+    return `${runtimeBaseUrl}${path}`;
+  }
+  return path;
+}
+
+async function connectRuntime() {
+  const normalized = normalizeRuntimeBase(runtimeApiInput?.value || "");
+  if (!normalized) {
+    setStatus("Runtime URL is invalid. Example: https://your-runtime.example.com", true);
+    return;
+  }
+
+  setStatus("Checking runtime health...", false);
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 7000);
+    const response = await fetch(`${normalized}/api/health`, {
+      method: "GET",
+      headers: { "x-api-key": state.apiKey },
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    const data = await response.json().catch(() => ({ ok: false }));
+    if (!response.ok || !data.ok) {
+      throw new Error("Runtime is not healthy.");
+    }
+
+    runtimeBaseUrl = normalized;
+    localStorage.setItem("nexus_runtime_base", normalized);
+    syncRuntimeUi();
+    await runFullAnalysis();
+    setStatus("Runtime connected and dashboard refreshed.", false);
+  } catch (error) {
+    setStatus(error?.name === "AbortError" ? "Runtime health check timed out." : String(error.message || "Runtime connection failed."), true);
+  }
+}
+
+async function useLocalRuntime() {
+  const candidates = [8080, 8081, 8082, 8083, 8084, 8085];
+  for (const port of candidates) {
+    const base = `http://127.0.0.1:${port}`;
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1500);
+      const response = await fetch(`${base}/api/health`, {
+        method: "GET",
+        headers: { "x-api-key": state.apiKey },
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      const data = await response.json().catch(() => ({ ok: false }));
+      if (response.ok && data.ok) {
+        runtimeBaseUrl = base;
+        localStorage.setItem("nexus_runtime_base", runtimeBaseUrl);
+        syncRuntimeUi();
+        await runFullAnalysis();
+        return;
+      }
+    } catch {
+      // Try next candidate port.
+    }
+  }
+
+  setStatus("No healthy localhost runtime found on ports 8080-8085.", true);
+}
 
 async function runFullAnalysis() {
   if (runLock) {
@@ -164,6 +291,10 @@ async function loadOverview() {
   const days = Number(daysSelect.value);
 
   setStatus("Fetching live market data...", false);
+  if (!runtimeBaseUrl && /github\.io$/i.test(window.location.hostname)) {
+    setStatus("Set Runtime Base URL first (top section) to load live data on GitHub Pages.", true);
+    return;
+  }
   try {
     const response = await apiFetch(
       `/api/market/overview?market=${encodeURIComponent(market)}&symbols=${encodeURIComponent(symbols)}&days=${days}`
@@ -788,7 +919,7 @@ async function apiFetch(url, options = {}) {
         },
       };
 
-      const response = await fetch(url, merged);
+      const response = await fetch(buildApiUrl(url), merged);
       updateLatency(Math.round(performance.now() - startedAt));
       clearTimeout(timer);
       return response;

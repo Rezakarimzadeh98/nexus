@@ -191,6 +191,22 @@ h2 {
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
+.runtime-grid {
+  align-items: end;
+}
+
+.runtime-grid label {
+  grid-column: span 3;
+}
+
+.runtime-status {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 label {
   display: flex;
   flex-direction: column;
@@ -446,6 +462,10 @@ body.show-advanced .secondary-section {
   .grid-5,
   .grid-6 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .runtime-grid label {
+    grid-column: span 2;
   }
 }
 

@@ -33,8 +33,9 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site
-          cp index.html _site/index.html
-          cp styles.css _site/styles.css
+          cp public/index.html _site/index.html
+          cp public/styles.css _site/styles.css
+          cp public/app.js _site/app.js
           cp runtime-endpoints.json _site/runtime-endpoints.json
           mkdir -p _site/docs
           cp live.html _site/live.html

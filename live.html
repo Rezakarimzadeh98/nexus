@@ -224,7 +224,7 @@
           if (fallback) {
             activeLinkText.textContent = fallback;
             activeLink.href = fallback;
-            launchBtn.href = fallback;
+            launchBtn.href = "./index.html?runtime=" + encodeURIComponent(fallback);
           } else {
             activeLinkText.textContent = "No active runtime configured";
             activeLink.href = "https://rezakarimzadeh98.github.io/nexus/";
@@ -250,9 +250,9 @@
             localStorage.setItem("nexus_live_runtime", normalized);
             activeLinkText.textContent = normalized;
             activeLink.href = normalized;
-            launchBtn.href = normalized;
+            launchBtn.href = "./index.html?runtime=" + encodeURIComponent(normalized);
             statusEl.textContent = "Runtime saved. Launching now...";
-            window.location.href = normalized;
+            window.location.href = launchBtn.href;
           });
         }
 
@@ -273,7 +273,7 @@
             statusEl.textContent = "Healthy runtime found. Launch is ready.";
             localStorage.setItem("nexus_live_runtime", url);
             activeLink.href = url;
-            launchBtn.href = url;
+            launchBtn.href = "./index.html?runtime=" + encodeURIComponent(url);
             activeLinkText.textContent = url;
           })
           .catch(function () {

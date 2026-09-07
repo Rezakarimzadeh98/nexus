@@ -303,6 +303,20 @@ Tunnel providers can be ephemeral. If a runtime URL expires:
 - regenerate tunnel with provided scripts
 - use live gateway entry to auto-detect available endpoint
 
+Recommended online usage flow:
+
+1. Open GitHub Pages dashboard entry.
+2. If data loading fails, set Runtime Base URL in the top connection panel.
+3. Use live gateway page to detect or paste a healthy runtime URL.
+4. Save runtime and launch dashboard with runtime query parameter.
+
+Runtime and architecture behavior:
+
+- Dashboard can run from GitHub Pages and call backend via configured runtime base URL.
+- Backend CORS allows GitHub Pages origin with x-api-key header.
+- Localhost helper can auto-detect healthy ports 8080-8085.
+- Auto refresh uses second-level options for fast monitoring.
+
 ## Repository Media
 
 Visual assets:

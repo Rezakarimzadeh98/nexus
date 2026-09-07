@@ -18,6 +18,29 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, "..", "public");
 
+const allowedOrigins = [
+  "https://rezakarimzadeh98.github.io",
+  "http://127.0.0.1:8080",
+  "http://127.0.0.1:8081",
+  "http://localhost:8080",
+  "http://localhost:8081"
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-api-key");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  return next();
+});
+
 app.use(express.json({ limit: "1mb" }));
 app.use(attachUser);
 app.use(rateLimiter);
