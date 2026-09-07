@@ -52,6 +52,14 @@ Start stable online mode with one command:
 npm run online:start
 ```
 
+Start resilient online mode (auto-reconnect when tunnel drops):
+
+```bash
+npm run online:resilient
+```
+Tunnel note: `localhost.run` is currently more stable than `localtunnel` for this environment.
+If the provider closes a session, `online:resilient` reconnects automatically and keeps the service reachable.
+
 Health checks:
 
 ```bash

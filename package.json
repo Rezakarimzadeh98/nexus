@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "online:start": "powershell -ExecutionPolicy Bypass -File ./scripts/start-online.ps1",
+    "online:resilient": "powershell -ExecutionPolicy Bypass -File ./scripts/start-online-resilient.ps1",
     "health:local": "powershell -ExecutionPolicy Bypass -File ./scripts/health-check.ps1 -Url http://127.0.0.1:8080/api/health -Count 5",
     "health:live": "powershell -ExecutionPolicy Bypass -File ./scripts/health-check.ps1 -Count 5"
   },
