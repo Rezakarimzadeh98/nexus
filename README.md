@@ -5,7 +5,7 @@ Enterprise-grade FX intelligence platform with live analytics, technical signals
 ## Live Endpoints
 
 - GitHub Pages (presentation): https://rezakarimzadeh98.github.io/nexus/
-- Live app (stable tunnel): https://63c7befacc32cc.lhr.life
+- Live app (active tunnel): https://1f083b5b6204d7.lhr.life
 - Local app: http://127.0.0.1:8080
 - Repository: https://github.com/Rezakarimzadeh98/nexus
 
@@ -32,7 +32,7 @@ Enterprise-grade FX intelligence platform with live analytics, technical signals
 
 ### Video
 
-- Walkthrough link (open live environment): https://63c7befacc32cc.lhr.life
+- Walkthrough link (open live environment): https://1f083b5b6204d7.lhr.life
 - Product landing page with platform overview: https://rezakarimzadeh98.github.io/nexus/
 
 ## Quick Start
@@ -67,7 +67,7 @@ npm run health:local
 ```
 
 ```bash
-npm run health:live -- -Url https://63c7befacc32cc.lhr.life/api/health
+npm run health:live -- -Url https://1f083b5b6204d7.lhr.life/api/health
 ```
 
 ## API Surface
