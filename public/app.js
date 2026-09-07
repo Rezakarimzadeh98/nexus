@@ -27,8 +27,13 @@ const openSecurityBtn = document.getElementById("openSecurityBtn");
 const runAllBtn = document.getElementById("runAllBtn");
 const autoRefreshSelect = document.getElementById("autoRefreshSelect");
 const lastUpdateText = document.getElementById("lastUpdateText");
+const liveModeBadge = document.getElementById("liveModeBadge");
+const latencyText = document.getElementById("latencyText");
+const resetManualBtn = document.getElementById("resetManualBtn");
 
 let autoRefreshTimer = null;
+let runLock = false;
+let latencyAvgMs = null;
 
 loadBtn.addEventListener("click", loadOverview);
 addBtn.addEventListener("click", addManualRecord);
@@ -39,6 +44,7 @@ checkMeBtn.addEventListener("click", checkMe);
 loadAuditBtn.addEventListener("click", loadAudit);
 runAllBtn?.addEventListener("click", runFullAnalysis);
 autoRefreshSelect?.addEventListener("change", configureAutoRefresh);
+resetManualBtn?.addEventListener("click", resetManualForm);
 openDashboardBtn?.addEventListener("click", () => {
   document.querySelector("main.layout")?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
@@ -48,9 +54,25 @@ openSecurityBtn?.addEventListener("click", () => {
 
 apiKeyInput.value = state.apiKey;
 
+document.addEventListener("keydown", (event) => {
+  if (event.altKey && event.key.toLowerCase() === "r") {
+    event.preventDefault();
+    runFullAnalysis();
+  }
+  if (event.altKey && event.key.toLowerCase() === "a") {
+    event.preventDefault();
+    loadAudit();
+  }
+});
+
 runFullAnalysis();
 
 async function runFullAnalysis() {
+  if (runLock) {
+    return;
+  }
+  runLock = true;
+  toggleLoading(true);
   setButtonState(runAllBtn, true, "Running...");
   try {
     await loadOverview();
@@ -61,6 +83,8 @@ async function runFullAnalysis() {
     setStatus(error.message || "Full analysis failed.", true);
   } finally {
     setButtonState(runAllBtn, false, "Run Full Analysis");
+    toggleLoading(false);
+    runLock = false;
   }
 }
 
@@ -72,6 +96,10 @@ function configureAutoRefresh() {
 
   const interval = autoRefreshSelect?.value || "off";
   if (interval === "off") {
+    if (liveModeBadge) {
+      liveModeBadge.textContent = "Live mode: manual";
+      liveModeBadge.classList.remove("auto");
+    }
     setStatus("Auto refresh disabled.", false);
     return;
   }
@@ -80,7 +108,19 @@ function configureAutoRefresh() {
   autoRefreshTimer = setInterval(() => {
     runFullAnalysis();
   }, ms);
+  if (liveModeBadge) {
+    liveModeBadge.textContent = `Live mode: auto ${interval}s`;
+    liveModeBadge.classList.add("auto");
+  }
   setStatus(`Auto refresh enabled every ${interval} seconds.`, false);
+}
+
+function resetManualForm() {
+  document.getElementById("manualDate").value = "";
+  document.getElementById("manualBase").value = "USD";
+  document.getElementById("manualTarget").value = "EUR";
+  document.getElementById("manualRate").value = "";
+  setStatus("Manual input form has been reset.", false);
 }
 
 async function loadOverview() {
@@ -555,6 +595,10 @@ function setStatus(text, isError) {
   statusText.className = isError ? "status error" : "status";
 }
 
+function toggleLoading(isLoading) {
+  document.body.classList.toggle("is-loading", isLoading);
+}
+
 function updateLastRefresh() {
   if (!lastUpdateText) {
     return;
@@ -630,6 +674,7 @@ async function apiFetch(url, options = {}) {
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
+      const startedAt = performance.now();
       const merged = {
         ...options,
         signal: controller.signal,
@@ -640,6 +685,7 @@ async function apiFetch(url, options = {}) {
       };
 
       const response = await fetch(url, merged);
+      updateLatency(Math.round(performance.now() - startedAt));
       clearTimeout(timer);
       return response;
     } catch (error) {
@@ -652,6 +698,16 @@ async function apiFetch(url, options = {}) {
   }
 
   throw new Error(lastError?.name === "AbortError" ? "Network timeout: request took too long." : "Network error: failed to reach server.");
+}
+
+function updateLatency(currentMs) {
+  if (!Number.isFinite(currentMs)) {
+    return;
+  }
+  latencyAvgMs = latencyAvgMs === null ? currentMs : Math.round(latencyAvgMs * 0.7 + currentMs * 0.3);
+  if (latencyText) {
+    latencyText.textContent = `Latency: ${latencyAvgMs}ms`;
+  }
 }
 
 function formatNum(value) {

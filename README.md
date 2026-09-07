@@ -7,9 +7,11 @@ It combines secure API access, role-based governance, real market data, signal e
 ## Live Preview
 
 - Local app: http://localhost:8080
-- Public online tunnel: use a fresh local tunnel session when needed (previous tunnel links may expire)
+- Public online tunnel: https://tidy-jeans-push.loca.lt
 - GitHub repo: https://github.com/Rezakarimzadeh98/nexus
 - GitHub Pages landing: https://rezakarimzadeh98.github.io/nexus/
+
+Current tunnel status: validated on 2026-09-07 via `/api/health`.
 
 ## Why NEXUS
 
@@ -33,6 +35,7 @@ Project-owned visuals (no stock placeholders):
 - Run full analysis: use `Run Full Analysis` in the dashboard
 - Enable resilient live mode: set `Auto Refresh` to 30s/60s/120s/300s
 - Validate governance: load `/api/admin/me` and `/api/admin/audit` via dashboard controls
+- Operator shortcuts: `Alt+R` run full analysis, `Alt+A` load audit events
 
 ## Core Capabilities
 
