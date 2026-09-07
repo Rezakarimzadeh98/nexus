@@ -5,7 +5,7 @@ const state = {
   news: null,
   forecast: null,
   decision: null,
-  apiKey: localStorage.getItem("nexus_api_key") || "",
+  apiKey: localStorage.getItem("nexus_api_key") || "nexus-viewer-2026",
 };
 
 const colors = ["#0f4cc9", "#059669", "#b45309", "#be123c", "#374151", "#7c3aed"];
@@ -53,6 +53,9 @@ openSecurityBtn?.addEventListener("click", () => {
 });
 
 apiKeyInput.value = state.apiKey;
+if (!localStorage.getItem("nexus_api_key")) {
+  localStorage.setItem("nexus_api_key", state.apiKey);
+}
 
 document.addEventListener("keydown", (event) => {
   if (event.altKey && event.key.toLowerCase() === "r") {
@@ -143,6 +146,11 @@ async function loadOverview() {
     await loadForecast();
     setStatus(`Loaded successfully: ${data.records.length} real records`, false);
   } catch (error) {
+    const lower = String(error?.message || "").toLowerCase();
+    if (lower.includes("401") || lower.includes("auth") || lower.includes("unauthorized")) {
+      setStatus("Authentication failed. Save a valid API key and retry.", true);
+      return;
+    }
     setStatus(error.message, true);
   }
 }

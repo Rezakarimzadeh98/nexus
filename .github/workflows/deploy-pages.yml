@@ -36,6 +36,7 @@ jobs:
           cp index.html _site/index.html
           cp styles.css _site/styles.css
           mkdir -p _site/docs
+          cp live.html _site/live.html
           cp -R docs/media _site/docs/media
 
       - name: Upload artifact
