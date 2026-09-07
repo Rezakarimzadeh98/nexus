@@ -13,6 +13,12 @@ It combines technical indicators, quantitative signals, and fundamental/news con
 
 - Web app: https://rezakarimzadeh98.github.io/nexus/
 
+Stable links (always valid):
+
+- Dashboard: https://rezakarimzadeh98.github.io/nexus/
+- Live launcher page: https://rezakarimzadeh98.github.io/nexus/live.html
+- Repository: https://github.com/Rezakarimzadeh98/nexus
+
 The live entry is designed to open directly and route users to the available runtime endpoint when needed.
 
 ## Why NEXUS
@@ -297,25 +303,28 @@ Open:
 
 ## Online Runtime Notes
 
-Tunnel providers can be ephemeral. If a runtime URL expires:
+GitHub Pages is stable for frontend hosting, but backend runtime must be provided.
+No hardcoded runtime URL is bundled in the public app.
 
-- restart local server
-- regenerate tunnel with provided scripts
-- use live gateway entry to auto-detect available endpoint
+Recommended usage flow:
 
-Recommended online usage flow:
+1. Open dashboard: https://rezakarimzadeh98.github.io/nexus/
+2. In "Online Runtime Connection", enter your active backend runtime URL.
+3. Click "Connect Runtime".
+4. Dashboard saves runtime locally and reuses it in next sessions.
 
-1. Open GitHub Pages dashboard entry.
-2. If data loading fails, set Runtime Base URL in the top connection panel.
-3. Use live gateway page to detect or paste a healthy runtime URL.
-4. Save runtime and launch dashboard with runtime query parameter.
+If you use tunnel providers:
+
+- tunnels are ephemeral and may expire anytime
+- generate a fresh tunnel and reconnect runtime URL in dashboard
 
 Runtime and architecture behavior:
 
-- Dashboard can run from GitHub Pages and call backend via configured runtime base URL.
-- Backend CORS allows GitHub Pages origin with x-api-key header.
-- Localhost helper can auto-detect healthy ports 8080-8085.
-- Auto refresh uses second-level options for fast monitoring.
+- frontend is served from GitHub Pages
+- backend is called via runtime base URL from dashboard settings
+- CORS is enabled for GitHub Pages origin with x-api-key header
+- localhost helper auto-detects active ports 8080-8085
+- auto refresh supports second-level intervals for fast monitoring
 
 ## Repository Media
 

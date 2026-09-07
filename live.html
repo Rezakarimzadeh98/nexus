@@ -114,7 +114,7 @@
     </main>
     <script>
       (function () {
-        var builtInStable = ["https://nexus-enterprise-fx.onrender.com"];
+        var builtInStable = [];
         var persisted = localStorage.getItem("nexus_live_runtime") || "";
         var runtimeParam = "";
         try {
@@ -123,14 +123,7 @@
           runtimeParam = "";
         }
 
-        var builtInFallback = [
-          "https://10c78deeec4168.lhr.life",
-          "https://a96fefcc547bad.lhr.life",
-          "https://4cfbd7a78d3d91.lhr.life",
-          "https://hot-seas-spend.loca.lt",
-          "https://light-cities-cut.loca.lt",
-          "https://dbbc7c8cf9d792a5-18-169-166-90.serveousercontent.com"
-        ];
+        var builtInFallback = [];
 
         var statusEl = document.getElementById("autoStatus");
         var activeLink = document.getElementById("activeLink");
@@ -219,7 +212,7 @@
         }
 
         function setOfflineState() {
-          var fallback = normalizeRuntimeUrl(runtimeParam) || normalizeRuntimeUrl(persisted) || normalizeRuntimeUrl(builtInStable[0]);
+          var fallback = normalizeRuntimeUrl(runtimeParam) || normalizeRuntimeUrl(persisted);
           statusEl.textContent = "No verified runtime now. Paste a fresh runtime URL and click Save Runtime.";
           if (fallback) {
             activeLinkText.textContent = fallback;
