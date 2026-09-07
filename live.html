@@ -86,7 +86,16 @@
     </main>
     <script>
       (function () {
-        var candidates = [
+        var builtInStable = ["https://nexus-enterprise-fx.onrender.com"];
+        var persisted = localStorage.getItem("nexus_live_runtime") || "";
+        var runtimeParam = "";
+        try {
+          runtimeParam = new URLSearchParams(window.location.search).get("runtime") || "";
+        } catch (_e) {
+          runtimeParam = "";
+        }
+
+        var builtInFallback = [
           "https://10c78deeec4168.lhr.life",
           "https://a96fefcc547bad.lhr.life",
           "https://4cfbd7a78d3d91.lhr.life",
@@ -123,9 +132,49 @@
           );
         }
 
-        Promise.any(candidates.map(testCandidate))
+        function unique(list) {
+          return list.filter(function (x, i, arr) {
+            return x && arr.indexOf(x) === i;
+          });
+        }
+
+        function runDetection(externalCandidates) {
+          var ordered = unique(
+            [runtimeParam, persisted]
+              .concat(builtInStable)
+              .concat((externalCandidates && externalCandidates.preferred) || [])
+              .concat((externalCandidates && externalCandidates.fallback) || [])
+              .concat(builtInFallback)
+          );
+
+          if (!ordered.length) {
+            throw new Error("empty-candidates");
+          }
+
+          return Promise.any(ordered.map(testCandidate));
+        }
+
+        function setOfflineState() {
+          statusEl.textContent = "No healthy runtime detected right now. Start npm run online:resilient, then refresh this page.";
+          activeLinkText.textContent = "No active tunnel detected";
+          activeLink.removeAttribute("href");
+          launchBtn.removeAttribute("href");
+        }
+
+        fetch("./runtime-endpoints.json", { cache: "no-store" })
+          .then(function (res) {
+            if (!res.ok) {
+              throw new Error("runtime-endpoints-not-found");
+            }
+            return res.json();
+          })
+          .catch(function () {
+            return { preferred: [], fallback: [] };
+          })
+          .then(runDetection)
           .then(function (url) {
             statusEl.textContent = "Healthy runtime found. Redirecting now...";
+            localStorage.setItem("nexus_live_runtime", url);
             activeLink.href = url;
             launchBtn.href = url;
             activeLinkText.textContent = url;
@@ -134,10 +183,7 @@
             }, 450);
           })
           .catch(function () {
-            statusEl.textContent = "No healthy runtime detected right now. Start npm run online:resilient, then refresh this page.";
-            activeLinkText.textContent = "No active tunnel detected";
-            activeLink.removeAttribute("href");
-            launchBtn.removeAttribute("href");
+            setOfflineState();
           });
       })();
     </script>

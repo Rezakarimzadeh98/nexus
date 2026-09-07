@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a reproducible bug
+labels: [bug, needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting. Please provide reproducible details."
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Node version, browser

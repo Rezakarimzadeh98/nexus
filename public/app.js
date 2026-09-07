@@ -11,6 +11,7 @@ const state = {
 const colors = ["#0f4cc9", "#059669", "#b45309", "#be123c", "#374151", "#7c3aed"];
 
 const marketSelect = document.getElementById("marketSelect");
+const analysisModeSelect = document.getElementById("analysisModeSelect");
 const targetsInput = document.getElementById("targetsInput");
 const daysSelect = document.getElementById("daysSelect");
 const loadBtn = document.getElementById("loadBtn");
@@ -239,6 +240,7 @@ async function loadDecisionScore() {
   const symbols = targetsInput.value.trim();
   const days = Number(daysSelect.value);
   const horizon = Number(document.getElementById("forecastHorizonSelect").value);
+  const analysisMode = (analysisModeSelect?.value || "hybrid").trim().toLowerCase();
   const newsQuery = document.getElementById("newsQueryInput")?.value?.trim() || "forex market";
   const newsMax = Number(document.getElementById("newsMaxSelect")?.value || 20);
 
@@ -246,7 +248,7 @@ async function loadDecisionScore() {
     const response = await apiFetch(
       `/api/market/decision?market=${encodeURIComponent(market)}&symbols=${encodeURIComponent(
         symbols
-      )}&days=${days}&horizon=${horizon}&newsQuery=${encodeURIComponent(newsQuery)}&newsMax=${newsMax}`
+      )}&days=${days}&horizon=${horizon}&analysisMode=${encodeURIComponent(analysisMode)}&newsQuery=${encodeURIComponent(newsQuery)}&newsMax=${newsMax}`
     );
     const data = await response.json();
     if (!response.ok || !data.ok) {
@@ -472,7 +474,7 @@ function renderIndicatorTable() {
   const body = document.getElementById("indicatorTable");
   const stats = state.summary?.stats || [];
   if (!stats.length) {
-    body.innerHTML = "<tr><td colspan=\"8\">Not enough data for indicator calculations.</td></tr>";
+    body.innerHTML = "<tr><td colspan=\"19\">Not enough data for indicator calculations.</td></tr>";
     return;
   }
 
@@ -484,9 +486,20 @@ function renderIndicatorTable() {
         <td>${signalTag(t.signal)}</td>
         <td>${formatNum(t.signalScore)}</td>
         <td>${formatNum(t.rsi14)}</td>
+        <td>${formatRate(t.atr14)}</td>
+        <td>${formatNum(t.adx14)}</td>
+        <td>${formatNum(t.cci20)}</td>
+        <td>${formatNum(t.stochasticK14)}</td>
         <td>${formatNum(t.macd)}</td>
+        <td>${formatNum(t.macdSignal)}</td>
         <td>${formatRate(t.sma20)}</td>
+        <td>${formatRate(t.sma50)}</td>
         <td>${formatRate(t.ema21)}</td>
+        <td>${formatRate(t.ema50)}</td>
+        <td>${formatRate(t.bollingerUpper)}</td>
+        <td>${formatRate(t.bollingerLower)}</td>
+        <td>${formatNum(t.roc12)}</td>
+        <td>${formatNum(t.momentum10)}</td>
         <td>${formatNum(t.zScore20)}</td>
       </tr>`;
     })
@@ -504,11 +517,17 @@ function renderDecisionBox() {
   content.innerHTML = `
     <div class="decision-grid">
       <div class="kpi-item"><h3>Technical Score</h3><strong>${formatNum(d.technicalScore)}</strong></div>
-      <div class="kpi-item"><h3>Forecast Score</h3><strong>${formatNum(d.forecastScore)}</strong></div>
-      <div class="kpi-item"><h3>News Score</h3><strong>${formatNum(d.newsScore)}</strong></div>
+      <div class="kpi-item"><h3>Quant Score</h3><strong>${formatNum(d.quantitativeScore ?? d.forecastScore)}</strong></div>
+      <div class="kpi-item"><h3>Fundamental Score</h3><strong>${formatNum(d.newsScore)}</strong></div>
       <div class="kpi-item"><h3>Composite Score</h3><strong>${formatNum(d.compositeScore)}</strong></div>
       <div class="kpi-item"><h3>Verdict</h3><span class="decision-verdict ${verdictClass(d.verdict)}">${escapeHtml(d.verdict)}</span></div>
     </div>
+    <p style="margin-top:10px;color:#3b5d86;">
+      Mode: <strong>${escapeHtml(d.analysisMode || "hybrid")}</strong>
+      | Weights T/Q/F: ${formatNum((d.weights?.technical ?? 0) * 100)}% / ${formatNum((d.weights?.quant ?? 0) * 100)}% / ${formatNum((d.weights?.fundamental ?? 0) * 100)}%
+      | Forecast Quality: ${formatNum(d.forecastQualityScore)}
+      | Risk-Adjusted: ${formatNum(d.riskAdjustedScore)}
+    </p>
   `;
 }
 

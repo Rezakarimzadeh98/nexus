@@ -45,7 +45,7 @@ decisionRouter.get("/score", async (req, res) => {
     const records = mergeRecords(onlineRows, scopedManualRows);
     const summary = summarize(records, ohlcByTarget);
     const forecast = buildForecastBundle(records, query.horizon);
-    const score = buildDecisionScore({ summary, forecast, news });
+    const score = buildDecisionScore({ summary, forecast, news, mode: query.analysisMode });
     const warnings = [];
     if (ohlcByTargetResult.status !== "fulfilled") {
       warnings.push("OHLC provider unavailable; technical OHLC enrichments were skipped.");

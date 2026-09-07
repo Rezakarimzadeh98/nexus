@@ -79,6 +79,7 @@ export function validateDecisionQuery(query) {
   const base = validateForecastQuery(query);
   const newsQuery = String(query.newsQuery || "forex market").trim();
   const newsMax = Number(query.newsMax || 20);
+  const analysisMode = validateAnalysisMode(query.analysisMode || "hybrid");
 
   if (!newsQuery) {
     throw new Error("newsQuery الزامی است.");
@@ -90,8 +91,18 @@ export function validateDecisionQuery(query) {
   return {
     ...base,
     newsQuery,
-    newsMax
+    newsMax,
+    analysisMode
   };
+}
+
+export function validateAnalysisMode(value) {
+  const mode = String(value || "hybrid").trim().toLowerCase();
+  const allowed = new Set(["hybrid", "technical", "fundamental", "quant"]);
+  if (!allowed.has(mode)) {
+    throw new Error("analysisMode نامعتبر است. مقادیر مجاز: hybrid, technical, fundamental, quant");
+  }
+  return mode;
 }
 
 export function validateMarketQuery(query) {

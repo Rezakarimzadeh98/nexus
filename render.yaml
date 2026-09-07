@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: nexus-enterprise-fx
+    env: node
+    plan: starter
+    rootDir: .
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: AUTH_REQUIRED
+        value: "true"
+      - key: API_KEY_ROLES_JSON
+        sync: false

@@ -1,0 +1,12 @@
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ['README.md', 'docs/**', '*.md']
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: ['public/**']
+backend:
+  - changed-files:
+      - any-glob-to-any-file: ['src/**']
+ops:
+  - changed-files:
+      - any-glob-to-any-file: ['scripts/**', '.github/workflows/**']

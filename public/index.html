@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEXUS | Live FX Dashboard</title>
-    <meta name="description" content="NEXUS clean operational dashboard for live FX analytics and decision support." />
+    <title>NEXUS | Multi-Market Intelligence Dashboard</title>
+    <meta name="description" content="NEXUS multi-market intelligence dashboard for forex, stocks, crypto, and commodities." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -66,6 +66,14 @@
                 <option value="90">90</option>
                 <option value="180">180</option>
                 <option value="365">365</option>
+              </select>
+            </label>
+            <label>Analysis Lens
+              <select id="analysisModeSelect">
+                <option value="hybrid" selected>Hybrid (Technical + Quant + Fundamental)</option>
+                <option value="technical">Technical First</option>
+                <option value="fundamental">Fundamental First</option>
+                <option value="quant">Quantitative First</option>
               </select>
             </label>
             <div class="btn-row">
@@ -226,14 +234,38 @@
                   <th>Signal</th>
                   <th>Score</th>
                   <th>RSI14</th>
+                  <th>ATR14</th>
+                  <th>ADX14</th>
+                  <th>CCI20</th>
+                  <th>StochK14</th>
                   <th>MACD</th>
+                  <th>MACD Signal</th>
                   <th>SMA20</th>
+                  <th>SMA50</th>
                   <th>EMA21</th>
+                  <th>EMA50</th>
+                  <th>BB Upper</th>
+                  <th>BB Lower</th>
+                  <th>ROC12</th>
+                  <th>MOM10</th>
                   <th>Z20</th>
                 </tr>
               </thead>
               <tbody id="indicatorTable"></tbody>
             </table>
+          </div>
+        </section>
+
+        <section class="panel secondary-section">
+          <h2>Contribute & Grow</h2>
+          <p>
+            Help improve models, indicators, and market coverage. Submit issues, feature requests,
+            docs updates, and pull requests to grow NEXUS with the community.
+          </p>
+          <div class="cta-row" style="margin-top:10px;">
+            <a class="primary-link" href="https://github.com/Rezakarimzadeh98/nexus/issues" target="_blank" rel="noreferrer">Open Issues</a>
+            <a class="primary-link" href="https://github.com/Rezakarimzadeh98/nexus/pulls" target="_blank" rel="noreferrer">Open Pull Requests</a>
+            <a class="primary-link" href="https://github.com/Rezakarimzadeh98/nexus" target="_blank" rel="noreferrer">Repository</a>
           </div>
         </section>
 

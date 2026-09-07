@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateMarketQuery } from "../domain/validation.js";
+import { validateMarketQuery, validateAnalysisMode } from "../domain/validation.js";
 import { resolveSymbols, fetchMarketSeries } from "../infrastructure/marketDataClient.js";
 import { summarize } from "../services/analyticsService.js";
 import { buildForecastBundle } from "../services/forecastService.js";
@@ -78,6 +78,7 @@ marketRouter.get("/decision", async (req, res) => {
     const horizon = Number(req.query.horizon || 7);
     const newsQuery = String(req.query.newsQuery || `${query.market} market`).trim();
     const newsMax = Number(req.query.newsMax || 20);
+    const analysisMode = validateAnalysisMode(req.query.analysisMode || "hybrid");
 
     if (!Number.isInteger(horizon) || horizon < 1 || horizon > 30) {
       throw new Error("horizon باید بین 1 تا 30 باشد.");
@@ -110,12 +111,12 @@ marketRouter.get("/decision", async (req, res) => {
 
     const summary = summarize(marketData.records, marketData.ohlcByTarget);
     const forecast = buildForecastBundle(marketData.records, horizon);
-    const score = buildDecisionScore({ summary, forecast, news });
+    const score = buildDecisionScore({ summary, forecast, news, mode: analysisMode });
 
     res.json({
       ok: true,
       source: "market-online+news",
-      query: { ...query, symbols, horizon, newsQuery, newsMax },
+      query: { ...query, symbols, horizon, newsQuery, newsMax, analysisMode },
       score,
       summary,
       forecast,
