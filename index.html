@@ -1,114 +1,118 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nexus Enterprise | Real-Time FX Analytics</title>
+    <title>NEXUS | Enterprise Intelligence Platform</title>
+    <meta name="description" content="NEXUS is an enterprise intelligence platform for live FX analytics, forecasting, signal monitoring, and secure decision support." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
-    <script src="./app.js" defer></script>
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <h1>Nexus Enterprise Analytics</h1>
-        <p class="subtitle">داشبورد آنلاین تحلیل نرخ ارز با داده واقعی و معماری حرفه ای</p>
-      </div>
-      <p id="statusText" class="status">Ready</p>
-    </header>
-
-    <main class="layout">
-      <section class="panel controls">
-        <h2>پارامترهای تحلیل</h2>
-        <div class="grid-4">
-          <label>ارز مبدا
-            <select id="baseSelect">
-              <option value="USD" selected>USD</option>
-              <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
-            </select>
-          </label>
-          <label>ارزهای مقصد
-            <input id="targetsInput" type="text" value="EUR,GBP,JPY" />
-          </label>
-          <label>بازه روز
-            <select id="daysSelect">
-              <option value="7">7</option>
-              <option value="30" selected>30</option>
-              <option value="90">90</option>
-              <option value="180">180</option>
-              <option value="365">365</option>
-            </select>
-          </label>
-          <div class="btn-row">
-            <button id="loadBtn" type="button">دریافت آنلاین</button>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="brand-mark">N</div>
+          <div class="brand-copy">
+            <span class="eyebrow">ENTERPRISE INTELLIGENCE</span>
+            <h1>NEXUS</h1>
           </div>
         </div>
-      </section>
+        <a class="nav-cta" href="#product">Explore Platform</a>
+      </header>
 
-      <section class="panel" id="kpiBox"></section>
-
-      <section class="panel chart-wide">
-        <h2>روند نرخ (Time Series)</h2>
-        <canvas id="trendChart"></canvas>
-      </section>
-
-      <section class="panel chart-half">
-        <h2>میانگین نرخ به تفکیک ارز</h2>
-        <canvas id="avgChart"></canvas>
-      </section>
-
-      <section class="panel chart-half">
-        <h2>نوسان نرخ به تفکیک ارز</h2>
-        <canvas id="volatilityChart"></canvas>
-      </section>
-
-      <section class="panel add-panel">
-        <h2>افزودن داده دستی</h2>
-        <div class="grid-5">
-          <label>تاریخ
-            <input id="manualDate" type="date" />
-          </label>
-          <label>Base
-            <input id="manualBase" type="text" value="USD" maxlength="3" />
-          </label>
-          <label>Target
-            <input id="manualTarget" type="text" value="EUR" maxlength="3" />
-          </label>
-          <label>Rate
-            <input id="manualRate" type="number" min="0" step="0.000001" />
-          </label>
-          <div class="btn-row">
-            <button id="addBtn" type="button">افزودن رکورد</button>
+      <main>
+        <section class="hero">
+          <div class="hero-copy">
+            <span class="pill">LIVE FX + SIGNALS + FORECASTS</span>
+            <h2>Actionable market intelligence for modern operators.</h2>
+            <p>
+              NEXUS turns real-time market movement into a structured operating picture: live FX analytics,
+              trend detection, forecast confidence, sentiment context, and governance-ready decision support.
+            </p>
+            <div class="cta-row">
+              <a class="primary-btn" href="https://github.com/Rezakarimzadeh98/nexus" target="_blank" rel="noreferrer">View GitHub</a>
+              <a class="secondary-btn" href="https://eight-months-like.loca.lt" target="_blank" rel="noreferrer">Open Live App</a>
+            </div>
+            <ul class="hero-list">
+              <li>Live FX monitoring</li>
+              <li>Technical + sentiment analysis</li>
+              <li>Enterprise governance controls</li>
+            </ul>
           </div>
-        </div>
-      </section>
 
-      <section class="panel table-panel">
-        <h2>رکوردهای دقیق</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>تاریخ</th>
-                <th>Base</th>
-                <th>Target</th>
-                <th>Rate</th>
-                <th>Source</th>
-              </tr>
-            </thead>
-            <tbody id="recordsTable"></tbody>
-          </table>
-        </div>
-      </section>
+          <div class="hero-panel">
+            <div class="metric-card accent">
+              <span>Market Pulse</span>
+              <strong>Neutral</strong>
+            </div>
+            <div class="metric-card">
+              <span>Signal Quality</span>
+              <strong>High</strong>
+            </div>
+            <div class="metric-card">
+              <span>Decision Layer</span>
+              <strong>Composite</strong>
+            </div>
+          </div>
+        </section>
 
-      <section class="panel insights">
-        <h2>خلاصه مدیریتی سریع</h2>
-        <ul id="insightList"></ul>
-      </section>
-    </main>
+        <section id="product" class="feature-grid">
+          <article class="feature-card">
+            <div class="icon">01</div>
+            <h3>Live Market Analysis</h3>
+            <p>Track FX behavior, volatility, trend quality, and pair-level changes in one operational feed.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">02</div>
+            <h3>Technical Intelligence</h3>
+            <p>Apply moving averages, RSI, MACD, ATR, ADX, Bollinger bands, momentum, and z-score logic.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">03</div>
+            <h3>Forecasting</h3>
+            <p>Generate predictive outlooks with confidence intervals and model quality checks for decisioning.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">04</div>
+            <h3>News + Sentiment</h3>
+            <p>Blend narrative context with market data to understand direction and risk sentiment.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">05</div>
+            <h3>Decision Support</h3>
+            <p>Score opportunities and risk posture with a composite decision engine designed for actionability.</p>
+          </article>
+          <article class="feature-card">
+            <div class="icon">06</div>
+            <h3>Governance</h3>
+            <p>Secure access, role-level permissions, rate limits, and audit logs for professional operations.</p>
+          </article>
+        </section>
+
+        <section class="showcase">
+          <div class="showcase-copy">
+            <span class="eyebrow muted">WHY TEAMS USE NEXUS</span>
+            <h3>Built to support rapid decisions with measurable signal quality.</h3>
+          </div>
+          <div class="stats-row">
+            <div class="stat-box">
+              <strong>190</strong>
+              <span>Live records</span>
+            </div>
+            <div class="stat-box">
+              <strong>3</strong>
+              <span>Forecast outputs</span>
+            </div>
+            <div class="stat-box">
+              <strong>1</strong>
+              <span>Unified decision layer</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   </body>
 </html>
