@@ -437,7 +437,7 @@ canvas {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 980px;
+  min-width: 760px;
 }
 
 th,
@@ -519,5 +519,15 @@ th {
 
   .hero-copy h2 {
     font-size: 2rem;
+  }
+
+  table {
+    min-width: 620px;
+  }
+
+  th,
+  td {
+    font-size: 11px;
+    padding: 8px 6px;
   }
 }
