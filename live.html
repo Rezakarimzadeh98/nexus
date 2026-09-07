@@ -173,18 +173,24 @@
           }
 
           return withTimeout(
-            fetch(normalized + "/api/health", { method: "GET", mode: "cors" })
+            fetch(normalized + "/api/health", {
+              method: "GET",
+              mode: "cors",
+              headers: { "x-api-key": "nexus-viewer-2026" }
+            })
               .then(function (res) {
                 if (!res.ok) {
                   throw new Error("unhealthy");
                 }
-                return normalized;
-              })
-              .catch(function () {
-                // Fallback probe when CORS blocks health-check reads.
-                return fetch(normalized, { method: "GET", mode: "no-cors" }).then(function () {
-                  return normalized;
+                return res.json().catch(function () {
+                  return { ok: false };
                 });
+              })
+              .then(function (json) {
+                if (!json || json.ok !== true) {
+                  throw new Error("unhealthy-json");
+                }
+                return normalized;
               }),
             3500
           );
@@ -197,15 +203,8 @@
         }
 
         function runDetection(externalCandidates) {
-          var sameOrigin = "";
-          try {
-            sameOrigin = window.location.origin;
-          } catch (_e) {
-            sameOrigin = "";
-          }
-
           var ordered = unique(
-            [runtimeParam, persisted, sameOrigin]
+            [runtimeParam, persisted]
               .concat(builtInStable)
               .concat((externalCandidates && externalCandidates.preferred) || [])
               .concat((externalCandidates && externalCandidates.fallback) || [])
@@ -221,7 +220,7 @@
 
         function setOfflineState() {
           var fallback = normalizeRuntimeUrl(runtimeParam) || normalizeRuntimeUrl(persisted) || normalizeRuntimeUrl(builtInStable[0]);
-          statusEl.textContent = "No verified runtime now. You can still open the saved runtime, or paste a fresh runtime URL and save it.";
+          statusEl.textContent = "No verified runtime now. Paste a fresh runtime URL and click Save Runtime.";
           if (fallback) {
             activeLinkText.textContent = fallback;
             activeLink.href = fallback;
@@ -271,14 +270,11 @@
           })
           .then(runDetection)
           .then(function (url) {
-            statusEl.textContent = "Healthy runtime found. Redirecting now...";
+            statusEl.textContent = "Healthy runtime found. Launch is ready.";
             localStorage.setItem("nexus_live_runtime", url);
             activeLink.href = url;
             launchBtn.href = url;
             activeLinkText.textContent = url;
-            setTimeout(function () {
-              window.location.href = url;
-            }, 450);
           })
           .catch(function () {
             setOfflineState();
