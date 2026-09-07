@@ -54,6 +54,29 @@
         font-size: 0.92rem;
         word-break: break-all;
       }
+      .runtime-input-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      .runtime-input-row input {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid rgba(126, 161, 255, 0.3);
+        background: rgba(8, 14, 28, 0.8);
+        color: #d9e8ff;
+        padding: 10px 12px;
+        font-size: 0.95rem;
+      }
+      .runtime-input-row button {
+        border-radius: 10px;
+        border: 1px solid rgba(126, 161, 255, 0.35);
+        background: #12305f;
+        color: #e7f1ff;
+        padding: 10px 14px;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -78,8 +101,13 @@
           </article>
         </div>
 
+        <div class="runtime-input-row">
+          <input id="runtimeInput" type="url" placeholder="Paste runtime URL, e.g. https://your-app.onrender.com" />
+          <button id="saveRuntimeBtn" type="button">Save Runtime</button>
+        </div>
+
         <div class="cta-row" style="margin-top:18px;">
-          <a id="launchBtn" class="primary-btn" href="#" target="_blank" rel="noreferrer">Launch Live App</a>
+          <a id="launchBtn" class="primary-btn" href="https://rezakarimzadeh98.github.io/nexus/" target="_blank" rel="noreferrer">Launch Live App</a>
           <a class="secondary-btn" href="./index.html">Back To Home</a>
         </div>
       </section>
@@ -108,6 +136,24 @@
         var activeLink = document.getElementById("activeLink");
         var launchBtn = document.getElementById("launchBtn");
         var activeLinkText = document.getElementById("activeLinkText");
+        var runtimeInput = document.getElementById("runtimeInput");
+        var saveRuntimeBtn = document.getElementById("saveRuntimeBtn");
+
+        function normalizeRuntimeUrl(raw) {
+          if (!raw) {
+            return "";
+          }
+          var value = String(raw).trim();
+          if (!/^https?:\/\//i.test(value)) {
+            value = "https://" + value;
+          }
+          try {
+            var parsed = new URL(value);
+            return parsed.origin;
+          } catch (_e) {
+            return "";
+          }
+        }
 
         function withTimeout(promise, ms) {
           return Promise.race([
@@ -121,13 +167,25 @@
         }
 
         function testCandidate(baseUrl) {
+          var normalized = normalizeRuntimeUrl(baseUrl);
+          if (!normalized) {
+            return Promise.reject(new Error("invalid-url"));
+          }
+
           return withTimeout(
-            fetch(baseUrl + "/api/health", { method: "GET", mode: "cors" }).then(function (res) {
-              if (!res.ok) {
-                throw new Error("unhealthy");
-              }
-              return baseUrl;
-            }),
+            fetch(normalized + "/api/health", { method: "GET", mode: "cors" })
+              .then(function (res) {
+                if (!res.ok) {
+                  throw new Error("unhealthy");
+                }
+                return normalized;
+              })
+              .catch(function () {
+                // Fallback probe when CORS blocks health-check reads.
+                return fetch(normalized, { method: "GET", mode: "no-cors" }).then(function () {
+                  return normalized;
+                });
+              }),
             3500
           );
         }
@@ -139,8 +197,15 @@
         }
 
         function runDetection(externalCandidates) {
+          var sameOrigin = "";
+          try {
+            sameOrigin = window.location.origin;
+          } catch (_e) {
+            sameOrigin = "";
+          }
+
           var ordered = unique(
-            [runtimeParam, persisted]
+            [runtimeParam, persisted, sameOrigin]
               .concat(builtInStable)
               .concat((externalCandidates && externalCandidates.preferred) || [])
               .concat((externalCandidates && externalCandidates.fallback) || [])
@@ -155,11 +220,44 @@
         }
 
         function setOfflineState() {
-          statusEl.textContent = "No healthy runtime detected right now. Start npm run online:resilient, then refresh this page.";
-          activeLinkText.textContent = "No active tunnel detected";
-          activeLink.removeAttribute("href");
-          launchBtn.removeAttribute("href");
+          var fallback = normalizeRuntimeUrl(runtimeParam) || normalizeRuntimeUrl(persisted) || normalizeRuntimeUrl(builtInStable[0]);
+          statusEl.textContent = "No verified runtime now. You can still open the saved runtime, or paste a fresh runtime URL and save it.";
+          if (fallback) {
+            activeLinkText.textContent = fallback;
+            activeLink.href = fallback;
+            launchBtn.href = fallback;
+          } else {
+            activeLinkText.textContent = "No active runtime configured";
+            activeLink.href = "https://rezakarimzadeh98.github.io/nexus/";
+            launchBtn.href = "https://rezakarimzadeh98.github.io/nexus/";
+          }
         }
+
+        function bindManualRuntimeInput() {
+          if (runtimeInput) {
+            runtimeInput.value = normalizeRuntimeUrl(runtimeParam) || normalizeRuntimeUrl(persisted) || "";
+          }
+
+          if (!saveRuntimeBtn) {
+            return;
+          }
+
+          saveRuntimeBtn.addEventListener("click", function () {
+            var normalized = normalizeRuntimeUrl(runtimeInput && runtimeInput.value);
+            if (!normalized) {
+              statusEl.textContent = "Runtime URL is invalid. Example: https://your-app.onrender.com";
+              return;
+            }
+            localStorage.setItem("nexus_live_runtime", normalized);
+            activeLinkText.textContent = normalized;
+            activeLink.href = normalized;
+            launchBtn.href = normalized;
+            statusEl.textContent = "Runtime saved. Launching now...";
+            window.location.href = normalized;
+          });
+        }
+
+        bindManualRuntimeInput();
 
         fetch("./runtime-endpoints.json", { cache: "no-store" })
           .then(function (res) {
