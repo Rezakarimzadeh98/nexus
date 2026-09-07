@@ -297,6 +297,12 @@ npm install
 npm start
 ```
 
+Final verification:
+
+```bash
+npm run verify:final
+```
+
 Open:
 
 - http://127.0.0.1:8080
