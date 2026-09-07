@@ -1,7 +1,9 @@
 param(
   [string]$LocalHost = "127.0.0.1",
   [int]$Port = 8080,
-  [int]$ReconnectDelaySec = 3
+  [int]$ReconnectDelaySec = 3,
+  [ValidateSet("auto", "localhostrun", "localtunnel", "serveo")]
+  [string]$TunnelProvider = "auto"
 )
 
 $ErrorActionPreference = "Continue"
@@ -27,11 +29,31 @@ while ($true) {
     continue
   }
 
-  Write-Host "[NEXUS] Connecting tunnel via localhost.run ..."
-  try {
-    ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=20 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -R 80:$LocalHost`:$Port nokey@localhost.run
-  } catch {
-    Write-Host "[NEXUS] Tunnel error: $($_.Exception.Message)"
+  $providers = if ($TunnelProvider -eq "auto") {
+    @("localhostrun", "localtunnel", "serveo")
+  } else {
+    @($TunnelProvider)
+  }
+
+  foreach ($provider in $providers) {
+    Write-Host "[NEXUS] Connecting tunnel via $provider ..."
+    try {
+      if ($provider -eq "localhostrun") {
+        ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=20 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -R 80:$LocalHost`:$Port nokey@localhost.run
+      } elseif ($provider -eq "localtunnel") {
+        npx --yes localtunnel --host https://loca.lt --port $Port
+      } elseif ($provider -eq "serveo") {
+        ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=20 -o ServerAliveCountMax=3 -R 80:$LocalHost`:$Port serveo.net
+      }
+
+      if ($LASTEXITCODE -eq 0) {
+        break
+      }
+
+      Write-Host "[NEXUS] Provider $provider exited with code $LASTEXITCODE"
+    } catch {
+      Write-Host "[NEXUS] Provider $provider error: $($_.Exception.Message)"
+    }
   }
 
   Write-Host "[NEXUS] Tunnel disconnected. Reconnecting in $ReconnectDelaySec sec..."

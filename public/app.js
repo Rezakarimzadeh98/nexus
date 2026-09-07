@@ -10,7 +10,7 @@ const state = {
 
 const colors = ["#0f4cc9", "#059669", "#b45309", "#be123c", "#374151", "#7c3aed"];
 
-const baseSelect = document.getElementById("baseSelect");
+const marketSelect = document.getElementById("marketSelect");
 const targetsInput = document.getElementById("targetsInput");
 const daysSelect = document.getElementById("daysSelect");
 const loadBtn = document.getElementById("loadBtn");
@@ -31,6 +31,7 @@ const lastUpdateText = document.getElementById("lastUpdateText");
 const liveModeBadge = document.getElementById("liveModeBadge");
 const latencyText = document.getElementById("latencyText");
 const resetManualBtn = document.getElementById("resetManualBtn");
+const methodContent = document.getElementById("methodContent");
 
 let autoRefreshTimer = null;
 let runLock = false;
@@ -47,6 +48,7 @@ loadAuditBtn.addEventListener("click", loadAudit);
 runAllBtn?.addEventListener("click", runFullAnalysis);
 toggleAdvancedBtn?.addEventListener("click", toggleAdvancedMode);
 autoRefreshSelect?.addEventListener("change", configureAutoRefresh);
+marketSelect?.addEventListener("change", applyMarketPreset);
 resetManualBtn?.addEventListener("click", resetManualForm);
 openDashboardBtn?.addEventListener("click", () => {
   document.querySelector("main.layout")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -146,13 +148,15 @@ function resetManualForm() {
 }
 
 async function loadOverview() {
-  const base = baseSelect.value.trim().toUpperCase();
-  const targets = targetsInput.value.trim();
+  const market = (marketSelect?.value || "all").trim().toLowerCase();
+  const symbols = targetsInput.value.trim();
   const days = Number(daysSelect.value);
 
   setStatus("Fetching live market data...", false);
   try {
-    const response = await apiFetch(`/api/analytics/overview?base=${encodeURIComponent(base)}&targets=${encodeURIComponent(targets)}&days=${days}`);
+    const response = await apiFetch(
+      `/api/market/overview?market=${encodeURIComponent(market)}&symbols=${encodeURIComponent(symbols)}&days=${days}`
+    );
     const data = await response.json();
 
     if (!response.ok || !data.ok) {
@@ -205,15 +209,15 @@ async function addManualRecord() {
 }
 
 async function loadForecast() {
-  const base = baseSelect.value.trim().toUpperCase();
-  const targets = targetsInput.value.trim();
+  const market = (marketSelect?.value || "all").trim().toLowerCase();
+  const symbols = targetsInput.value.trim();
   const days = Number(daysSelect.value);
   const horizon = Number(document.getElementById("forecastHorizonSelect").value);
 
   setStatus("Running forecast model...", false);
   try {
     const response = await apiFetch(
-      `/api/forecast/overview?base=${encodeURIComponent(base)}&targets=${encodeURIComponent(targets)}&days=${days}&horizon=${horizon}`
+      `/api/market/forecast?market=${encodeURIComponent(market)}&symbols=${encodeURIComponent(symbols)}&days=${days}&horizon=${horizon}`
     );
     const data = await response.json();
     if (!response.ok || !data.ok) {
@@ -221,6 +225,7 @@ async function loadForecast() {
     }
 
     state.forecast = data.forecast;
+    renderPredictionMethod(data.predictionMethod);
     renderForecastChart();
     renderForecastTable();
     setStatus(`Forecast ready: ${horizon}-day horizon`, false);
@@ -230,8 +235,8 @@ async function loadForecast() {
 }
 
 async function loadDecisionScore() {
-  const base = baseSelect.value.trim().toUpperCase();
-  const targets = targetsInput.value.trim();
+  const market = (marketSelect?.value || "all").trim().toLowerCase();
+  const symbols = targetsInput.value.trim();
   const days = Number(daysSelect.value);
   const horizon = Number(document.getElementById("forecastHorizonSelect").value);
   const newsQuery = document.getElementById("newsQueryInput")?.value?.trim() || "forex market";
@@ -239,8 +244,8 @@ async function loadDecisionScore() {
 
   try {
     const response = await apiFetch(
-      `/api/decision/score?base=${encodeURIComponent(base)}&targets=${encodeURIComponent(
-        targets
+      `/api/market/decision?market=${encodeURIComponent(market)}&symbols=${encodeURIComponent(
+        symbols
       )}&days=${days}&horizon=${horizon}&newsQuery=${encodeURIComponent(newsQuery)}&newsMax=${newsMax}`
     );
     const data = await response.json();
@@ -248,6 +253,7 @@ async function loadDecisionScore() {
       throw new Error(data.message || "Failed to compute decision score");
     }
     state.decision = data.score;
+    renderPredictionMethod(data.predictionMethod);
     renderDecisionBox();
   } catch (error) {
     const content = document.getElementById("decisionContent");
@@ -268,6 +274,7 @@ function renderAll() {
     renderNewsTable();
   }
   renderDecisionBox();
+  renderPredictionMethod();
 }
 
 function renderForecastChart() {
@@ -503,6 +510,42 @@ function renderDecisionBox() {
       <div class="kpi-item"><h3>Verdict</h3><span class="decision-verdict ${verdictClass(d.verdict)}">${escapeHtml(d.verdict)}</span></div>
     </div>
   `;
+}
+
+function renderPredictionMethod(serverMethod) {
+  if (!methodContent) {
+    return;
+  }
+
+  const method = serverMethod || {
+    model: "Holt linear trend",
+    details: [
+      "Exponential smoothing estimates level and trend from historical closes.",
+      "Each future step uses: prediction = level + step * trend.",
+      "Confidence range is estimated from residual standard deviation.",
+      "Model quality is tracked via MAE, RMSE, and MAPE backtests.",
+      "Final decision blends technical, forecast, and sentiment scores."
+    ]
+  };
+
+  methodContent.innerHTML = `
+    <p><strong>Model:</strong> ${escapeHtml(method.model)}</p>
+    <ul>
+      ${method.details.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+    </ul>
+  `;
+}
+
+function applyMarketPreset() {
+  const market = (marketSelect?.value || "all").trim().toLowerCase();
+  const presets = {
+    forex: "EURUSD=X,GBPUSD=X,USDJPY=X,AUDUSD=X,USDCAD=X",
+    stocks: "AAPL,MSFT,NVDA,TSLA,AMZN",
+    crypto: "BTC-USD,ETH-USD,SOL-USD,BNB-USD,XRP-USD",
+    commodities: "GC=F,CL=F,SI=F,NG=F,HG=F",
+    all: "EURUSD=X,GBPUSD=X,USDJPY=X,AAPL,MSFT,BTC-USD,ETH-USD,GC=F,CL=F"
+  };
+  targetsInput.value = presets[market] || presets.all;
 }
 
 async function loadNewsAnalysis() {

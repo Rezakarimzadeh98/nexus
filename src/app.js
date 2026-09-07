@@ -8,6 +8,7 @@ import newsRouter from "./routes/newsRoutes.js";
 import forecastRouter from "./routes/forecastRoutes.js";
 import decisionRouter from "./routes/decisionRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
+import marketRouter from "./routes/marketRoutes.js";
 import { attachUser, requireAuth } from "./middleware/auth.js";
 import { rateLimiter } from "./middleware/rateLimit.js";
 import { auditMiddleware } from "./middleware/audit.js";
@@ -35,6 +36,7 @@ app.use("/api/news", newsRouter);
 app.use("/api/forecast", forecastRouter);
 app.use("/api/decision", decisionRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/market", marketRouter);
 
 app.use(express.static(publicDir));
 

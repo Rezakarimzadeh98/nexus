@@ -47,15 +47,17 @@
         <section class="panel controls">
           <h2>Core Inputs</h2>
           <div class="grid-6">
-            <label>Base Currency
-              <select id="baseSelect">
-                <option value="USD" selected>USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
+            <label>Market
+              <select id="marketSelect">
+                <option value="all" selected>All Markets</option>
+                <option value="forex">Forex</option>
+                <option value="stocks">Stocks</option>
+                <option value="crypto">Crypto</option>
+                <option value="commodities">Gold/Oil/Commodities</option>
               </select>
             </label>
-            <label>Target Currencies
-              <input id="targetsInput" type="text" value="EUR,GBP" />
+            <label>Symbols
+              <input id="targetsInput" type="text" value="EURUSD=X,GBPUSD=X,USDJPY=X,AAPL,MSFT,BTC-USD,ETH-USD,GC=F,CL=F" />
             </label>
             <label>Window (Days)
               <select id="daysSelect">
@@ -101,6 +103,13 @@
         <section class="panel" id="decisionBox">
           <h2>Decision Score</h2>
           <div id="decisionContent"></div>
+        </section>
+
+        <section class="panel" id="methodBox">
+          <h2>How Prediction Works</h2>
+          <div id="methodContent">
+            <p>Run forecast to view model details.</p>
+          </div>
         </section>
 
         <section class="panel insights">

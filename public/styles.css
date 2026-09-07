@@ -368,6 +368,18 @@ th {
   line-height: 1.7;
 }
 
+#methodContent p {
+  margin: 2px 0 8px;
+  color: #274668;
+}
+
+#methodContent ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #37567d;
+  line-height: 1.7;
+}
+
 .sentiment-positive {
   color: #0f6d40;
   font-weight: 700;

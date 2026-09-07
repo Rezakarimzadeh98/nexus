@@ -93,3 +93,27 @@ export function validateDecisionQuery(query) {
     newsMax
   };
 }
+
+export function validateMarketQuery(query) {
+  const market = String(query.market || "forex").trim().toLowerCase();
+  const allowed = new Set(["forex", "stocks", "crypto", "commodities", "all"]);
+  if (!allowed.has(market)) {
+    throw new Error("market نامعتبر است. مقادیر مجاز: forex, stocks, crypto, commodities, all");
+  }
+
+  const days = Number(query.days || 30);
+  if (!Number.isInteger(days) || days < 1 || days > MAX_DAYS) {
+    throw new Error(`days باید بین 1 تا ${MAX_DAYS} باشد.`);
+  }
+
+  const symbols = String(query.symbols || "")
+    .split(",")
+    .map((x) => x.trim().toUpperCase())
+    .filter(Boolean);
+
+  if (symbols.length > 20) {
+    throw new Error("حداکثر 20 نماد مجاز است.");
+  }
+
+  return { market, symbols, days };
+}

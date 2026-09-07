@@ -57,8 +57,8 @@ Start resilient online mode (auto-reconnect when tunnel drops):
 ```bash
 npm run online:resilient
 ```
-Tunnel note: `localhost.run` is currently more stable than `localtunnel` for this environment.
-If the provider closes a session, `online:resilient` reconnects automatically and keeps the service reachable.
+Tunnel note: resilient mode now uses auto-fallback across `localhost.run`, `localtunnel`, and `serveo`.
+If one provider disconnects or denies access, the script retries with another provider automatically.
 
 Health checks:
 
@@ -78,6 +78,9 @@ npm run health:live -- -Url https://1f083b5b6204d7.lhr.life/api/health
 - GET /api/forecast/overview?base=USD&targets=EUR,GBP,JPY&days=180&horizon=7
 - GET /api/news/analyze?query=forex%20market&max=10
 - GET /api/decision/score?base=USD&targets=EUR,GBP,JPY&days=180&horizon=7&newsQuery=forex%20market&newsMax=10
+- GET /api/market/overview?market=all&days=30
+- GET /api/market/forecast?market=crypto&days=30&horizon=7
+- GET /api/market/decision?market=commodities&days=30&horizon=7&newsQuery=gold%20oil%20market&newsMax=10
 - POST /api/manual-records
 - GET /api/admin/me
 - GET /api/admin/audit?limit=50
