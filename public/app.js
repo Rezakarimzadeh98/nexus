@@ -25,6 +25,7 @@ const loadAuditBtn = document.getElementById("loadAuditBtn");
 const openDashboardBtn = document.getElementById("openDashboardBtn");
 const openSecurityBtn = document.getElementById("openSecurityBtn");
 const runAllBtn = document.getElementById("runAllBtn");
+const toggleAdvancedBtn = document.getElementById("toggleAdvancedBtn");
 const autoRefreshSelect = document.getElementById("autoRefreshSelect");
 const lastUpdateText = document.getElementById("lastUpdateText");
 const liveModeBadge = document.getElementById("liveModeBadge");
@@ -34,6 +35,7 @@ const resetManualBtn = document.getElementById("resetManualBtn");
 let autoRefreshTimer = null;
 let runLock = false;
 let latencyAvgMs = null;
+let advancedVisible = false;
 
 loadBtn.addEventListener("click", loadOverview);
 addBtn.addEventListener("click", addManualRecord);
@@ -43,6 +45,7 @@ saveApiKeyBtn.addEventListener("click", saveApiKey);
 checkMeBtn.addEventListener("click", checkMe);
 loadAuditBtn.addEventListener("click", loadAudit);
 runAllBtn?.addEventListener("click", runFullAnalysis);
+toggleAdvancedBtn?.addEventListener("click", toggleAdvancedMode);
 autoRefreshSelect?.addEventListener("change", configureAutoRefresh);
 resetManualBtn?.addEventListener("click", resetManualForm);
 openDashboardBtn?.addEventListener("click", () => {
@@ -79,15 +82,31 @@ async function runFullAnalysis() {
   setButtonState(runAllBtn, true, "Running...");
   try {
     await loadOverview();
-    await Promise.all([loadNewsAnalysis(), loadDecisionScore(), checkMe()]);
+    await loadDecisionScore();
+    if (advancedVisible) {
+      await Promise.all([loadNewsAnalysis(), checkMe()]);
+    }
     updateLastRefresh();
-    setStatus("Full analysis completed.", false);
+    setStatus(advancedVisible ? "Advanced refresh completed." : "Dashboard refreshed.", false);
   } catch (error) {
     setStatus(error.message || "Full analysis failed.", true);
   } finally {
-    setButtonState(runAllBtn, false, "Run Full Analysis");
+    setButtonState(runAllBtn, false, "Refresh All");
     toggleLoading(false);
     runLock = false;
+  }
+}
+
+function toggleAdvancedMode() {
+  advancedVisible = !advancedVisible;
+  document.body.classList.toggle("show-advanced", advancedVisible);
+  if (toggleAdvancedBtn) {
+    toggleAdvancedBtn.textContent = advancedVisible ? "Hide Advanced" : "Show Advanced";
+  }
+  if (advancedVisible) {
+    loadNewsAnalysis();
+    loadForecast();
+    renderIndicatorTable();
   }
 }
 
@@ -143,7 +162,9 @@ async function loadOverview() {
     state.records = data.records;
     state.summary = data.summary;
     renderAll();
-    await loadForecast();
+    if (advancedVisible) {
+      await loadForecast();
+    }
     setStatus(`Loaded successfully: ${data.records.length} real records`, false);
   } catch (error) {
     const lower = String(error?.message || "").toLowerCase();
@@ -241,9 +262,11 @@ function renderAll() {
   renderAverageChart();
   renderVolatilityChart();
   renderInsights();
-  renderIndicatorTable();
-  renderNewsKpis();
-  renderNewsTable();
+  if (advancedVisible) {
+    renderIndicatorTable();
+    renderNewsKpis();
+    renderNewsTable();
+  }
   renderDecisionBox();
 }
 
@@ -304,27 +327,24 @@ function renderForecastTable() {
   const body = document.getElementById("forecastTable");
   const items = state.forecast?.items || [];
   if (!items.length) {
-    body.innerHTML = "<tr><td colspan=\"9\">No forecast data available.</td></tr>";
+    body.innerHTML = "<tr><td colspan=\"5\">No forecast data available.</td></tr>";
     return;
   }
 
   body.innerHTML = items
     .map((item) => {
       if (!item.ok) {
-        return `<tr><td>${escapeHtml(item.target)}</td><td>${escapeHtml(item.model)}</td><td>${item.dataPoints}</td><td>-</td><td>-</td><td>-</td><td colspan=\"3\">${escapeHtml(item.reason || "")}</td></tr>`;
+        return `<tr><td>${escapeHtml(item.target)}</td><td>${escapeHtml(item.model)}</td><td>-</td><td>-</td><td>${escapeHtml(item.reason || "unavailable")}</td></tr>`;
       }
 
       const first = item.forecast[0];
+      const quality = Number(item.metrics?.mape) <= 1.2 ? "good" : Number(item.metrics?.mape) <= 2.5 ? "medium" : "low";
       return `<tr>
         <td>${escapeHtml(item.target)}</td>
         <td>${escapeHtml(item.model)}</td>
-        <td>${item.dataPoints}</td>
-        <td>${formatNum(item.metrics?.mae)}</td>
-        <td>${formatNum(item.metrics?.rmse)}</td>
         <td>${formatNum(item.metrics?.mape)}</td>
         <td>${formatRate(first?.predicted)}</td>
-        <td>${formatRate(first?.lower95)}</td>
-        <td>${formatRate(first?.upper95)}</td>
+        <td>${quality}</td>
       </tr>`;
     })
     .join("");
@@ -351,7 +371,7 @@ function renderKpis() {
 
 function renderTable() {
   const body = document.getElementById("recordsTable");
-  const rows = [...state.records].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 180);
+  const rows = [...state.records].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 60);
   body.innerHTML = rows
     .map(
       (r) =>
@@ -445,7 +465,7 @@ function renderIndicatorTable() {
   const body = document.getElementById("indicatorTable");
   const stats = state.summary?.stats || [];
   if (!stats.length) {
-    body.innerHTML = "<tr><td colspan=\"19\">Not enough data for indicator calculations.</td></tr>";
+    body.innerHTML = "<tr><td colspan=\"8\">Not enough data for indicator calculations.</td></tr>";
     return;
   }
 
@@ -457,20 +477,9 @@ function renderIndicatorTable() {
         <td>${signalTag(t.signal)}</td>
         <td>${formatNum(t.signalScore)}</td>
         <td>${formatNum(t.rsi14)}</td>
-        <td>${formatRate(t.atr14)}</td>
-        <td>${formatNum(t.adx14)}</td>
-        <td>${formatNum(t.cci20)}</td>
-        <td>${formatNum(t.stochasticK14)}</td>
         <td>${formatNum(t.macd)}</td>
-        <td>${formatNum(t.macdSignal)}</td>
         <td>${formatRate(t.sma20)}</td>
-        <td>${formatRate(t.sma50)}</td>
         <td>${formatRate(t.ema21)}</td>
-        <td>${formatRate(t.ema50)}</td>
-        <td>${formatRate(t.bollingerUpper)}</td>
-        <td>${formatRate(t.bollingerLower)}</td>
-        <td>${formatNum(t.roc12)}</td>
-        <td>${formatNum(t.momentum10)}</td>
         <td>${formatNum(t.zScore20)}</td>
       </tr>`;
     })

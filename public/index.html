@@ -3,28 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEXUS | Enterprise Intelligence Platform</title>
-    <meta name="description" content="NEXUS — enterprise market intelligence platform with live FX analysis, forecasting, sentiment, and decision support." />
+    <title>NEXUS | Live FX Dashboard</title>
+    <meta name="description" content="NEXUS clean operational dashboard for live FX analytics and decision support." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
     <script src="/app.js" defer></script>
   </head>
-  <body>
+  <body class="compact-mode">
     <div class="page-shell">
       <header class="topbar">
         <div class="brand-block">
           <div class="brand-mark">N</div>
           <div>
-            <div class="eyebrow">ENTERPRISE INTELLIGENCE PLATFORM</div>
+            <div class="eyebrow">LIVE FX DASHBOARD</div>
             <h1>NEXUS</h1>
           </div>
         </div>
         <div class="topbar-actions">
           <span class="status-dot"></span>
-          <p id="statusText" class="status">System Live</p>
+          <p id="statusText" class="status">Ready</p>
           <span class="status-sep">|</span>
           <p id="lastUpdateText" class="status muted">Last update: -</p>
           <span id="liveModeBadge" class="mode-badge">Live mode: manual</span>
@@ -32,71 +32,20 @@
         </div>
       </header>
 
-      <section class="hero-panel panel">
-        <div class="hero-copy">
-          <div class="pill">LIVE FX + FORECAST + SIGNALS</div>
-          <h2>Real-time market intelligence for critical decisions.</h2>
-          <p>
-            NEXUS combines live FX rates, technical signal analysis, sentiment context,
-            predictive models, and governance controls in one operational workspace built for modern analysts.
-          </p>
-          <div class="cta-row">
-            <button id="openDashboardBtn" type="button">Live Dashboard</button>
-            <button id="openSecurityBtn" type="button" class="secondary">Security View</button>
-          </div>
-          <p class="hero-hint">Tips: Use Alt+R for full analysis and Alt+A for audit events.</p>
+      <section class="panel compact-intro">
+        <div>
+          <h2>Focused View</h2>
+          <p>Only key metrics and charts are visible. Use Advanced mode for full controls.</p>
         </div>
-        <div class="hero-metrics">
-          <div class="mini-metric">
-            <span>Market Pulse</span>
-            <strong>Neutral</strong>
-          </div>
-          <div class="mini-metric">
-            <span>Signal Quality</span>
-            <strong>High</strong>
-          </div>
-          <div class="mini-metric">
-            <span>Governance</span>
-            <strong>Role-based</strong>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel controls access-panel">
-        <h2>Access & Governance</h2>
-        <div class="grid-4">
-          <label>API Key
-            <input id="apiKeyInput" type="text" placeholder="x-api-key" />
-          </label>
-          <div class="btn-row">
-            <button id="saveApiKeyBtn" type="button">Save Key</button>
-          </div>
-          <div class="btn-row">
-            <button id="checkMeBtn" type="button">Check Access</button>
-          </div>
-          <div class="btn-row">
-            <button id="loadAuditBtn" type="button">Load Audit</button>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Method</th>
-                <th>Route</th>
-                <th>Status</th>
-                <th>Role</th>
-              </tr>
-            </thead>
-            <tbody id="auditTable"></tbody>
-          </table>
+        <div class="cta-row">
+          <button id="runAllBtn" type="button">Refresh All</button>
+          <button id="toggleAdvancedBtn" type="button" class="secondary">Show Advanced</button>
         </div>
       </section>
 
       <main class="layout">
         <section class="panel controls">
-          <h2>Analytics Parameters</h2>
+          <h2>Core Inputs</h2>
           <div class="grid-6">
             <label>Base Currency
               <select id="baseSelect">
@@ -106,7 +55,7 @@
               </select>
             </label>
             <label>Target Currencies
-              <input id="targetsInput" type="text" value="EUR,GBP,JPY" />
+              <input id="targetsInput" type="text" value="EUR,GBP" />
             </label>
             <label>Window (Days)
               <select id="daysSelect">
@@ -119,9 +68,6 @@
             </label>
             <div class="btn-row">
               <button id="loadBtn" type="button">Load Live Data</button>
-            </div>
-            <div class="btn-row">
-              <button id="runAllBtn" type="button" class="secondary">Run Full Analysis</button>
             </div>
             <label>Auto Refresh
               <select id="autoRefreshSelect">
@@ -138,22 +84,152 @@
         <section class="panel" id="kpiBox"></section>
 
         <section class="panel chart-wide">
-          <h2>Time-Series Trend</h2>
+          <h2>Trend</h2>
           <canvas id="trendChart"></canvas>
         </section>
 
         <section class="panel chart-half">
-          <h2>Average FX Level</h2>
+          <h2>Average</h2>
           <canvas id="avgChart"></canvas>
         </section>
 
         <section class="panel chart-half">
-          <h2>Volatility Snapshot</h2>
+          <h2>Volatility</h2>
           <canvas id="volatilityChart"></canvas>
         </section>
 
-        <section class="panel add-panel">
-          <h2>Add Manual Inputs</h2>
+        <section class="panel" id="decisionBox">
+          <h2>Decision Score</h2>
+          <div id="decisionContent"></div>
+        </section>
+
+        <section class="panel insights">
+          <h2>Summary</h2>
+          <ul id="insightList"></ul>
+        </section>
+
+        <section class="panel table-panel">
+          <h2>Latest Records</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Base</th>
+                  <th>Target</th>
+                  <th>Rate</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody id="recordsTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel controls secondary-section">
+          <h2>Forecast Engine</h2>
+          <div class="grid-4">
+            <label>Horizon (Days)
+              <select id="forecastHorizonSelect">
+                <option value="3">3</option>
+                <option value="7" selected>7</option>
+                <option value="14">14</option>
+                <option value="21">21</option>
+                <option value="30">30</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button id="loadForecastBtn" type="button">Run Forecast</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel chart-wide secondary-section">
+          <h2>Forecast</h2>
+          <canvas id="forecastChart"></canvas>
+        </section>
+
+        <section class="panel table-panel secondary-section">
+          <h2>Forecast Output</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Target</th>
+                  <th>Model</th>
+                  <th>MAPE%</th>
+                  <th>Next Value</th>
+                  <th>Quality</th>
+                </tr>
+              </thead>
+              <tbody id="forecastTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel controls secondary-section">
+          <h2>News Sentiment</h2>
+          <div class="grid-4">
+            <label>News Theme
+              <input id="newsQueryInput" type="text" value="forex market" />
+            </label>
+            <label>Items Count
+              <select id="newsMaxSelect">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <div class="btn-row">
+              <button id="loadNewsBtn" type="button">Analyze News</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel secondary-section" id="newsKpiBox"></section>
+
+        <section class="panel table-panel secondary-section">
+          <h2>News Feed</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Source</th>
+                  <th>Title</th>
+                  <th>Sentiment</th>
+                  <th>Link</th>
+                </tr>
+              </thead>
+              <tbody id="newsTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel table-panel secondary-section">
+          <h2>Indicator Matrix</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Target</th>
+                  <th>Signal</th>
+                  <th>Score</th>
+                  <th>RSI14</th>
+                  <th>MACD</th>
+                  <th>SMA20</th>
+                  <th>EMA21</th>
+                  <th>Z20</th>
+                </tr>
+              </thead>
+              <tbody id="indicatorTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel add-panel secondary-section">
+          <h2>Manual Input</h2>
           <div class="grid-5">
             <label>Date
               <input id="manualDate" type="date" />
@@ -176,150 +252,40 @@
           </div>
         </section>
 
-        <section class="panel table-panel">
-          <h2>Exact Data Records</h2>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Base</th>
-                  <th>Target</th>
-                  <th>Rate</th>
-                  <th>Source</th>
-                </tr>
-              </thead>
-              <tbody id="recordsTable"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="panel insights">
-          <h2>Executive Summary</h2>
-          <ul id="insightList"></ul>
-        </section>
-
-        <section class="panel table-panel">
-          <h2>Indicator Matrix</h2>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Target</th>
-                  <th>Signal</th>
-                  <th>Score</th>
-                  <th>RSI14</th>
-                  <th>ATR14</th>
-                  <th>ADX14</th>
-                  <th>CCI20</th>
-                  <th>StochK14</th>
-                  <th>MACD</th>
-                  <th>MACD Signal</th>
-                  <th>SMA20</th>
-                  <th>SMA50</th>
-                  <th>EMA21</th>
-                  <th>EMA50</th>
-                  <th>BB Upper</th>
-                  <th>BB Lower</th>
-                  <th>ROC12</th>
-                  <th>MOM10</th>
-                  <th>Z20</th>
-                </tr>
-              </thead>
-              <tbody id="indicatorTable"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="panel" id="decisionBox">
-          <h2>Composite Decision Score</h2>
-          <div id="decisionContent"></div>
-        </section>
-
-        <section class="panel controls">
-          <h2>Forecast Engine</h2>
+        <section class="panel controls access-panel secondary-section">
+          <h2>Access & Governance</h2>
           <div class="grid-4">
-            <label>Horizon (Days)
-              <select id="forecastHorizonSelect">
-                <option value="3">3</option>
-                <option value="7" selected>7</option>
-                <option value="14">14</option>
-                <option value="21">21</option>
-                <option value="30">30</option>
-              </select>
+            <label>API Key
+              <input id="apiKeyInput" type="text" placeholder="x-api-key" />
             </label>
             <div class="btn-row">
-              <button id="loadForecastBtn" type="button">Run Forecast</button>
+              <button id="saveApiKeyBtn" type="button">Save Key</button>
             </div>
-          </div>
-        </section>
-
-        <section class="panel chart-wide">
-          <h2>Forecast Visualization</h2>
-          <canvas id="forecastChart"></canvas>
-        </section>
-
-        <section class="panel table-panel">
-          <h2>Forecast Output & Accuracy</h2>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Target</th>
-                  <th>Model</th>
-                  <th>Data Points</th>
-                  <th>MAE</th>
-                  <th>RMSE</th>
-                  <th>MAPE%</th>
-                  <th>Next Value</th>
-                  <th>Lower95</th>
-                  <th>Upper95</th>
-                </tr>
-              </thead>
-              <tbody id="forecastTable"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="panel controls">
-          <h2>Market News Sentiment</h2>
-          <div class="grid-4">
-            <label>News Theme
-              <input id="newsQueryInput" type="text" value="forex market" />
-            </label>
-            <label>Items Count
-              <select id="newsMaxSelect">
-                <option value="10">10</option>
-                <option value="20" selected>20</option>
-                <option value="30">30</option>
-                <option value="50">50</option>
-              </select>
-            </label>
             <div class="btn-row">
-              <button id="loadNewsBtn" type="button">Analyze News</button>
+              <button id="checkMeBtn" type="button">Check Access</button>
+            </div>
+            <div class="btn-row">
+              <button id="loadAuditBtn" type="button">Load Audit</button>
             </div>
           </div>
-        </section>
-
-        <section class="panel" id="newsKpiBox"></section>
-
-        <section class="panel table-panel">
-          <h2>News & Sentiment Feed</h2>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>Time</th>
-                  <th>Source</th>
-                  <th>Title</th>
-                  <th>Sentiment</th>
-                  <th>Link</th>
+                  <th>Method</th>
+                  <th>Route</th>
+                  <th>Status</th>
+                  <th>Role</th>
                 </tr>
               </thead>
-              <tbody id="newsTable"></tbody>
+              <tbody id="auditTable"></tbody>
             </table>
           </div>
         </section>
+
+        <button id="openDashboardBtn" type="button" class="ghost-hidden" tabindex="-1">Dashboard</button>
+        <button id="openSecurityBtn" type="button" class="ghost-hidden" tabindex="-1">Security</button>
       </main>
     </div>
   </body>
