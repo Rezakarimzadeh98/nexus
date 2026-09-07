@@ -1,0 +1,307 @@
+:root {
+  --bg: #f4f6fb;
+  --panel: #ffffff;
+  --text: #1c2438;
+  --muted: #5f6a84;
+  --line: #d9e0f0;
+  --primary: #0f4cc9;
+  --danger: #b91c1c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Vazirmatn", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 16px;
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.status {
+  background: #e8eefc;
+  color: #1f3d80;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.status.error {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.controls,
+.chart-wide,
+.table-panel,
+.insights,
+.add-panel {
+  grid-column: span 12;
+}
+
+.chart-half {
+  grid-column: span 6;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.grid-5 {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1.3fr auto;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+input,
+select,
+button {
+  font-family: inherit;
+}
+
+input,
+select {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.btn-row {
+  display: flex;
+  align-items: flex-end;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.sentiment-positive {
+  color: #047857;
+  font-weight: 700;
+}
+
+.sentiment-negative {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.sentiment-neutral {
+  color: #475569;
+  font-weight: 700;
+}
+
+.signal-tag {
+  border-radius: 999px;
+  padding: 3px 9px;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.signal-strong-bullish {
+  color: #14532d;
+  background: #dcfce7;
+}
+
+.signal-bullish {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.signal-neutral {
+  color: #334155;
+  background: #e2e8f0;
+}
+
+.signal-bearish {
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.signal-strong-bearish {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.decision-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.decision-verdict {
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: inline-block;
+}
+
+.verdict-strong-buy-bias {
+  background: #dcfce7;
+  color: #14532d;
+}
+
+.verdict-buy-bias {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.verdict-neutral {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.verdict-sell-bias {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.verdict-strong-sell-bias {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.kpi-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.kpi-item h3 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.kpi-item strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 20px;
+}
+
+canvas {
+  width: 100% !important;
+  height: 290px !important;
+}
+
+.table-wrap {
+  max-height: 340px;
+  overflow: auto;
+  margin-top: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+th {
+  background: #f8faff;
+  position: sticky;
+  top: 0;
+}
+
+#insightList {
+  margin: 10px 0 0;
+  padding-right: 18px;
+  line-height: 1.8;
+}
+
+@media (max-width: 1100px) {
+  .chart-half {
+    grid-column: span 12;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .decision-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-4,
+  .grid-5 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    flex-direction: column;
+  }
+
+  .kpi-grid,
+  .decision-grid,
+  .grid-4,
+  .grid-5 {
+    grid-template-columns: 1fr;
+  }
+}

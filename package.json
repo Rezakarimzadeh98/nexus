@@ -1,0 +1,17 @@
+{
+  "name": "nexus-enterprise-fx",
+  "version": "1.0.0",
+  "description": "Enterprise-ready online FX analytics dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
