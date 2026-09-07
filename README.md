@@ -20,11 +20,21 @@ It combines secure API access, role-based governance, real market data, signal e
 
 ## Demo Media
 
+Enterprise-ready media blocks for repository visitors:
+
+- Product overview image: https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1400&q=80
+- Analytics workflow image: https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1400&q=80
+- Live motion demo (GIF): https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif
+
 ![Nexus dashboard preview](https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1400&q=80)
-
 ![Nexus analysis workflow](https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1400&q=80)
-
 ![Nexus demo animation](https://media.giphy.com/media/26BRv0ThflsHCqDrG/giphy.gif)
+
+## Product Walkthrough
+
+- 60-second live walkthrough: https://github.com/Rezakarimzadeh98/nexus/discussions
+- Live application entry point: https://eight-months-like.loca.lt
+- Web landing page: https://rezakarimzadeh98.github.io/nexus/
 
 ## Core Capabilities
 

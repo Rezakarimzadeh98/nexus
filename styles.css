@@ -31,6 +31,13 @@ body {
   color: var(--text);
 }
 
+.hero,
+.feature-card,
+.stat-box,
+.proof-card {
+  animation: rise 450ms ease both;
+}
+
 img {
   max-width: 100%;
   display: block;
@@ -304,13 +311,67 @@ h1 {
   color: var(--muted);
 }
 
+.proof-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.proof-card {
+  padding: 20px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(15, 23, 42, 0.76);
+}
+
+.proof-label {
+  display: inline-flex;
+  margin-bottom: 10px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.proof-card h3 {
+  margin: 0 0 8px;
+}
+
+.proof-card p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.proof-card a {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.proof-card a:hover {
+  opacity: 0.9;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
   }
 
   .feature-grid,
-  .stats-row {
+  .stats-row,
+  .proof-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -327,7 +388,8 @@ h1 {
   }
 
   .feature-grid,
-  .stats-row {
+  .stats-row,
+  .proof-grid {
     grid-template-columns: 1fr;
   }
 

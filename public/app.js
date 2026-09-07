@@ -22,6 +22,8 @@ const apiKeyInput = document.getElementById("apiKeyInput");
 const saveApiKeyBtn = document.getElementById("saveApiKeyBtn");
 const checkMeBtn = document.getElementById("checkMeBtn");
 const loadAuditBtn = document.getElementById("loadAuditBtn");
+const openDashboardBtn = document.getElementById("openDashboardBtn");
+const openSecurityBtn = document.getElementById("openSecurityBtn");
 
 loadBtn.addEventListener("click", loadOverview);
 addBtn.addEventListener("click", addManualRecord);
@@ -30,6 +32,12 @@ loadForecastBtn.addEventListener("click", loadForecast);
 saveApiKeyBtn.addEventListener("click", saveApiKey);
 checkMeBtn.addEventListener("click", checkMe);
 loadAuditBtn.addEventListener("click", loadAudit);
+openDashboardBtn?.addEventListener("click", () => {
+  document.querySelector("main.layout")?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+openSecurityBtn?.addEventListener("click", () => {
+  document.querySelector(".access-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 
 apiKeyInput.value = state.apiKey;
 
@@ -43,20 +51,20 @@ async function loadOverview() {
   const targets = targetsInput.value.trim();
   const days = Number(daysSelect.value);
 
-  setStatus("در حال دریافت داده آنلاین...", false);
+  setStatus("Fetching live market data...", false);
   try {
     const response = await apiFetch(`/api/analytics/overview?base=${encodeURIComponent(base)}&targets=${encodeURIComponent(targets)}&days=${days}`);
     const data = await response.json();
 
     if (!response.ok || !data.ok) {
-      throw new Error(data.message || "خطا در دریافت داده");
+      throw new Error(data.message || "Failed to load analytics data");
     }
 
     state.records = data.records;
     state.summary = data.summary;
     renderAll();
     await loadForecast();
-    setStatus(`دریافت موفق: ${data.records.length} رکورد واقعی`, false);
+    setStatus(`Loaded successfully: ${data.records.length} real records`, false);
   } catch (error) {
     setStatus(error.message, true);
   }
@@ -70,7 +78,7 @@ async function addManualRecord() {
     rate: Number(document.getElementById("manualRate").value),
   };
 
-  setStatus("در حال ذخیره رکورد دستی...", false);
+  setStatus("Saving manual record...", false);
   try {
     const response = await apiFetch("/api/manual-records", {
       method: "POST",
@@ -80,11 +88,11 @@ async function addManualRecord() {
 
     const data = await response.json();
     if (!response.ok || !data.ok) {
-      throw new Error(data.message || "خطا در افزودن رکورد دستی");
+      throw new Error(data.message || "Failed to add manual record");
     }
 
     await Promise.all([loadOverview(), loadForecast(), loadDecisionScore()]);
-    setStatus("رکورد دستی ذخیره شد و تحلیل به روز شد.", false);
+    setStatus("Manual record saved and analytics refreshed.", false);
   } catch (error) {
     setStatus(error.message, true);
   }
@@ -96,20 +104,20 @@ async function loadForecast() {
   const days = Number(daysSelect.value);
   const horizon = Number(document.getElementById("forecastHorizonSelect").value);
 
-  setStatus("در حال محاسبه پیش بینی...", false);
+  setStatus("Running forecast model...", false);
   try {
     const response = await apiFetch(
       `/api/forecast/overview?base=${encodeURIComponent(base)}&targets=${encodeURIComponent(targets)}&days=${days}&horizon=${horizon}`
     );
     const data = await response.json();
     if (!response.ok || !data.ok) {
-      throw new Error(data.message || "خطا در محاسبه پیش بینی");
+      throw new Error(data.message || "Failed to compute forecast");
     }
 
     state.forecast = data.forecast;
     renderForecastChart();
     renderForecastTable();
-    setStatus(`پیش بینی آماده شد: افق ${horizon} روز`, false);
+    setStatus(`Forecast ready: ${horizon}-day horizon`, false);
   } catch (error) {
     setStatus(error.message, true);
   }
@@ -131,7 +139,7 @@ async function loadDecisionScore() {
     );
     const data = await response.json();
     if (!response.ok || !data.ok) {
-      throw new Error(data.message || "خطا در امتیاز تصمیم");
+      throw new Error(data.message || "Failed to compute decision score");
     }
     state.decision = data.score;
     renderDecisionBox();
@@ -211,7 +219,7 @@ function renderForecastTable() {
   const body = document.getElementById("forecastTable");
   const items = state.forecast?.items || [];
   if (!items.length) {
-    body.innerHTML = "<tr><td colspan=\"9\">داده پیش بینی وجود ندارد.</td></tr>";
+    body.innerHTML = "<tr><td colspan=\"9\">No forecast data available.</td></tr>";
     return;
   }
 
@@ -241,17 +249,17 @@ function renderKpis() {
   const box = document.getElementById("kpiBox");
   const s = state.summary?.kpis;
   if (!s || !state.records.length) {
-    box.innerHTML = "<p>داده ای برای نمایش KPI وجود ندارد.</p>";
+    box.innerHTML = "<p>No KPI data available for display.</p>";
     return;
   }
 
   box.innerHTML = `
     <div class="kpi-grid">
-      <div class="kpi-item"><h3>کل رکورد</h3><strong>${s.totalRecords}</strong></div>
-      <div class="kpi-item"><h3>رکورد آنلاین</h3><strong>${s.onlineRecords}</strong></div>
-      <div class="kpi-item"><h3>رکورد دستی</h3><strong>${s.manualRecords}</strong></div>
-      <div class="kpi-item"><h3>آخرین تاریخ</h3><strong>${s.latestDate || "-"}</strong></div>
-      <div class="kpi-item"><h3>میانگین نرخ آخرین روز</h3><strong>${formatRate(s.latestAverageRate || 0)}</strong></div>
+      <div class="kpi-item"><h3>Total Records</h3><strong>${s.totalRecords}</strong></div>
+      <div class="kpi-item"><h3>Online Records</h3><strong>${s.onlineRecords}</strong></div>
+      <div class="kpi-item"><h3>Manual Records</h3><strong>${s.manualRecords}</strong></div>
+      <div class="kpi-item"><h3>Latest Date</h3><strong>${s.latestDate || "-"}</strong></div>
+      <div class="kpi-item"><h3>Latest Avg Rate</h3><strong>${formatRate(s.latestAverageRate || 0)}</strong></div>
     </div>
   `;
 }
@@ -295,7 +303,7 @@ function renderAverageChart() {
       labels: stats.map((x) => x.target),
       datasets: [
         {
-          label: "میانگین نرخ",
+          label: "Average Rate",
           data: stats.map((x) => x.averageRate),
           backgroundColor: stats.map((_, i) => colors[i % colors.length]),
           borderRadius: 8,
@@ -314,7 +322,7 @@ function renderVolatilityChart() {
       labels: stats.map((x) => x.target),
       datasets: [
         {
-          label: "دامنه نوسان",
+          label: "Volatility Range",
           data: stats.map((x) => x.volatility),
           backgroundColor: "#334155",
           borderRadius: 8,
@@ -329,7 +337,7 @@ function renderInsights() {
   const list = document.getElementById("insightList");
   const stats = state.summary?.stats || [];
   if (!stats.length) {
-    list.innerHTML = "<li>داده کافی برای تحلیل وجود ندارد.</li>";
+    list.innerHTML = "<li>Not enough data to generate insights.</li>";
     return;
   }
 
@@ -339,12 +347,12 @@ function renderInsights() {
 
   const technicalOverview = state.summary?.technicalOverview;
   list.innerHTML = `
-    <li>بیشترین نوسان: ${maxVol.target} با دامنه ${formatRate(maxVol.volatility)}</li>
-    <li>بالاترین نرخ فعلی: ${strongest.target} با نرخ ${formatRate(strongest.latestRate)}</li>
-    <li>پایین ترین نرخ فعلی: ${weakest.target} با نرخ ${formatRate(weakest.latestRate)}</li>
-    <li>سیگنال تکنیکال: شدیدا صعودی ${technicalOverview?.strongBullishTargets || 0} | صعودی ${technicalOverview?.bullishTargets || 0} | خنثی ${technicalOverview?.neutralTargets || 0} | نزولی ${technicalOverview?.bearishTargets || 0} | شدیدا نزولی ${technicalOverview?.strongBearishTargets || 0}</li>
-    <li>امتیاز کل بازار (0 تا 100): ${formatNum(technicalOverview?.marketScore || 50)}</li>
-    <li>این تحلیل فقط از داده واقعی آنلاین و رکوردهای دستی معتبر ساخته شده است.</li>
+    <li>Highest volatility: ${maxVol.target} with range ${formatRate(maxVol.volatility)}</li>
+    <li>Strongest current rate: ${strongest.target} at ${formatRate(strongest.latestRate)}</li>
+    <li>Weakest current rate: ${weakest.target} at ${formatRate(weakest.latestRate)}</li>
+    <li>Technical signal mix: strong bullish ${technicalOverview?.strongBullishTargets || 0} | bullish ${technicalOverview?.bullishTargets || 0} | neutral ${technicalOverview?.neutralTargets || 0} | bearish ${technicalOverview?.bearishTargets || 0} | strong bearish ${technicalOverview?.strongBearishTargets || 0}</li>
+    <li>Market score (0-100): ${formatNum(technicalOverview?.marketScore || 50)}</li>
+    <li>This view is generated from live market data and validated manual records only.</li>
   `;
 }
 
@@ -352,7 +360,7 @@ function renderIndicatorTable() {
   const body = document.getElementById("indicatorTable");
   const stats = state.summary?.stats || [];
   if (!stats.length) {
-    body.innerHTML = "<tr><td colspan=\"19\">داده کافی برای اندیکاتورها وجود ندارد.</td></tr>";
+    body.innerHTML = "<tr><td colspan=\"19\">Not enough data for indicator calculations.</td></tr>";
     return;
   }
 
@@ -388,7 +396,7 @@ function renderDecisionBox() {
   const content = document.getElementById("decisionContent");
   const d = state.decision;
   if (!d) {
-    content.innerHTML = "<p>امتیاز تصمیم هنوز محاسبه نشده است.</p>";
+    content.innerHTML = "<p>Decision score has not been computed yet.</p>";
     return;
   }
 
@@ -407,21 +415,21 @@ async function loadNewsAnalysis() {
   const query = document.getElementById("newsQueryInput").value.trim();
   const max = Number(document.getElementById("newsMaxSelect").value);
   if (!query) {
-    setStatus("موضوع خبر را وارد کنید.", true);
+    setStatus("Please enter a news theme.", true);
     return;
   }
 
-  setStatus("در حال تحلیل اخبار...", false);
+  setStatus("Analyzing market news...", false);
   try {
     const response = await apiFetch(`/api/news/analyze?query=${encodeURIComponent(query)}&max=${max}`);
     const data = await response.json();
     if (!response.ok || !data.ok) {
-      throw new Error(data.message || "خطا در تحلیل اخبار");
+      throw new Error(data.message || "Failed to analyze market news");
     }
     state.news = data;
     renderNewsKpis();
     renderNewsTable();
-    setStatus(`تحلیل خبر آماده شد: ${data.totalArticles} خبر`, false);
+    setStatus(`News analysis ready: ${data.totalArticles} articles`, false);
   } catch (error) {
     setStatus(error.message, true);
   }
@@ -431,17 +439,17 @@ function renderNewsKpis() {
   const box = document.getElementById("newsKpiBox");
   const news = state.news;
   if (!news) {
-    box.innerHTML = "<p>تحلیل خبری هنوز اجرا نشده است.</p>";
+    box.innerHTML = "<p>News analysis has not been executed yet.</p>";
     return;
   }
 
   box.innerHTML = `
     <div class="kpi-grid">
-      <div class="kpi-item"><h3>موضوع</h3><strong>${escapeHtml(news.query)}</strong></div>
-      <div class="kpi-item"><h3>تعداد خبر</h3><strong>${news.totalArticles}</strong></div>
-      <div class="kpi-item"><h3>مثبت</h3><strong>${news.sentiment.positive}</strong></div>
-      <div class="kpi-item"><h3>منفی</h3><strong>${news.sentiment.negative}</strong></div>
-      <div class="kpi-item"><h3>امتیاز میانگین</h3><strong>${news.sentiment.averageScore}</strong></div>
+      <div class="kpi-item"><h3>Theme</h3><strong>${escapeHtml(news.query)}</strong></div>
+      <div class="kpi-item"><h3>Articles</h3><strong>${news.totalArticles}</strong></div>
+      <div class="kpi-item"><h3>Positive</h3><strong>${news.sentiment.positive}</strong></div>
+      <div class="kpi-item"><h3>Negative</h3><strong>${news.sentiment.negative}</strong></div>
+      <div class="kpi-item"><h3>Average Score</h3><strong>${news.sentiment.averageScore}</strong></div>
     </div>
   `;
 }
@@ -450,7 +458,7 @@ function renderNewsTable() {
   const body = document.getElementById("newsTable");
   const news = state.news;
   if (!news || !news.articles?.length) {
-    body.innerHTML = "<tr><td colspan=\"5\">داده خبری موجود نیست.</td></tr>";
+    body.innerHTML = "<tr><td colspan=\"5\">No news data available.</td></tr>";
     return;
   }
 
@@ -466,7 +474,7 @@ function renderNewsTable() {
         n.title || "-"
       )}</td><td class="${cls}">${escapeHtml(n.sentiment || "neutral")}</td><td><a href="${escapeHtml(
         n.link || "#"
-      )}" target="_blank" rel="noopener noreferrer">مشاهده</a></td></tr>`;
+      )}" target="_blank" rel="noopener noreferrer">Open</a></td></tr>`;
     })
     .join("");
 }
@@ -518,7 +526,7 @@ function saveApiKey() {
   const value = apiKeyInput.value.trim();
   state.apiKey = value;
   localStorage.setItem("nexus_api_key", value);
-  setStatus("API key ذخیره شد.", false);
+  setStatus("API key saved.", false);
 }
 
 async function checkMe() {
@@ -526,7 +534,7 @@ async function checkMe() {
     const response = await apiFetch("/api/admin/me");
     const data = await response.json();
     if (!response.ok || !data.ok) {
-      throw new Error(data.message || "خطا در دریافت کاربر");
+      throw new Error(data.message || "Failed to fetch current user");
     }
     setStatus(`Role: ${data.user.role || "none"} | Auth: ${data.user.authenticated}`, false);
   } catch (error) {
@@ -540,7 +548,7 @@ async function loadAudit() {
     const response = await apiFetch("/api/admin/audit?limit=50");
     const data = await response.json();
     if (!response.ok || !data.ok) {
-      throw new Error(data.message || "خطا در دریافت audit");
+      throw new Error(data.message || "Failed to load audit events");
     }
     body.innerHTML = data.events
       .map(
